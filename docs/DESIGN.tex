@@ -1,0 +1,340 @@
+% Even Hand -- CS5013 Design Document
+% Compiles with pdflatex. Uses only article + geometry, hyperref, enumitem, parskip,
+% which is the dependency set of the course's own proposal template.
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+\setlist[itemize]{leftmargin=1.1em,itemsep=0pt,topsep=2pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.4em,itemsep=0pt,topsep=2pt,parsep=0pt}
+\setlength{\parskip}{3pt}
+
+\title{\vspace{-1.5cm}\textbf{Even Hand: Design Document}\\[2pt]
+\large A Grading-Consistency Audit for IIT Madras Courses}
+\author{Mohamed Zayaan S (CE23B092) \and Pruthviraj Milind Chougale (CE23B104)}
+\date{Team \emph{God's Eye} \quad$\cdot$\quad 11 September 2026}
+
+\begin{document}
+\maketitle
+\vspace{-0.8cm}
+
+\section{What changed since the proposal}
+
+Scope was approved unchanged, so this document revises the proposal on facts learned since
+1 September rather than on requested cuts.
+
+\textbf{(a) The Institute prescribes no marks-to-grades rule.} We read the official
+\emph{B.Tech Ordinances and Regulations} (2015). R.21.1 fixes the grade set and points; R.19.2
+states markings are on an \emph{absolute} basis; R.22.1 with R.4.4(d) place the awarding of
+letters with the Class Committee meeting held within seven days of the last end-semester exam.
+\textbf{No mean, standard deviation, fixed top share or cut-off rule appears anywhere} --- the
+only ``cut-off'' text concerns JEE admission. The familiar relative bands are departmental
+convention, and published accounts of them contradict one another. Our proposal called them
+institute policy; that was wrong, and correcting it strengthens the design: \emph{the cut-off
+rule cannot be compiled in, because the Institute delegates it per course.}
+
+\textbf{(b) Grade points are unevenly spaced, so harm is not uniform across boundaries.} R.21.1
+gives S=10, A=9, B=8, C=7, D=6, \textbf{E=4}, U=0 --- there is no 5. A script misplaced across
+B/C costs one grade point; across E/U it costs four, and under R.25.1 a U in a core course must
+be repeated. We therefore rank the shortlist by \emph{expected grade-point loss},
+$P(\mathrm{grade\ changes})\times\Delta\,\mathrm{points}$, not by probability alone. This splits
+the proposal's prediction into two testable halves: \emph{transfers} should cluster at B/C and
+A/B where student density peaks, while \emph{damage} clusters at D/E and E/U.
+
+\textbf{(c) Computing rank rather than connectivity showed the two marking arrangements fail
+differently, and only one is recoverable} (\S\ref{sec:audit}).
+
+\section{Architecture}
+
+\subsection{The pipeline is a compiler}
+
+The first output is not an estimate but a verdict on what the data can support. That is a static
+analysis, and the system is built as one: it rejects ill-formed input before the expensive stage,
+names the construct at fault, and proposes a rewrite.
+
+\begin{center}\small
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Compiler stage} & \textbf{Even Hand} \\
+\hline
+Lexer / parser & \texttt{eh-ingest} --- CSV to typed responses; diagnostics carry row numbers \\
+Symbol table / IR & \texttt{eh-core} --- the marking design as an incidence structure \\
+\textbf{Semantic analysis} & \textbf{\texttt{eh-design} --- the identifiability audit; refuses ill-formed designs} \\
+Fix-it hint & \texttt{eh-linking} --- the smallest repair that would make it well-formed \\
+Code generation & \texttt{eh-estimate} $\rightarrow$ \texttt{eh-outcome} --- runs only on a design that type-checked \\
+Runtime & \texttt{eh-app} --- Spring Boot, Thymeleaf, SQLite, bound to 127.0.0.1 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{The interface between the two halves}
+
+The halves meet at one record, \texttt{FittedModel}: the three parameter vectors, their standard
+errors, the anchoring used, the parameter covariance, and the audit's verdict. Neither half
+reaches around it.
+
+The estimator's entry point takes an \texttt{AnchoredDesign}, which has a private constructor and
+one factory, \texttt{AnchoredDesign.of(design, verdict, anchoring)}. It refuses a
+\texttt{NotEstimable} verdict, and refuses any verdict whose certificate does not carry
+\emph{this} design's fingerprint. An unaudited fit is therefore not something we remember not to
+write; it is something that cannot be written, and a clean verdict earned on one course cannot be
+presented as evidence about another. The check sits at the seam rather than inside the audit
+deliberately: the halves are owned by different people and examined separately, so the audit emits
+a \emph{certificate} (rank, excess null dimension, null basis, fingerprint) and the estimator
+re-verifies it. The contract is proof-carrying --- neither side trusts the other's boolean.
+
+\subsection{Nothing about a course is compile-time}
+
+Every course-shaped fact is \emph{inferred} by the profiler (arrangement per assessment,
+double-marked units, score type, whether piles look like roll-number blocks), or \emph{asked once}
+on a first-login intake screen pre-filled with the profiler's guess, or \emph{defaulted} and
+flagged unconfirmed. Each \texttt{CourseProfile} field carries its \texttt{Provenance}
+(\textsc{detected}/\textsc{declared}/\textsc{defaulted}) and evidence, and every report footer
+states which inputs were measured and which asserted, so a disputed conclusion traces to the
+assumption under it. No control flow branches on the arrangement; the label is for the report
+only. The complete list of remaining assumptions, each with its override, is in
+\texttt{docs/ASSUMPTIONS.md}.
+
+\subsection{The identifiability audit, and what it found}
+\label{sec:audit}
+
+With $\eta_{nij}=\theta_n-\delta_i-\gamma_j$, adding a constant to every ability and every
+difficulty changes nothing, and so does adding one to every ability and every severity. That
+two-dimensional indeterminacy is in every design and is what anchoring removes; dimensions beyond
+it are real confounds. Rather than measure the null space and interpret it, we ask the
+instructor's own question once per pair of assistants --- \emph{is the difference between these
+two severities estimable?} --- which is the question of whether the vector expressing it lies in
+the row space of the design. Rank is computed over the integers by fraction-free elimination, so
+the verdict is a fact about the arrangement, not a consequence of a floating-point threshold; it
+is computed again from the eigenvalues of the Fisher information and the two must agree on every
+fixture. Facets uses a graph-joining heuristic after Weeks and Williams (1964) whose manual states
+that ``there are exotic forms of connectedness which Facets may falsely report as disconnected'',
+and meets the nested case by asking the user to \emph{declare} their way out of it. We measure
+whether the data escapes it, and if not, compute what would.
+
+\textbf{The finding.} Script-wise and question-wise marking are \emph{equally} rank-deficient ---
+both have excess null dimension $J{-}1$ for $J$ assistants, so neither identifies a single
+severity difference --- but they fail differently. Under question-wise marking severity is
+confounded with \emph{question difficulty}, and no assumption about students touches it, because
+no student was marked on that question by anyone else. Under script-wise marking severity is
+absorbed into the \emph{abilities of the students in that pile}, which \emph{is} recoverable by
+assuming the piles were alike --- what random allocation buys. The audit separates the two by
+re-asking the same question against a design whose student columns are collapsed to one intercept;
+collapsing them \emph{is} the exchangeability assumption. Hence four verdicts, not two.
+
+Two consequences. A limitation, stated rather than hidden: a random split and a fixed roll-number
+split are \emph{the same design of the same rank}, so the audit cannot distinguish them and does
+not pretend to --- it reports whether each pile is a contiguous block of roll numbers as evidence
+for the reader. And a finding worth acting on: \textbf{question-wise marking in which the assigned
+marker rotates across blocks of roll numbers is fully identified with no double-marking at all}
+(Appendix A, row 2). Nobody marks an extra script. The linking design therefore proposes rotation
+\emph{before} second marking, because an instructor told to reorder work they were already doing
+will comply at a different rate from one told to add work.
+
+\textbf{The audit reads no marks.} It is a function of the arrangement alone, so an instructor can
+be told what his data supports before sharing any of it. This takes data access off the critical
+path (\S\ref{sec:milestones}, R1) and is the artefact we bring the stakeholder in week one.
+
+\subsection{Estimation, uncertainty, outcome, privacy}
+
+Many-facet Rasch by joint maximum likelihood (PROX start, alternating Newton updates, re-centring
+to the anchoring), partial-credit thresholds where scores are not binary, and a documented
+category-collapsing rule. Standard errors from the full observed information,
+generalised-inverted on the identified subspace. Facets documents its JMLE bias correction as a
+\emph{manual} procedure; since we need the synthetic generator anyway, we automate it. Severity is
+estimated per (assistant, session); pooling across sessions is tested by likelihood ratio, not
+assumed. \emph{Erratic} markers are reported separately from \emph{harsh} ones, because conflating
+them would make an output unsafe to show an assistant.
+
+\textbf{One uncertainty engine drives every interval}: it draws from the parameter covariance on
+the identified subspace and pushes each draw through the whole deterministic downstream ---
+re-weighting the composite (R.19.1 makes a course grade a weighted composite whose parts may have
+been marked under different arrangements), recomputing boundaries, assigning grades, counting
+transfers. Transfer counts, the grader share of class spread, and the shortlist's
+$P(\mathrm{grade\ changes})$ come from one component tested once. The permutation test is separate
+and does refit, giving the null distribution of severity spread and the minimum effect detectable
+at 80\% power.
+
+\texttt{GradingRule} is sealed, with sigma-band, top-fraction, absolute and instructor-band
+implementations and an explicit \texttt{sBandPolicy}, because \S1(a) shows no canonical convention
+exists. Boundaries are recomputed on corrected marks. The shortlist is capped, ranked by expected
+grade-point loss, carries the R.24.1 revision deadline on every row, and \emph{refuses to emit}
+when the intervals cannot support it. Identifiers are HMAC-hashed with a per-run salt at ingest;
+only the digest reaches SQLite, the salt lives in the instructor's key file which the application
+never reads back, and a test scans the database bytes to prove it. Every run writes a manifest
+that reproduces its report byte-for-byte.
+
+\section{Module split and ownership}
+
+Nine Maven modules, dependencies flowing strictly downward. \texttt{eh-estimate}'s POM does not
+offer Spring, JPA or SQLite, so ``the estimator has tests that run without a database'' is a
+property of the build graph rather than of our discipline; ArchUnit asserts the same rules a
+second way, and \texttt{.github/CODEOWNERS} maps each module to its owner's GitHub handle.
+
+\begin{center}\small
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Module} & \textbf{Responsibility} & \textbf{Owner} \\
+\hline
+\texttt{eh-core} & Seam records, sealed verdicts, \texttt{CourseProfile}; zero dependencies & shared \\
+\texttt{eh-numerics} & Exact rational elimination, Jacobi eigen, Cholesky, seeded RNG & Zayaan \\
+\texttt{eh-ingest} & CSV, column mapping, HMAC pseudonymisation & Zayaan \\
+\texttt{eh-design} & Profiler, identifiability audit, design-only precision forecast & Zayaan \\
+\texttt{eh-estimate} & MFRM/PCM by JMLE, drift, permutation and uncertainty engines & Zayaan \\
+\texttt{eh-linking} & Smallest repair reaching a stated precision & Pruthviraj \\
+\texttt{eh-outcome} & Grading rules, composites, boundaries, transfers, shortlist & Pruthviraj \\
+\texttt{eh-report} & Marks-unit narration, Class Committee sheet, run manifest & Pruthviraj \\
+\texttt{eh-app} & Spring Boot, Thymeleaf, JPA/SQLite, CLI & Pruthviraj \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Test plan}
+
+At least one named test per module. All test dependencies are test-scope only, so no third-party
+numerics reach the production classpath and the estimation code stays examinable. Categories:
+unit, property-based, statistical calibration (seeded), scenario matrix, golden snapshots,
+integration, privacy, performance, negative control. 36 tests pass today.
+
+\begin{center}\small
+\begin{tabular}{|l|p{12.4cm}|}
+\hline
+\textbf{Module} & \textbf{Tests} \\
+\hline
+\texttt{eh-core} & \textsc{passing}: a certificate is bound to its design and cannot be transplanted; \texttt{AnchoredDesign} refuses a \textsc{not-estimable} verdict and carries the refusal; a verdict can neither over- nor under-claim its certificate; fingerprint is order-independent but content-sensitive \\
+\texttt{eh-numerics} & \textsc{passing}: rank vs.\ hand-computed matrices; duplicate rows never inflate rank; membership is exact where a tolerance would guess; null vectors annihilated by every row; exact rank agrees with the eigenvalue count; pseudo-inverse leaves the singular direction alone \\
+\texttt{eh-ingest} & \textsc{passing}: \textbf{no real roll number or assistant name survives ingest} (the whole downstream output is searched for the identifiers that went in); a second mark is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs \\
+\texttt{eh-design} & \textsc{passing}: the scenario matrix (Appendix A), asserted verdict per arrangement \emph{including refusals}; one bridging mark measurably improves the verdict. \emph{Planned}: profiler recovers arrangement and score type unaided; provenance override \\
+\texttt{eh-estimate} & \emph{planned}: parameter recovery from known parameters; \textbf{interval calibration} --- 95\% intervals cover $\approx$95\% over seeded replications; monotone likelihood; PCM reduces to dichotomous at $m{=}1$; anchoring-invariance; bias correction recovers a known slope; \textbf{negative control} --- auto-scored data yields severity inside the permutation null \\
+\texttt{eh-linking} & \emph{planned}: connectivity repair provably minimal ($c{-}1$ links); achieved standard error meets target; rotation preferred where both repairs suffice \\
+\texttt{eh-outcome} & \emph{planned}: rules vs.\ hand-computed cohorts; fixed-share exact-exchange invariant (\#promoted $=$ \#displaced) as a property test; weighted composite under R.19.1; grade-point-loss ranking incl.\ E/U; ties and rounding \\
+\texttt{eh-report} & \emph{planned}: marks-unit round trip; \textbf{no-leakage} --- output contains no name from the key file; R.24.1 deadline correct; golden snapshots \\
+\texttt{eh-app} & \emph{planned}: context loads; MockMvc smoke per page; end-to-end run over HTTP; 127.0.0.1 binding asserted; ArchUnit boundary rules; performance guard at $N{=}150$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Revised milestone plan}
+\label{sec:milestones}
+
+\begin{enumerate}[label=R\arabic*.]
+\item \textbf{The audit moves ahead of the marks.} It is a function of the design, not the scores,
+so week 1 delivers a verdict and precision forecast with no marks in hand. Removes the project's
+largest dependency from the critical path.
+\item \textbf{Build order re-prioritised, design not narrowed.} The first course is question-wise,
+so the refusal path, bridge analysis and linking design move to weeks 1--2. Other arrangements
+stay green in the scenario matrix.
+\item \textbf{Precision, not identifiability, is the binding risk} at 60--150 students and 3--5
+assistants. The design-only standard-error forecast becomes a deliverable and gates whether a
+shortlist is produced. Mid-demo criterion becomes ``severity estimated \emph{or} correctly refused
+with the repair specified''.
+\item \textbf{Severity estimated per marking session}, pooling tested by likelihood ratio ---
+required by the mixed arrangement used for assignments.
+\item \textbf{New: the cut-off rule is unregulated configuration, not institute policy}
+(\S1(a)). Adds the intake flow, \texttt{sBandPolicy}, and a week-1 question to the stakeholder.
+\item \textbf{New: composite multi-assessment scoring in scope from the start} (R.19.1).
+\item \textbf{New: outputs aim at the Class Committee meeting and the R.24.1 window} --- a
+one-page committee sheet, a 60-second runtime budget, the revision deadline on every shortlist
+row, and the linking design retargeted from ``next semester'' to the post-Quiz-II committee
+meeting for this course's own end-semester exam (R.4.4(a)).
+\item \textbf{The cut line gets dates, not just an order.} Question diagnostics cut if the week-3
+gate misses (2 Oct), drift if week-5 misses (16 Oct), linking design if week-6 misses (23 Oct).
+The audit, estimator, propagation and blind re-grade are never cut. The blind re-grade's
+pre-registration is committed to git in week 4, before any real estimate exists.
+\end{enumerate}
+
+\begin{center}\small
+\begin{tabular}{|l|l|p{9.2cm}|l|}
+\hline
+\textbf{Wk} & \textbf{Dates} & \textbf{Deliverable / gate} & \textbf{Lead} \\
+\hline
+W0 & 10--11 Sep & \textsc{done}: repo, seam types, audit, generator, scenario matrix green & both \\
+W1 & 12--18 Sep & Allocation table obtained; real verdict + precision forecast to stakeholder; his cut-off convention recorded & Zayaan \\
+W2 & 19--25 Sep & Profiler; dichotomous JMLE with standard errors; recovery test & Zayaan \\
+W3 & 26 Sep--2 Oct & Partial credit; observed-information SEs; marks conversion; uncertainty engine & Zayaan \\
+W4 & 3--8 Oct & Permutation test; grading rules + composite; views 1--4; pre-registration committed & both \\
+\multicolumn{4}{|l|}{\textbf{Mid-demo 9 Oct} --- core workflow end to end on real input, plus an honest gap list} \\
+W5 & 10--16 Oct & Transfers; variance decomposition; shortlist by grade-point loss; refusal path & Pruthviraj \\
+W6 & 17--23 Oct & Drift; allocation regime; linking optimiser; negative control & both \\
+W7 & 24--30 Oct & Second real course end to end; blind re-grade issued; handoff pack & Pruthviraj \\
+W8 & 31 Oct--5 Nov & Re-grade results; hardening; stakeholder dry-run; cross-module viva prep & both \\
+\multicolumn{4}{|l|}{\textbf{Final submission + viva 6 Nov}} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Risks and plan B}
+
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{The first course is question-wise, so severity may be inseparable from question
+difficulty.} Now the expected case, not a tail risk, so \emph{plan B is already the main line}:
+the audit reports it as a verdict, names the assistants affected, and specifies the repair. The
+double-marked scripts the stakeholder confirmed exist are the live mitigation, and week 1 settles
+on the allocation table alone whether they are enough. If not, the first course's audit is a
+result in its own right and the case study moves to a course whose arrangement supports
+estimation.
+\item \textbf{Precision, not identifiability, is the likeliest failure.} Severities may be
+identified but with intervals too wide to act on. We report the intervals and \emph{refuse to
+produce a shortlist the estimates cannot support} --- implemented as a type, not a promise. A
+system that declines when the data is thin is a better result than one that answers anyway.
+\item \textbf{The marks have not arrived.} Mitigated structurally by R1: the audit, the precision
+forecast and the linking design all run on an allocation table with no scores, so a delay costs us
+the estimate and not the project.
+\item \textbf{The cut-off convention we assumed may not be his.} \S1(a): the Institute prescribes
+none and public accounts disagree. Every policy ships behind configuration, labelled unconfirmed
+until he confirms it; only the default is at stake.
+\item \textbf{The permutation test comes back null.} A legitimate outcome, treated as one. We
+report the null, the effect size we can rule out, and the sample that would have been needed. We
+will not go looking for a different course until we find a positive result, and we say so.
+\item \textbf{Severity estimates could damage an assistant's standing.} Pseudonymised at ingest
+with only the instructor holding the key; no output ranks named individuals; every estimate
+carries its interval; erratic markers reported separately from harsh ones; the framing throughout
+is calibration of a marking session, not judgement of a person.
+\item \textbf{He declines the blind re-grade.} Negotiate down to ten flagged and ten control
+scripts in advance; if he declines entirely we report the missing experiment as a gap rather than
+substituting a weaker proxy.
+\end{enumerate}
+
+\appendix
+\section*{Appendix A: the scenario matrix, as it runs today}
+
+Output of \texttt{AuditReport}, run on every commit by CI. Each row is an arrangement whose right
+answer was worked out on paper before the audit was written. $J$ is the number of assistants;
+\textbf{Exc.} is the null dimension beyond the two anchoring removes. \textbf{No marks are
+involved in any row.}
+
+\begin{center}\small
+\begin{tabular}{|l|c|c|l|p{4.4cm}|}
+\hline
+\textbf{Arrangement} & $J$ & \textbf{Exc.} & \textbf{Verdict} & \textbf{Why it matters} \\
+\hline
+Question-wise + double-marking & 5 & 0 & \textsc{estimable} & The stakeholder's course; the overlap set rescues it \\
+Question-wise, marker rotated & 5 & 0 & \textsc{estimable} & Identified at zero extra marking cost \\
+Script-wise, random piles & 4 & 3 & \textsc{under-exch.} & Rests on an assumption, and says so \\
+Script-wise, roll-number blocks & 4 & 3 & \textsc{under-exch.} & Same design and rank as random: reports the pile shape rather than guessing \\
+Question-wise, no overlap & 5 & 4 & \textsc{not-estimable} & Correctly refused; excess $J{-}1$ means no severity difference is estimable \\
+Mixed across assessments & 4 & 2 & \textsc{partial} (2 of 4) & Two assistants reachable, two not \\
+Single marker & 1 & 0 & \textsc{not-estimable} & Rank is fine; there is simply no grader facet \\
+Two disconnected islands & 4 & 4 & \textsc{partial} (2 of 4) & Names which assistants it can reach \\
+Islands + one bridging mark & 4 & 3 & \textsc{under-exch.} & One second mark buys back a dimension \\
+\hline
+\end{tabular}
+\end{center}
+
+A refusal names the construct at fault and the repair, as a compiler diagnostic would:
+
+{\small\texttt{EH003 error: This assistant marked only Q1, and nobody else marked it. Their
+severity and that question's difficulty are only ever observed added together, so a harsh
+assistant and a hard question cannot be told apart. [Assistant 1, Q1]}\\
+\texttt{\phantom{EH003 }fix: Have a second assistant mark some of the scripts for Q1, or rotate
+this question's marker across blocks of roll numbers next time.}}
+
+\textbf{State of the repository.} \texttt{eh-core}, \texttt{eh-numerics}, \texttt{eh-ingest} and
+\texttt{eh-design} are implemented and tested, 36 tests passing; the synthetic generator was written
+\emph{before} the estimator, as promised. \texttt{eh-estimate}, \texttt{eh-linking},
+\texttt{eh-outcome}, \texttt{eh-report} and \texttt{eh-app} are declared modules with interfaces
+fixed and no implementation yet; their tests are marked \emph{planned} above, not passing.
+
+\end{document}
