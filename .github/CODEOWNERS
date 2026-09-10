@@ -1,0 +1,18 @@
+# Named module ownership, per the CS5013 project guide section 10.
+# GitHub enforces this on every pull request: a change to a module requests review
+# from its owner automatically, so ownership is visible in the repository's history
+# rather than only asserted in the design document.
+#
+# Both of us review the other's code weekly from week one, because the final viva
+# examines each of us on the other's modules.
+
+/eh-core/        @Zayaan3019 @PruthvirajChougale
+/eh-numerics/    @Zayaan3019
+/eh-ingest/      @Zayaan3019
+/eh-design/      @Zayaan3019
+/eh-estimate/    @Zayaan3019
+/eh-linking/     @PruthvirajChougale
+/eh-outcome/     @PruthvirajChougale
+/eh-report/      @PruthvirajChougale
+/eh-app/         @PruthvirajChougale
+/docs/           @Zayaan3019 @PruthvirajChougale
