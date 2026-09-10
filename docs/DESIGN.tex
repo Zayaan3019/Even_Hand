@@ -14,7 +14,8 @@
 \title{\vspace{-1.5cm}\textbf{Even Hand: Design Document}\\[2pt]
 \large A Grading-Consistency Audit for IIT Madras Courses}
 \author{Mohamed Zayaan S (CE23B092) \and Pruthviraj Milind Chougale (CE23B104)}
-\date{Team \emph{God's Eye} \quad$\cdot$\quad 11 September 2026}
+\date{Team \emph{God's Eye} \quad$\cdot$\quad 11 September 2026 \\[3pt]
+\normalsize \url{https://github.com/Zayaan3019/Even_Hand}}
 
 \begin{document}
 \maketitle
@@ -205,7 +206,7 @@ second way, and \texttt{.github/CODEOWNERS} maps each module to its owner's GitH
 At least one named test per module. All test dependencies are test-scope only, so no third-party
 numerics reach the production classpath and the estimation code stays examinable. Categories:
 unit, property-based, statistical calibration (seeded), scenario matrix, golden snapshots,
-integration, privacy, performance, negative control. 36 tests pass today.
+integration, privacy, performance, negative control. 47 tests pass today.
 
 \begin{center}\small
 \begin{tabular}{|l|p{12.4cm}|}
@@ -215,7 +216,7 @@ integration, privacy, performance, negative control. 36 tests pass today.
 \texttt{eh-core} & \textsc{passing}: a certificate is bound to its design and cannot be transplanted; \texttt{AnchoredDesign} refuses a \textsc{not-estimable} verdict and carries the refusal; a verdict can neither over- nor under-claim its certificate; fingerprint is order-independent but content-sensitive \\
 \texttt{eh-numerics} & \textsc{passing}: rank vs.\ hand-computed matrices; duplicate rows never inflate rank; membership is exact where a tolerance would guess; null vectors annihilated by every row; exact rank agrees with the eigenvalue count; pseudo-inverse leaves the singular direction alone \\
 \texttt{eh-ingest} & \textsc{passing}: \textbf{no real roll number or assistant name survives ingest} (the whole downstream output is searched for the identifiers that went in); a second mark is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs \\
-\texttt{eh-design} & \textsc{passing}: the scenario matrix (Appendix A), asserted verdict per arrangement \emph{including refusals}; one bridging mark measurably improves the verdict. \emph{Planned}: profiler recovers arrangement and score type unaided; provenance override \\
+\texttt{eh-design} & \textsc{passing}: the scenario matrix (Appendix A), asserted verdict per arrangement \emph{including refusals}; one bridging mark measurably improves the verdict; the profiler recovers the arrangement from marking it was never told about, is not fooled into reading a second-marked question-wise course as script-wise, tells binary from partial credit, declines to claim it can tell ordinal categories from part-marks, and lets an instructor override win as \textsc{declared} \\
 \texttt{eh-estimate} & \emph{planned}: parameter recovery from known parameters; \textbf{interval calibration} --- 95\% intervals cover $\approx$95\% over seeded replications; monotone likelihood; PCM reduces to dichotomous at $m{=}1$; anchoring-invariance; bias correction recovers a known slope; \textbf{negative control} --- auto-scored data yields severity inside the permutation null \\
 \texttt{eh-linking} & \emph{planned}: connectivity repair provably minimal ($c{-}1$ links); achieved standard error meets target; rotation preferred where both repairs suffice \\
 \texttt{eh-outcome} & \emph{planned}: rules vs.\ hand-computed cohorts; fixed-share exact-exchange invariant (\#promoted $=$ \#displaced) as a property test; weighted composite under R.19.1; grade-point-loss ranking incl.\ E/U; ties and rounding \\
@@ -340,8 +341,9 @@ assistant and a hard question cannot be told apart. [Assistant 1, Q1]}\\
 \texttt{\phantom{EH003 }fix: Have a second assistant mark some of the scripts for Q1, or rotate
 this question's marker across blocks of roll numbers next time.}}
 
-\textbf{State of the repository.} \texttt{eh-core}, \texttt{eh-numerics}, \texttt{eh-ingest} and
-\texttt{eh-design} are implemented and tested, 36 tests passing; the synthetic generator was written
+\textbf{State of the repository} (\url{https://github.com/Zayaan3019/Even_Hand}). \texttt{eh-core},
+\texttt{eh-numerics}, \texttt{eh-ingest} and \texttt{eh-design} are implemented and tested, 47 tests
+passing; the synthetic generator was written
 \emph{before} the estimator, as promised. \texttt{eh-estimate}, \texttt{eh-linking},
 \texttt{eh-outcome}, \texttt{eh-report} and \texttt{eh-app} are declared modules with interfaces
 fixed and no implementation yet; their tests are marked \emph{planned} above, not passing.

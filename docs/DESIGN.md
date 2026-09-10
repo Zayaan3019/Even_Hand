@@ -3,6 +3,7 @@
 **A Grading-Consistency Audit for IIT Madras Courses**
 Mohamed Zayaan S (CE23B092) · Pruthviraj Milind Chougale (CE23B104) — Team *God's Eye*
 11 September 2026
+Repository: <https://github.com/Zayaan3019/Even_Hand>
 
 > This is the repository-readable mirror of `DESIGN.tex`, which is the submitted PDF source.
 > Where the two differ, the `.tex` is authoritative.
@@ -249,7 +250,7 @@ performance guard, negative control.
 | `eh-core` | **passing** — a certificate is bound to its design and cannot be moved to another; `AnchoredDesign` refuses a `NotEstimable` verdict and carries the refusal; a verdict can neither over- nor under-claim its certificate; fingerprint is order-independent but content-sensitive; `MarkingDesign` holds no score |
 | `eh-numerics` | **passing** — rank vs hand-computed matrices; duplicate rows never inflate rank; membership is exact where a tolerance would have to guess; null-space vectors are annihilated by every row; exact rank agrees with the eigenvalue count; pseudo-inverse leaves the singular direction alone; nullity is scale-invariant |
 | `eh-ingest` | **passing** — **no real roll number or assistant name survives ingest** (the whole downstream output is searched for the identifiers that went in, and only the instructor's key file contains them); a second mark on the same response is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs |
-| `eh-design` | **passing** — the scenario matrix (Appendix A), asserted verdict per arrangement *including the refusals*; one bridging mark measurably improves the verdict; verdict depends only on the arrangement. *planned* — profiler recovers arrangement and score type from data it was never told; provenance override flips a field to `DECLARED` |
+| `eh-design` | **passing** — the scenario matrix (Appendix A), asserted verdict per arrangement *including the refusals*; one bridging mark measurably improves the verdict; verdict depends only on the arrangement; the profiler recovers the arrangement from marking it was never told about, is not fooled into reading a second-marked question-wise course as script-wise, tells binary from partial credit, declines to claim it can tell ordinal categories from part-marks, and lets an instructor override win as `DECLARED` |
 | `eh-estimate` | *planned* — parameter recovery from known parameters; **interval calibration** (95% intervals cover ≈95% over seeded replications); monotone likelihood per iteration; PCM reduces to dichotomous at m=1; anchoring-invariance; automated bias correction recovers a known slope; **negative control** — auto-scored fixture yields severity inside the permutation null |
 | `eh-linking` | *planned* — connectivity repair is provably minimal (`c−1` links); achieved standard error meets target; rotation preferred to second marking where both suffice |
 | `eh-outcome` | *planned* — grading rules vs hand-computed cohorts; fixed-share exact-exchange invariant (#promoted = #displaced) as a property test; weighted composite under R.19.1; grade-point-loss ranking including the E/U boundary; ties and rounding |
@@ -341,7 +342,7 @@ involved in any row.**
 | Islands + one bridging mark | 4 | 3 | `UNDER-EXCH.` | One second mark buys back a dimension and connects all four. |
 
 **State of the repository at submission.** `eh-core`, `eh-numerics`, `eh-ingest` and `eh-design` are implemented
-and tested (36 tests passing); the synthetic generator was written *before* the estimator, as
+and tested (47 tests passing); the synthetic generator was written *before* the estimator, as
 promised. `eh-estimate`, `eh-linking`, `eh-outcome`, `eh-report` and
 `eh-app` are declared modules with their interfaces fixed and no implementation yet; their tests
 are listed above as *planned* rather than passing.
