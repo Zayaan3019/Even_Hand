@@ -16,6 +16,17 @@ public enum Arrangement {
      *  some question is marked by more than one grader. */
     QUESTION_WISE,
 
+    /**
+     * Every assistant is seen on most questions <em>and</em> most students are seen by
+     * more than one assistant, without anyone marking twice - the pattern produced by
+     * rotating which assistant takes which question across blocks of roll numbers.
+     *
+     * <p>Worth naming separately because it is the only arrangement that identifies
+     * every severity at no extra marking cost, and is therefore the first thing the
+     * linking design recommends.
+     */
+    CROSSED,
+
     /** Neither pattern dominates: some graders span questions, some do not. */
     MIXED,
 

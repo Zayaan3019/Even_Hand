@@ -2,6 +2,7 @@
 
 **A grading-consistency audit for IIT Madras courses.**
 CS5013 project · Team *God's Eye* · Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104)
+<https://github.com/Zayaan3019/Even_Hand>
 
 Large courses here are marked by teams of assistants who divide the scripts and mark
 independently. That puts a component into a student's score that has nothing to do with the
@@ -76,7 +77,7 @@ so the estimator's tests cannot depend on a database even by accident.
 
 ## Status
 
-`eh-core`, `eh-numerics`, `eh-ingest` and `eh-design` are implemented and tested (36 tests).
+`eh-core`, `eh-numerics`, `eh-ingest` and `eh-design` are implemented and tested (47 tests).
 `eh-estimate`, `eh-linking`, `eh-outcome`, `eh-report` and `eh-app` are declared modules with
 their interfaces fixed and no implementation yet. The design document's test plan marks each test
 *passing* or *planned* accordingly.

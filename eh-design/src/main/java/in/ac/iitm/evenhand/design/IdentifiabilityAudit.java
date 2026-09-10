@@ -280,7 +280,10 @@ public final class IdentifiabilityAudit {
             for (DesignCell c : design.cells()) {
                 if (c.grader() == g) pile.add(c.student());
             }
-            if (pile.size() < 2) continue;
+            // An assistant who marked the whole class has a trivially contiguous "pile",
+            // and reading that as a roll-number split would be flatly wrong. Contiguity
+            // only carries information about how piles were dealt when there were piles.
+            if (pile.size() < 2 || pile.size() >= 0.9 * design.studentCount()) continue;
             assessed++;
             int runs = 1;
             Integer previous = null;

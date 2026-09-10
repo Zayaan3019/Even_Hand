@@ -203,6 +203,89 @@ class CsvIngestTest {
     }
 
     @Test
+    @DisplayName("marks above 1 with no maximum column are refused, not scaled to a guess")
+    void refusesToGuessTheMaximum() throws IOException {
+        String csv = """
+                roll_no,question,ta,marks
+                CE23B092,Q1,Ananya Krishnan,7
+                ME21B145,Q1,Ananya Krishnan,9
+                """;
+
+        CsvIngest.IngestResult result = ingest(csv);
+
+        // The tempting implementation takes the highest mark awarded as the maximum. It
+        // is wrong in a way that never shows: nobody may have scored full marks, so the
+        // guess is smallest on the hardest questions, which inflates their difficulty and
+        // the severity of whoever marked them. Refusing is the only honest option, and
+        // the message has to blame the missing column rather than the mark.
+        assertThat(result.responses()).isEmpty();
+        assertThat(result.hasErrors()).isTrue();
+        assertThat(result.diagnostics()).anySatisfy(d -> {
+            assertThat(d.code()).isEqualTo(Diagnostic.Code.EH010_MAXIMUM_NOT_DECLARED);
+            assertThat(d.message()).contains("highest seen is 9");
+            assertThat(d.fixIt().orElseThrow()).contains("out_of");
+        });
+    }
+
+    @Test
+    @DisplayName("right-or-wrong marking needs no maximum column and is read as binary")
+    void binaryMarkingNeedsNoMaximumColumn() throws IOException {
+        String csv = """
+                roll_no,question,ta,marks
+                CE23B092,Q1,Ananya Krishnan,1
+                ME21B145,Q1,Ananya Krishnan,0
+                """;
+
+        CsvIngest.IngestResult result = ingest(csv);
+
+        // Refusing here would be pedantry: with every mark 0 or 1 the maximum is not in
+        // doubt, and a great many quizzes are exported exactly like this.
+        assertThat(result.hasErrors()).isFalse();
+        assertThat(result.responses()).hasSize(2);
+        assertThat(result.responses()).allSatisfy(r -> assertThat(r.maxScore()).isEqualTo(1));
+    }
+
+    @Test
+    @DisplayName("a column of per-student totals is not silently taken as the question maximum")
+    void inconsistentMaximumIsReported() throws IOException {
+        String csv = """
+                roll_no,question,ta,marks,out_of
+                CE23B092,Q1,Ananya Krishnan,7,58
+                ME21B145,Q1,Ananya Krishnan,9,61
+                """;
+
+        CsvIngest.IngestResult result = ingest(csv);
+
+        // This is the failure worth the most: a "total" column holding each student's
+        // running total reads seven marks out of ten as seven out of fifty-eight, which
+        // deflates that question and everyone who marked it, and produces a number that
+        // looks entirely reasonable. A question's maximum cannot vary between two students
+        // in the same assessment, so the variation itself is the alarm.
+        assertThat(result.diagnostics()).anySatisfy(d -> {
+            assertThat(d.code()).isEqualTo(Diagnostic.Code.EH011_MAXIMUM_INCONSISTENT);
+            assertThat(d.message()).contains("student's total");
+        });
+    }
+
+    @Test
+    @DisplayName("'total' is not treated as a maximum-score column at all")
+    void totalIsNotAnAliasForTheMaximum() {
+        String csv = """
+                roll_no,question,ta,marks,total
+                CE23B092,Q1,Ananya Krishnan,7,58
+                """;
+
+        // With "total" no longer an alias, this file has no maximum column and marks above
+        // 1, so it is refused rather than read with a fabricated denominator of 58.
+        assertThatThrownBy(() -> {
+            CsvIngest.IngestResult r = ingest(csv);
+            assertThat(r.diagnostics()).anySatisfy(d ->
+                    assertThat(d.code()).isEqualTo(Diagnostic.Code.EH010_MAXIMUM_NOT_DECLARED));
+            throw new IllegalStateException("refused as expected");
+        }).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     @DisplayName("quoted fields containing commas are read as one field")
     void handlesQuotedFields() throws IOException {
         String csv = """

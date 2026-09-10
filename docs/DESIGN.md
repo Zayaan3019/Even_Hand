@@ -3,6 +3,7 @@
 **A Grading-Consistency Audit for IIT Madras Courses**
 Mohamed Zayaan S (CE23B092) · Pruthviraj Milind Chougale (CE23B104) — Team *God's Eye*
 11 September 2026
+Repository: <https://github.com/Zayaan3019/Even_Hand>
 
 > This is the repository-readable mirror of `DESIGN.tex`, which is the submitted PDF source.
 > Where the two differ, the `.tex` is authoritative.
@@ -126,7 +127,7 @@ computed again from the eigenvalues of the Fisher information and the two must a
 fixture.
 
 The incumbent, Facets, uses a graph-joining heuristic after Weeks & Williams (1964,
-*Technometrics* 6:319–324) whose manual states that *"there are exotic forms of connectedness
+*Technometrics* 6/3, 319–324) whose manual states that *"there are exotic forms of connectedness
 which Facets may falsely report as disconnected."* Computing the rank is what avoids that class of
 error. Facets also treats the nested case by asking the user to **declare** their way out of it
 (group-anchoring under assumed random equivalence, anchoring items to equal difficulty, virtual
@@ -144,8 +145,10 @@ fail for different reasons and only one is recoverable.**
   *is* recoverable, by assuming the piles were alike — precisely what random allocation buys.
 
 The audit separates them by re-asking the same estimability question against a design whose
-student columns are collapsed into one intercept (`DesignMatrix.withStudentsCollapsed()`).
-Collapsing the students **is** the exchangeability assumption. Hence four verdicts, not two:
+student columns are collapsed into one intercept (`DesignMatrix.withStudentsCollapsed()`). That
+asks whether the contrast survives once student ability is no longer free to absorb it, which is
+exactly what comparable piles buy. The exact rank is cheap: a 400-student, 15-question,
+10-assistant course audits in about a second. Hence four verdicts, not two:
 `ESTIMABLE`, `ESTIMABLE_UNDER_EXCHANGEABILITY` (reported as resting on a named assumption rather
 than quietly), `PARTIALLY_ESTIMABLE`, `NOT_ESTIMABLE`.
 
@@ -174,7 +177,15 @@ generalised-inverted on the identified subspace. Facets documents its JMLE bias 
 its square root — and because we needed the synthetic generator anyway, we automate it.
 
 Severity is estimated per (assistant, marking session); whether sessions may be pooled is tested by
-likelihood ratio, not assumed. Item diagnostics report infit/outfit plus a point-measure
+likelihood ratio, not assumed.
+
+Joint maximum likelihood estimates one parameter per student, so the nuisance parameters grow with
+the class and the estimator is not consistent in the textbook sense: rater estimates carry a known
+bias, and standard errors taken from the joint information treat each student's ability as though it
+were known. We do not argue our way past this. The bias is corrected by the simulate-refit-regress
+procedure above, and the standard errors are **tested rather than asserted** - the calibration study
+checks that nominal 95% intervals cover the truth about 95% of the time across seeded replications,
+so intervals that are too narrow fail a test on synthetic data rather than mislead the stakeholder. Item diagnostics report infit/outfit plus a point-measure
 correlation labelled honestly as a diagnostic *outside* the Rasch model, and **erratic** markers
 are separated from **harsh** ones, because conflating them is what would make an output unsafe to
 show an assistant.
@@ -248,8 +259,8 @@ performance guard, negative control.
 | --- | --- |
 | `eh-core` | **passing** — a certificate is bound to its design and cannot be moved to another; `AnchoredDesign` refuses a `NotEstimable` verdict and carries the refusal; a verdict can neither over- nor under-claim its certificate; fingerprint is order-independent but content-sensitive; `MarkingDesign` holds no score |
 | `eh-numerics` | **passing** — rank vs hand-computed matrices; duplicate rows never inflate rank; membership is exact where a tolerance would have to guess; null-space vectors are annihilated by every row; exact rank agrees with the eigenvalue count; pseudo-inverse leaves the singular direction alone; nullity is scale-invariant |
-| `eh-ingest` | **passing** — **no real roll number or assistant name survives ingest** (the whole downstream output is searched for the identifiers that went in, and only the instructor's key file contains them); a second mark on the same response is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs |
-| `eh-design` | **passing** — the scenario matrix (Appendix A), asserted verdict per arrangement *including the refusals*; one bridging mark measurably improves the verdict; verdict depends only on the arrangement. *planned* — profiler recovers arrangement and score type from data it was never told; provenance override flips a field to `DECLARED` |
+| `eh-ingest` | **passing** — marks above 1 with no maximum column are refused rather than scaled to a guess, and a column of per-student totals is caught instead of silently deflating a question; **no real roll number or assistant name survives ingest** (the whole downstream output is searched for the identifiers that went in, and only the instructor's key file contains them); a second mark on the same response is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs |
+| `eh-design` | **passing** — the scenario matrix (Appendix A), asserted verdict per arrangement *including the refusals*; one bridging mark measurably improves the verdict; verdict depends only on the arrangement; the profiler recovers the arrangement from marking it was never told about, is not fooled into reading a second-marked question-wise course as script-wise, tells binary from partial credit, declines to claim it can tell ordinal categories from part-marks, and lets an instructor override win as `DECLARED` |
 | `eh-estimate` | *planned* — parameter recovery from known parameters; **interval calibration** (95% intervals cover ≈95% over seeded replications); monotone likelihood per iteration; PCM reduces to dichotomous at m=1; anchoring-invariance; automated bias correction recovers a known slope; **negative control** — auto-scored fixture yields severity inside the permutation null |
 | `eh-linking` | *planned* — connectivity repair is provably minimal (`c−1` links); achieved standard error meets target; rotation preferred to second marking where both suffice |
 | `eh-outcome` | *planned* — grading rules vs hand-computed cohorts; fixed-share exact-exchange invariant (#promoted = #displaced) as a property test; weighted composite under R.19.1; grade-point-loss ranking including the E/U boundary; ties and rounding |
@@ -341,7 +352,7 @@ involved in any row.**
 | Islands + one bridging mark | 4 | 3 | `UNDER-EXCH.` | One second mark buys back a dimension and connects all four. |
 
 **State of the repository at submission.** `eh-core`, `eh-numerics`, `eh-ingest` and `eh-design` are implemented
-and tested (36 tests passing); the synthetic generator was written *before* the estimator, as
+and tested (51 tests passing); the synthetic generator was written *before* the estimator, as
 promised. `eh-estimate`, `eh-linking`, `eh-outcome`, `eh-report` and
 `eh-app` are declared modules with their interfaces fixed and no implementation yet; their tests
 are listed above as *planned* rather than passing.

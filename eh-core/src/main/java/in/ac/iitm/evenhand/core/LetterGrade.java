@@ -32,6 +32,17 @@ public enum LetterGrade {
     D(6,  true),
     E(4,  true),
     U(0,  false),
+    /**
+     * Pass, on a course graded pass/fail. R.21.1 gives it no grade point at all - the
+     * remarks column reads "-" rather than a number - so it does not enter the CGPA.
+     *
+     * <p>A pass/fail course has no bands for a correction to move a student between, so
+     * the grade-transfer analysis does not apply to one and the platform says so rather
+     * than reporting zero transfers as though it had looked.
+     */
+    P(0,  true),
+    /** Fail, the pass/fail counterpart of U (R.21.1). */
+    F(0,  false),
     /** Registration cancelled for want of minimum attendance (R.14.2). Not a marking outcome. */
     W(0,  false),
     /** Incomplete, subsequently changed to a pass or U in the same semester (R.21.1). */
@@ -50,9 +61,20 @@ public enum LetterGrade {
     /** R.21.2: a letter grade other than U/F, W or I earns the credits. */
     public boolean isPass()  { return pass; }
 
-    /** Grades that a marking correction can move a student between, best first. */
+    /**
+     * Grades that a marking correction can move a student between, best first.
+     *
+     * <p>Excludes P and F deliberately: a pass/fail course has no ordering for a mark to
+     * move a student along. It also excludes W and I, which record attendance and
+     * incompleteness rather than anything a marker did.
+     */
     public static LetterGrade[] awardable() {
         return new LetterGrade[] { S, A, B, C, D, E, U };
+    }
+
+    /** True on a course graded pass/fail, where transfer analysis does not apply. */
+    public boolean isPassFailOnly() {
+        return this == P || this == F;
     }
 
     /**
