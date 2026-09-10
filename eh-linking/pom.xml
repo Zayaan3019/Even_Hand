@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>in.ac.iitm.evenhand</groupId>
+    <artifactId>even-hand</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>eh-linking</artifactId>
+  <name>eh-linking</name>
+  <!-- Owner: Pruthviraj -->
+  <description>Minimum additional double-marking to reach a stated precision.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-numerics</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-design</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.jqwik</groupId>
+      <artifactId>jqwik</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
