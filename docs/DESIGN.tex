@@ -40,9 +40,9 @@ rule cannot be compiled in, because the Institute delegates it per course.}
 gives S=10, A=9, B=8, C=7, D=6, \textbf{E=4}, U=0 --- there is no 5. A script misplaced across
 B/C costs one grade point; across E/U it costs four, and under R.25.1 a U in a core course must
 be repeated. We therefore rank the shortlist by \emph{expected grade-point loss},
-$P(\mathrm{grade\ changes})\times\Delta\,\mathrm{points}$, not by probability alone. This splits
-the proposal's prediction into two testable halves: \emph{transfers} should cluster at B/C and
-A/B where student density peaks, while \emph{damage} clusters at D/E and E/U.
+$P(\mathrm{grade\ changes})\times\Delta\,\mathrm{points}$, not by probability alone --- which splits
+the proposal's prediction in two: \emph{transfers} should cluster at B/C and A/B where student
+density peaks, \emph{damage} at D/E and E/U.
 
 \textbf{(c) Computing rank rather than connectivity showed the two marking arrangements fail
 differently, and only one is recoverable} (\S\ref{sec:audit}).
@@ -98,13 +98,12 @@ caught where it is used instead of silently licensing an estimate on marking nob
 \subsection{Nothing about a course is compile-time}
 
 Every course-shaped fact is \emph{inferred} by the profiler (arrangement per assessment,
-double-marked units, score type, whether piles look like roll-number blocks), or \emph{asked once}
-on a first-login intake screen pre-filled with the profiler's guess, or \emph{defaulted} and
-flagged unconfirmed. Each \texttt{CourseProfile} field carries its \texttt{Provenance}
-(\textsc{detected}/\textsc{declared}/\textsc{defaulted}) and evidence, and every report footer
-states which inputs were measured and which asserted, so a disputed conclusion traces to the
-assumption under it. No control flow branches on the arrangement; the label is for the report
-only. The complete list of remaining assumptions, each with its override, is in
+double-marked units, score type, whether piles look like roll-number blocks), \emph{asked once} on
+an intake screen pre-filled with the profiler's guess, or \emph{defaulted} and flagged
+unconfirmed. Each \texttt{CourseProfile} field carries its \texttt{Provenance} and its evidence,
+and every report footer states which inputs were measured and which asserted, so a disputed
+conclusion traces to the assumption under it. No control flow branches on the arrangement; the
+label is for the report only. Remaining assumptions, each with its override, are in
 \texttt{docs/ASSUMPTIONS.md}.
 
 \subsection{The identifiability audit, and what it found}
@@ -119,7 +118,8 @@ two severities estimable?} --- which is the question of whether the vector expre
 the row space of the design. Rank is computed over the integers by fraction-free elimination, so
 the verdict is a fact about the arrangement, not a consequence of a floating-point threshold; it
 is computed again from the eigenvalues of the Fisher information and the two must agree on every
-fixture. Facets uses a graph-joining heuristic after Weeks and Williams (1964) whose manual states
+fixture. Facets uses a graph-joining heuristic after Weeks and Williams (\emph{Technometrics} 6/3,
+319--324) whose manual states
 that ``there are exotic forms of connectedness which Facets may falsely report as disconnected'',
 and meets the nested case by asking the user to \emph{declare} their way out of it. We measure
 whether the data escapes it, and if not, compute what would.
@@ -132,7 +132,9 @@ no student was marked on that question by anyone else. Under script-wise marking
 absorbed into the \emph{abilities of the students in that pile}, which \emph{is} recoverable by
 assuming the piles were alike --- what random allocation buys. The audit separates the two by
 re-asking the same question against a design whose student columns are collapsed to one intercept;
-collapsing them \emph{is} the exchangeability assumption. Hence four verdicts, not two.
+that asks whether the contrast survives once student ability is no longer free to absorb it, which
+is exactly what comparable piles buy. Hence four verdicts, not two. The exact rank is cheap: a
+400-student, 15-question, 10-assistant course audits in about a second.
 
 Two consequences. A limitation, stated rather than hidden: a random split and a fixed roll-number
 split are \emph{the same design of the same rank}, so the audit cannot distinguish them and does
@@ -155,8 +157,17 @@ category-collapsing rule. Standard errors from the full observed information,
 generalised-inverted on the identified subspace. Facets documents its JMLE bias correction as a
 \emph{manual} procedure; since we need the synthetic generator anyway, we automate it. Severity is
 estimated per (assistant, session); pooling across sessions is tested by likelihood ratio, not
-assumed. \emph{Erratic} markers are reported separately from \emph{harsh} ones, because conflating
-them would make an output unsafe to show an assistant.
+assumed.
+
+Joint maximum likelihood estimates one parameter per student, so the nuisance parameters grow with
+the class and the estimator is not consistent in the textbook sense: rater estimates carry a known
+bias, and standard errors from the joint information treat each ability as though it were known.
+We do not argue our way past this. The bias is corrected by the procedure above, and the standard
+errors are \emph{tested rather than asserted} --- the calibration study checks that nominal 95\%
+intervals cover the truth about 95\% of the time across seeded replications, so intervals that are
+too narrow fail a test on synthetic data rather than mislead the stakeholder. \emph{Erratic}
+markers are reported separately from \emph{harsh} ones, because conflating them would make an
+output unsafe to show an assistant.
 
 \textbf{One uncertainty engine drives every interval}: it draws from the parameter covariance on
 the identified subspace and pushes each draw through the whole deterministic downstream ---
@@ -206,7 +217,7 @@ second way, and \texttt{.github/CODEOWNERS} maps each module to its owner's GitH
 At least one named test per module. All test dependencies are test-scope only, so no third-party
 numerics reach the production classpath and the estimation code stays examinable. Categories:
 unit, property-based, statistical calibration (seeded), scenario matrix, golden snapshots,
-integration, privacy, performance, negative control. 47 tests pass today.
+integration, privacy, performance, negative control. 51 tests pass today.
 
 \begin{center}\small
 \begin{tabular}{|l|p{12.4cm}|}
@@ -215,7 +226,7 @@ integration, privacy, performance, negative control. 47 tests pass today.
 \hline
 \texttt{eh-core} & \textsc{passing}: a certificate is bound to its design and cannot be transplanted; \texttt{AnchoredDesign} refuses a \textsc{not-estimable} verdict and carries the refusal; a verdict can neither over- nor under-claim its certificate; fingerprint is order-independent but content-sensitive \\
 \texttt{eh-numerics} & \textsc{passing}: rank vs.\ hand-computed matrices; duplicate rows never inflate rank; membership is exact where a tolerance would guess; null vectors annihilated by every row; exact rank agrees with the eigenvalue count; pseudo-inverse leaves the singular direction alone \\
-\texttt{eh-ingest} & \textsc{passing}: \textbf{no real roll number or assistant name survives ingest} (the whole downstream output is searched for the identifiers that went in); a second mark is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs \\
+\texttt{eh-ingest} & \textsc{passing}: \textbf{no real roll number or assistant name survives ingest} (the whole downstream output is searched for the identifiers that went in); marks above 1 with no maximum column are refused rather than scaled to a guess; a column of per-student totals is caught instead of silently deflating a question; a second mark is recorded as a link, not a duplicate; malformed rows are reported with line numbers and do not abort the file; columns located by header name in any order or spelling; a fresh salt breaks linkage between runs \\
 \texttt{eh-design} & \textsc{passing}: the scenario matrix (Appendix A), asserted verdict per arrangement \emph{including refusals}; one bridging mark measurably improves the verdict; the profiler recovers the arrangement from marking it was never told about, is not fooled into reading a second-marked question-wise course as script-wise, tells binary from partial credit, declines to claim it can tell ordinal categories from part-marks, and lets an instructor override win as \textsc{declared} \\
 \texttt{eh-estimate} & \emph{planned}: parameter recovery from known parameters; \textbf{interval calibration} --- 95\% intervals cover $\approx$95\% over seeded replications; monotone likelihood; PCM reduces to dichotomous at $m{=}1$; anchoring-invariance; bias correction recovers a known slope; \textbf{negative control} --- auto-scored data yields severity inside the permutation null \\
 \texttt{eh-linking} & \emph{planned}: connectivity repair provably minimal ($c{-}1$ links); achieved standard error meets target; rotation preferred where both repairs suffice \\
@@ -279,32 +290,30 @@ W8 & 31 Oct--5 Nov & Re-grade results; hardening; stakeholder dry-run; cross-mod
 
 \begin{enumerate}[label=\arabic*.]
 \item \textbf{The first course is question-wise, so severity may be inseparable from question
-difficulty.} Now the expected case, not a tail risk, so \emph{plan B is already the main line}:
-the audit reports it as a verdict, names the assistants affected, and specifies the repair. The
-double-marked scripts the stakeholder confirmed exist are the live mitigation, and week 1 settles
-on the allocation table alone whether they are enough. If not, the first course's audit is a
-result in its own right and the case study moves to a course whose arrangement supports
-estimation.
+difficulty.} The expected case now, not a tail risk, so \emph{plan B is already the main line}: the
+audit reports it as a verdict, names the assistants affected, and specifies the repair. The
+double-marked scripts the stakeholder confirmed are the live mitigation, and week 1 settles from the
+allocation table alone whether they suffice. If not, that audit is a result in its own right and the
+case study moves to a course whose arrangement supports estimation.
 \item \textbf{Precision, not identifiability, is the likeliest failure.} Severities may be
-identified but with intervals too wide to act on. We report the intervals and \emph{refuse to
-produce a shortlist the estimates cannot support} --- implemented as a type, not a promise. A
-system that declines when the data is thin is a better result than one that answers anyway.
+identified but with intervals too wide to act on. We report them and \emph{refuse to produce a
+shortlist the estimates cannot support} --- a type, not a promise. A system that declines when the
+data is thin beats one that answers anyway.
 \item \textbf{The marks have not arrived.} Mitigated structurally by R1: the audit, the precision
-forecast and the linking design all run on an allocation table with no scores, so a delay costs us
-the estimate and not the project.
+forecast and the linking design all run on an allocation table with no scores, so a delay costs the
+estimate, not the project.
 \item \textbf{The cut-off convention we assumed may not be his.} \S1(a): the Institute prescribes
-none and public accounts disagree. Every policy ships behind configuration, labelled unconfirmed
-until he confirms it; only the default is at stake.
+none. Every policy ships behind configuration, labelled unconfirmed until he confirms it; only the
+default is at stake.
 \item \textbf{The permutation test comes back null.} A legitimate outcome, treated as one. We
 report the null, the effect size we can rule out, and the sample that would have been needed. We
-will not go looking for a different course until we find a positive result, and we say so.
+will not go looking for another course until we find a positive result, and we say so.
 \item \textbf{Severity estimates could damage an assistant's standing.} Pseudonymised at ingest
-with only the instructor holding the key; no output ranks named individuals; every estimate
-carries its interval; erratic markers reported separately from harsh ones; the framing throughout
-is calibration of a marking session, not judgement of a person.
-\item \textbf{He declines the blind re-grade.} Negotiate down to ten flagged and ten control
-scripts in advance; if he declines entirely we report the missing experiment as a gap rather than
-substituting a weaker proxy.
+with only the instructor holding the key; no output ranks named individuals; every estimate carries
+its interval; erratic markers reported separately from harsh ones; the framing is calibration of a
+marking session, not judgement of a person.
+\item \textbf{He declines the blind re-grade.} Negotiate down to ten flagged and ten control scripts
+in advance; if he declines entirely we report it as a gap rather than substitute a weaker proxy.
 \end{enumerate}
 
 \appendix
@@ -342,7 +351,7 @@ assistant and a hard question cannot be told apart. [Assistant 1, Q1]}\\
 this question's marker across blocks of roll numbers next time.}}
 
 \textbf{State of the repository} (\url{https://github.com/Zayaan3019/Even_Hand}). \texttt{eh-core},
-\texttt{eh-numerics}, \texttt{eh-ingest} and \texttt{eh-design} are implemented and tested, 47 tests
+\texttt{eh-numerics}, \texttt{eh-ingest} and \texttt{eh-design} are implemented and tested, 51 tests
 passing; the synthetic generator was written
 \emph{before} the estimator, as promised. \texttt{eh-estimate}, \texttt{eh-linking},
 \texttt{eh-outcome}, \texttt{eh-report} and \texttt{eh-app} are declared modules with interfaces

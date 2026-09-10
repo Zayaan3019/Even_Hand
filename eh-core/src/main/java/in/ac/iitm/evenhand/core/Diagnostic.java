@@ -49,6 +49,14 @@ public record Diagnostic(Code code,
         /** The same (student, question) was marked more than once: a double-mark,
          *  which is good news and is treated as a linking observation. */
         EH008_DOUBLE_MARK_FOUND,
+        /** No column declares what each question was marked out of, and the marks are
+         *  not all 0/1, so the maximum cannot be established. It is not inferred from
+         *  the highest mark observed, because nobody may have scored full marks and the
+         *  guess would be biased downward on exactly the hardest questions. */
+        EH010_MAXIMUM_NOT_DECLARED,
+        /** A question's declared maximum is not the same on every row. Usually means
+         *  the column holds something else - a running total, or a weighted mark. */
+        EH011_MAXIMUM_INCONSISTENT,
         /** Severities are estimable only if the piles handed to each assistant are
          *  taken to have been alike in ability. The estimate is real; the assumption
          *  is real too, and is reported rather than absorbed silently. */

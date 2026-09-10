@@ -17,34 +17,61 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Reads a course's marking into the platform, pseudonymising as it goes.
  *
  * <p>One row per marked response: student, question, assistant, score, and where
- * available the maximum available, the assessment, and the script's position in that
+ * available the maximum available, the assessment, and the script's place in that
  * assistant's sequence. Columns are located by header name rather than by position,
  * because every instructor's export names them differently and none of them will
  * rearrange their spreadsheet for us.
  *
- * <p>This is the parser stage of a compiler, and it behaves like one: a malformed row
- * does not abort the file, it produces a diagnostic carrying the line number, and the
- * run continues so the instructor learns about all of his bad rows at once rather than
- * one per attempt.
+ * <p>This is the parser stage of a compiler and behaves like one: a malformed row does
+ * not abort the file, it produces a diagnostic carrying the line number, and the run
+ * continues so the instructor learns about all of his bad rows at once rather than one
+ * per attempt.
  *
  * <p>Identifiers are replaced before any {@link Response} object exists, so no type
  * downstream of this class is capable of holding a roll number.
+ *
+ * <h2>On what a question was marked out of</h2>
+ *
+ * <p>The maximum matters more than it looks. Every estimate here is about where a mark
+ * sits between nothing and full marks, so getting the denominator wrong does not add
+ * noise --- it rescales a question's difficulty and, through it, the severity of
+ * whoever marked it. Two rules follow, and both exist because the failure they prevent
+ * is silent.
+ *
+ * <ul>
+ *   <li>If no column declares the maximum, it is <strong>not</strong> inferred from the
+ *       highest mark observed. Nobody may have scored full marks, and the guess would be
+ *       biased downward hardest on exactly the questions that were hardest. The reader
+ *       refuses and says so --- unless every mark is 0 or 1, in which case the paper is
+ *       right-or-wrong and the maximum is not in doubt.</li>
+ *   <li>If a column does declare it, the value is checked for being the same on every
+ *       row of a question. A column headed "total" often holds a student's running total
+ *       rather than the question's maximum, which would read seven marks out of ten as
+ *       seven out of fifty-eight and quietly deflate that question. Inconsistency across
+ *       rows is the signature of that mistake, so it is reported.</li>
+ * </ul>
  */
 public final class CsvIngest {
 
-    /** Header names we recognise for each column, lower-cased. */
+    /** Header names recognised for each column, lower-cased with spaces and hyphens folded. */
     private static final Map<String, List<String>> ALIASES = Map.of(
             "student",    List.of("student", "student_id", "studentid", "roll", "roll_no", "rollno",
                                   "roll_number", "candidate", "student_roll"),
             "question",   List.of("question", "question_id", "questionid", "item", "q", "part"),
             "grader",     List.of("grader", "grader_id", "marker", "assistant", "ta", "rater", "evaluator"),
-            "score",      List.of("score", "marks", "mark", "points", "awarded"),
-            "maxscore",   List.of("max", "max_score", "maxscore", "max_marks", "maxmarks", "out_of", "total"),
+            "score",      List.of("score", "marks", "mark", "points", "awarded", "marks_awarded"),
+            // Deliberately excludes "total". In a marks export that far more often means
+            // the student's total across questions than this question's maximum, and
+            // reading one as the other corrupts every estimate with no visible symptom.
+            "maxscore",   List.of("max", "max_score", "maxscore", "max_marks", "maxmarks", "max_mark",
+                                  "out_of", "outof", "maximum", "question_max"),
             "assessment", List.of("assessment", "exam", "quiz", "paper", "session", "component"),
             "position",   List.of("position", "order", "sequence", "seq", "pile_position", "index"));
 
@@ -55,11 +82,11 @@ public final class CsvIngest {
      * The outcome of reading a file: the marking, the design derived from it, the
      * diagnostics, and the key the instructor must keep.
      *
-     * @param responses  every well-formed row
-     * @param design     the same marking with the scores dropped, ready for the audit
-     * @param diagnostics parse problems, each naming its line
-     * @param keyFileContents the pseudonymisation key; the caller writes it somewhere
-     *                        the application does not read, and nothing else uses it
+     * @param responses       every well-formed row
+     * @param design          the same marking with the scores dropped, ready for the audit
+     * @param diagnostics     parse problems, each naming its line
+     * @param keyFileContents the pseudonymisation key; the caller writes it somewhere the
+     *                        application does not read, and nothing else uses it
      * @param saltFingerprint safe to record in a run manifest
      */
     public record IngestResult(List<Response> responses,
@@ -76,6 +103,11 @@ public final class CsvIngest {
         public boolean hasErrors() {
             return diagnostics.stream().anyMatch(d -> d.severity() == Diagnostic.Severity.ERROR);
         }
+    }
+
+    /** A row that parsed, before we know what its question was marked out of. */
+    private record PendingRow(DesignCell cell, int score, int declaredMax, int line) {
+        static final int MAX_UNKNOWN = -1;
     }
 
     public static IngestResult read(Path csv, Pseudonymiser pseudonymiser) throws IOException {
@@ -100,7 +132,7 @@ public final class CsvIngest {
         Map<String, Integer> graderIndex = new LinkedHashMap<>();
         Map<String, Integer> assessmentIndex = new LinkedHashMap<>();
 
-        List<Response> responses = new ArrayList<>();
+        List<PendingRow> pending = new ArrayList<>();
         Map<Long, Integer> seenCells = new HashMap<>();
 
         String line;
@@ -110,30 +142,29 @@ public final class CsvIngest {
             if (line.isBlank()) {
                 continue;
             }
-            String[] fields = splitRow(line);
-            Optional<Response> parsed = parseRow(
-                    fields, columns, lineNumber, pseudonymiser, diagnostics,
-                    studentIndex, questionIndex, graderIndex, assessmentIndex);
+            Optional<PendingRow> parsed = parseRow(splitRow(line), columns, lineNumber, pseudonymiser,
+                    diagnostics, studentIndex, questionIndex, graderIndex, assessmentIndex);
             if (parsed.isEmpty()) {
                 continue;
             }
-            Response response = parsed.get();
-            responses.add(response);
+            PendingRow row = parsed.get();
+            pending.add(row);
 
             // A second mark on the same unit is not an error; it is the observation that
             // links two assistants, and it is what the audit most wants to find.
-            long cellKey = ((long) response.cell().assessment() << 42)
-                    ^ ((long) response.student() << 21) ^ response.question();
-            Integer previousLine = seenCells.put(cellKey, lineNumber);
+            Integer previousLine = seenCells.put(cellKey(row.cell()), row.line());
             if (previousLine != null) {
                 diagnostics.add(Diagnostic.note(
                         Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
-                        "line " + lineNumber + ": this response was already marked at line "
+                        "line " + row.line() + ": this response was already marked at line "
                         + previousLine + ". Treated as a second marking, which is what makes the "
                         + "two assistants comparable.",
                         List.of()));
             }
         }
+
+        List<Response> responses = resolveMaxima(pending, columns.containsKey("maxscore"),
+                questionIndex, diagnostics);
 
         MarkingDesign design = MarkingDesign.fromResponses(responses,
                 labelsOf(studentIndex), labelsOf(questionIndex), labelsOf(graderIndex));
@@ -142,15 +173,103 @@ public final class CsvIngest {
                 pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint());
     }
 
-    private static Optional<Response> parseRow(String[] fields,
-                                               Map<String, Integer> columns,
-                                               int lineNumber,
-                                               Pseudonymiser pseudonymiser,
-                                               List<Diagnostic> diagnostics,
-                                               Map<String, Integer> studentIndex,
-                                               Map<String, Integer> questionIndex,
-                                               Map<String, Integer> graderIndex,
-                                               Map<String, Integer> assessmentIndex) {
+    /**
+     * Settles what each question was marked out of, and turns pending rows into
+     * responses. Rows whose maximum cannot be established are dropped with an
+     * explanation rather than given a made-up denominator.
+     */
+    private static List<Response> resolveMaxima(List<PendingRow> pending,
+                                                boolean maxColumnPresent,
+                                                Map<String, Integer> questionIndex,
+                                                List<Diagnostic> diagnostics) {
+        if (pending.isEmpty()) {
+            return List.of();
+        }
+        Map<Integer, Integer> maxByQuestion = new TreeMap<>();
+        List<String> questionLabels = labelsOf(questionIndex);
+
+        if (maxColumnPresent) {
+            Map<Integer, TreeSet<Integer>> declared = new TreeMap<>();
+            for (PendingRow r : pending) {
+                declared.computeIfAbsent(r.cell().question(), q -> new TreeSet<>()).add(r.declaredMax());
+            }
+            for (Map.Entry<Integer, TreeSet<Integer>> e : declared.entrySet()) {
+                TreeSet<Integer> values = e.getValue();
+                maxByQuestion.put(e.getKey(), values.last());
+                if (values.size() > 1) {
+                    // The signature of a column holding something else - most often a
+                    // student's running total. A warning rather than an error, because a
+                    // question can legitimately carry different maxima across assessments,
+                    // but never silent.
+                    diagnostics.add(Diagnostic.warning(
+                            Diagnostic.Code.EH011_MAXIMUM_INCONSISTENT,
+                            "Question " + questionLabels.get(e.getKey()) + " is recorded as marked out of "
+                            + values + " on different rows. If that column holds a student's total rather "
+                            + "than the question's maximum, every estimate for this question will be wrong "
+                            + "without looking wrong. Using " + values.last() + ".",
+                            List.of(questionLabels.get(e.getKey())),
+                            "Check that the maximum column gives the marks available on the question, "
+                            + "not a running total."));
+                }
+            }
+        } else {
+            int highestSeen = pending.stream().mapToInt(PendingRow::score).max().orElse(0);
+            if (highestSeen <= 1) {
+                for (PendingRow r : pending) {
+                    maxByQuestion.put(r.cell().question(), 1);
+                }
+                diagnostics.add(Diagnostic.note(
+                        Diagnostic.Code.EH010_MAXIMUM_NOT_DECLARED,
+                        "No column declares what each question was marked out of, but every mark is 0 or "
+                        + "1, so the paper is read as right-or-wrong scoring.",
+                        List.of()));
+            } else {
+                // Refuse rather than guess. Taking the highest mark observed as the
+                // maximum understates it on precisely the questions nobody answered well,
+                // which are the questions the analysis is most likely to be asked about.
+                diagnostics.add(Diagnostic.error(
+                        Diagnostic.Code.EH010_MAXIMUM_NOT_DECLARED,
+                        "No column declares what each question was marked out of, and marks run above 1 "
+                        + "(the highest seen is " + highestSeen + "). The maximum is not guessed from the "
+                        + "highest mark awarded, because nobody may have scored full marks and the guess "
+                        + "would be most wrong on the hardest questions. No responses were loaded.",
+                        List.of(),
+                        "Add a column giving the marks available on each question - any of "
+                        + String.join(", ", ALIASES.get("maxscore")) + " is recognised."));
+                return List.of();
+            }
+        }
+
+        List<Response> responses = new ArrayList<>(pending.size());
+        for (PendingRow r : pending) {
+            int max = maxByQuestion.getOrDefault(r.cell().question(), 1);
+            if (r.score() < 0 || r.score() > max) {
+                diagnostics.add(Diagnostic.error(
+                        Diagnostic.Code.EH007_SCORE_OUT_OF_RANGE,
+                        "line " + r.line() + ": score " + r.score() + " is outside 0.." + max
+                        + " for question " + questionLabels.get(r.cell().question()) + "; row skipped.",
+                        List.of(),
+                        "Either the mark is wrong or the maximum recorded for this question is."));
+                continue;
+            }
+            responses.add(new Response(r.cell(), r.score(), max));
+        }
+        return responses;
+    }
+
+    private static long cellKey(DesignCell c) {
+        return ((long) c.assessment() << 42) ^ ((long) c.student() << 21) ^ c.question();
+    }
+
+    private static Optional<PendingRow> parseRow(String[] fields,
+                                                 Map<String, Integer> columns,
+                                                 int lineNumber,
+                                                 Pseudonymiser pseudonymiser,
+                                                 List<Diagnostic> diagnostics,
+                                                 Map<String, Integer> studentIndex,
+                                                 Map<String, Integer> questionIndex,
+                                                 Map<String, Integer> graderIndex,
+                                                 Map<String, Integer> assessmentIndex) {
         try {
             String rawStudent = field(fields, columns.get("student"));
             String rawQuestion = field(fields, columns.get("question"));
@@ -166,18 +285,17 @@ public final class CsvIngest {
             }
 
             int score = Integer.parseInt(rawScore.strip());
-            int maxScore = columns.containsKey("maxscore")
-                    ? Integer.parseInt(field(fields, columns.get("maxscore")).strip())
-                    : 1;
-
-            if (score < 0 || score > maxScore) {
-                diagnostics.add(Diagnostic.error(
-                        Diagnostic.Code.EH007_SCORE_OUT_OF_RANGE,
-                        "line " + lineNumber + ": score " + score + " is outside 0.." + maxScore
-                        + "; row skipped.",
-                        List.of(),
-                        "Either the mark is wrong or the maximum for this question is."));
-                return Optional.empty();
+            int declaredMax = PendingRow.MAX_UNKNOWN;
+            if (columns.containsKey("maxscore")) {
+                declaredMax = Integer.parseInt(field(fields, columns.get("maxscore")).strip());
+                if (declaredMax < 1) {
+                    diagnostics.add(Diagnostic.error(
+                            Diagnostic.Code.EH011_MAXIMUM_INCONSISTENT,
+                            "line " + lineNumber + ": a question cannot be marked out of " + declaredMax
+                            + "; row skipped.",
+                            List.of(), "Check the maximum column on this row."));
+                    return Optional.empty();
+                }
             }
 
             // Pseudonymised here, before a Response exists. Nothing downstream of this
@@ -192,8 +310,9 @@ public final class CsvIngest {
                     ? parsePosition(field(fields, columns.get("position")))
                     : DesignCell.NO_POSITION;
 
-            return Optional.of(new Response(
-                    new DesignCell(student, question, grader, assessment, position), score, maxScore));
+            return Optional.of(new PendingRow(
+                    new DesignCell(student, question, grader, assessment, position),
+                    score, declaredMax, lineNumber));
 
         } catch (NumberFormatException e) {
             diagnostics.add(Diagnostic.error(
