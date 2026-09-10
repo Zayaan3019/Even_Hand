@@ -10,13 +10,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 /**
- * The seam between the two halves of the project, tested as the contract it is.
+ * The contract between auditing a design and estimating from it.
  *
  * <p>The estimator accepts only an {@link AnchoredDesign}, and an
  * {@code AnchoredDesign} exists only where the audit said one could. These tests are
  * what stop that from being a comment: they check that a refusal cannot be walked
- * past, and that a clean verdict about one course cannot be presented as evidence
- * about another.
+ * past, and that a verdict cannot be applied to marking it was not computed for ---
+ * which is the failure to expect, since the audit runs weeks before the marks arrive
+ * and the allocation can change in between.
  */
 class AnchoredDesignTest {
 

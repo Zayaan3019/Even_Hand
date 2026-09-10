@@ -4,14 +4,18 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The single typed record where the two halves of this project meet.
+ * Everything the measurement stage knows, in one typed record.
  *
- * <p>The first half &mdash; profiling, the audit, the measurement model and drift
- * &mdash; produces it. The second half &mdash; grading-rule propagation, the
- * shortlist, the linking design and the instructor's views &mdash; consumes it and
- * nothing else. Neither half reaches around this record into the other's internals,
- * which is what makes it possible for each of us to be examined on the other's
- * modules.
+ * <p>It is the whole interface between measurement and consequence. Profiling, the
+ * audit, the measurement model and drift produce it; grading-rule propagation, the
+ * shortlist, the linking design and the instructor's views consume it and nothing
+ * else. Nothing downstream reaches back into how the fit was computed.
+ *
+ * <p>That matters for a practical reason rather than a tidiness one. The estimator is
+ * the part of this system most likely to be replaced &mdash; a different anchoring, a
+ * rating-scale model instead of partial credit, a Bayesian fit if the intervals prove
+ * too wide at this class size. Confining what it exports to this record means such a
+ * change cannot quietly alter what the instructor is told.
  *
  * @param anchoring     what the scale was anchored to; reported, never implicit
  * @param students      ability estimates

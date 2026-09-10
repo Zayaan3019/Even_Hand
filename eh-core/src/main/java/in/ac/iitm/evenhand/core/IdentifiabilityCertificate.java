@@ -5,11 +5,17 @@ import java.util.List;
 /**
  * The audit's proof, carried with its verdict.
  *
- * <p>The two halves of this project are written by two people who are examined on
- * each other's modules. Rather than have the estimating half trust a boolean from
- * the auditing half, the audit emits a certificate and the estimator re-checks it
- * at the seam ({@link AnchoredDesign#of}). A verdict is therefore evidence, not an
- * assertion, and the halves cannot drift apart without the build noticing.
+ * <p>The audit and the estimation do not run at the same time. The audit needs only
+ * the marking arrangement, so it runs as soon as the allocation table exists --- often
+ * weeks before any mark is available --- and its verdict has to survive until there is
+ * something to estimate. A verdict that travels that far cannot be a bare boolean: by
+ * the time it is used, the marking it described may have changed, because a script was
+ * re-marked, a row was added, or a different export was produced.
+ *
+ * <p>So the audit emits this certificate and {@link AnchoredDesign#of} re-checks it
+ * against the design actually in hand. A verdict is evidence rather than an assertion,
+ * and a stale one is caught where it is used instead of silently licensing an estimate
+ * on marking nobody audited.
  *
  * <p>The quantity that matters is {@link #excessNullity()}. The linear predictor
  * {@code eta = theta_n - delta_i - gamma_j} is invariant under adding a constant to

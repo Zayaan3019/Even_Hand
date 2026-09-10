@@ -11,7 +11,7 @@
 
   <artifactId>eh-ingest</artifactId>
   <name>eh-ingest</name>
-  <!-- Owner: Zayaan -->
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
   <description>CSV parsing, column mapping, HMAC pseudonymisation.</description>
 
   <dependencies>

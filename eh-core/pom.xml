@@ -11,8 +11,8 @@
 
   <artifactId>eh-core</artifactId>
   <name>eh-core</name>
-  <!-- Owner: shared -->
-  <description>The seam between the two halves: records, sealed verdicts, CourseProfile. Zero third-party dependencies.</description>
+  <!-- Primary reviewer: both (see .github/CODEOWNERS) -->
+  <description>Shared vocabulary for the whole pipeline: records, sealed verdicts, CourseProfile. Zero third-party dependencies.</description>
 
   <dependencies>
     <dependency>

@@ -69,9 +69,10 @@ required — the wrapper is committed.
 | [`docs/data-sharing-note.md`](docs/data-sharing-note.md) | Countersigned before any marks are received |
 | [`docs/log/`](docs/log/) | Weekly contribution logs |
 
-Nine modules, dependencies flowing strictly downward; `.github/CODEOWNERS` names an owner for
-each. `eh-estimate`'s POM does not offer Spring, JPA or SQLite, so the estimator's tests cannot
-depend on a database even by accident.
+One end-to-end pipeline in nine modules: a course enters at `eh-ingest` and leaves as a report
+from `eh-report` without leaving the reactor, and `./mvnw verify` builds and tests all of it.
+Dependencies flow strictly downward, and `eh-estimate`'s POM does not offer Spring, JPA or SQLite,
+so the estimator's tests cannot depend on a database even by accident.
 
 ## Status
 

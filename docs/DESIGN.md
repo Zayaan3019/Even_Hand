@@ -62,11 +62,16 @@ expensive stage, names the construct at fault, and proposes a rewrite.
 | Code generation | `eh-estimate` → `eh-outcome` — runs only on a design that type-checked |
 | Runtime | `eh-app` — Spring Boot, Thymeleaf, SQLite, bound to `127.0.0.1` |
 
-### 2.2 The interface between the two halves
+### 2.2 The seam between measurement and consequence
 
-The halves meet at one record, `FittedModel`, carrying the three parameter vectors, their
-standard errors, the anchoring used, the parameter covariance and the audit's verdict. Neither
-half reaches around it.
+Everything the measurement stage knows leaves it in one record, `FittedModel`: the three parameter
+vectors, their standard errors, the anchoring used, the parameter covariance and the audit's
+verdict. Nothing downstream reaches back into how the fit was computed.
+
+That matters practically rather than for tidiness. The estimator is the part of this system most
+likely to be replaced — a different anchoring, a rating-scale model instead of partial credit, a
+Bayesian fit if the intervals prove too wide at this class size. Confining what it exports to this
+record means such a change cannot quietly alter what the instructor is told.
 
 The estimator's entry point takes an `AnchoredDesign`, which has a private constructor and one
 factory:
@@ -80,10 +85,14 @@ It refuses a verdict of `NotEstimable`, and refuses any verdict whose certificat
 is something that **cannot be written**, and a clean verdict earned on one course cannot be
 presented as evidence about another.
 
-The check sits at the seam rather than inside the audit deliberately. The two halves are owned by
-different people and examined separately, so the audit emits a **certificate** (rank, excess null
-dimension, null-space basis, design fingerprint) and the estimator re-verifies it. The contract is
-proof-carrying: neither side has to trust the other's boolean.
+The check sits at the point of use rather than inside the audit because the two do not run
+together. The audit needs no marks, so it runs as soon as the allocation table exists — often weeks
+before there is anything to estimate — and its verdict has to survive until then. By that time the
+marking may have changed: a script re-marked, a row added, a fresh export produced. So the audit
+emits a **certificate** (rank, excess null dimension, null-space basis, design fingerprint) and the
+estimator re-verifies it against the design actually in hand. The verdict is evidence rather than
+an assertion, and a stale one is caught where it is used instead of silently licensing an estimate
+on marking nobody audited.
 
 ### 2.3 Nothing about a course is compile-time
 
@@ -196,15 +205,23 @@ individuals and every figure carries its interval.
 
 ---
 
-## 3. Module split and ownership
+## 3. Module structure
 
-Nine Maven modules; dependencies flow strictly downward. **`eh-estimate`'s POM does not offer
-Spring, JPA or SQLite**, so "the estimator has tests that run without a database" is a property of
-the build graph rather than of our discipline. ArchUnit asserts the same rules a second way, and
-`.github/CODEOWNERS` maps each module to its owner's GitHub handle — the course guide's §10 "named
-module ownership", machine-enforced.
+**One end-to-end system in nine Maven modules.** A course enters at `eh-ingest` and leaves as a
+report from `eh-report` without ever leaving the reactor; `./mvnw verify` builds and tests all of
+it. The modules are stages of that pipeline, split by responsibility — not separable deliverables,
+and not one person's work bolted to another's.
 
-| Module | Responsibility | Owner |
+Dependencies flow strictly downward so it stays that way, and the useful consequence is that
+**`eh-estimate`'s POM does not offer Spring, JPA or SQLite**: "the estimator has tests that run
+without a database" is a property of the build graph rather than of our discipline. ArchUnit
+asserts the same rules a second way.
+
+Review responsibility per module is recorded in `.github/CODEOWNERS`, which is what the course
+guide's §10 "named module ownership" asks for. Both of us review the other's code weekly from week
+one, because the viva examines each of us on the whole system rather than on a share of it.
+
+| Module | Stage / responsibility | Reviewer |
 | --- | --- | --- |
 | `eh-core` | Seam records, sealed verdicts, `CourseProfile`; zero dependencies | shared |
 | `eh-numerics` | Exact rational elimination, Jacobi eigen, Cholesky, seeded RNG | Zayaan |

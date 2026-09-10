@@ -1,10 +1,14 @@
-# Named module ownership, per the CS5013 project guide section 10.
-# GitHub enforces this on every pull request: a change to a module requests review
-# from its owner automatically, so ownership is visible in the repository's history
-# rather than only asserted in the design document.
+# Review responsibility per module.
 #
-# Both of us review the other's code weekly from week one, because the final viva
-# examines each of us on the other's modules.
+# Even Hand is one end-to-end system, built and delivered as a single pipeline:
+# a course enters at eh-ingest and leaves as a report from eh-report, and
+# `mvnw verify` builds and tests all of it. This file does not divide the project
+# into two people's work. It records who reviews what first, so a change to a
+# stage automatically reaches the person most familiar with it, and it satisfies
+# the CS5013 project guide's section 10 request for named module ownership.
+#
+# Both of us review the other's code weekly from week one, because the viva
+# examines each of us on the whole system rather than on a share of it.
 
 /eh-core/        @Zayaan3019 @PruthvirajChougale
 /eh-numerics/    @Zayaan3019
@@ -16,3 +20,4 @@
 /eh-report/      @PruthvirajChougale
 /eh-app/         @PruthvirajChougale
 /docs/           @Zayaan3019 @PruthvirajChougale
+/pom.xml         @Zayaan3019 @PruthvirajChougale

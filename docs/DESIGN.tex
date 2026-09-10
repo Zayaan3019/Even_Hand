@@ -69,21 +69,30 @@ Runtime & \texttt{eh-app} --- Spring Boot, Thymeleaf, SQLite, bound to 127.0.0.1
 \end{tabular}
 \end{center}
 
-\subsection{The interface between the two halves}
+\subsection{The seam between measurement and consequence}
 
-The halves meet at one record, \texttt{FittedModel}: the three parameter vectors, their standard
-errors, the anchoring used, the parameter covariance, and the audit's verdict. Neither half
-reaches around it.
+Everything the measurement stage knows leaves it in one record, \texttt{FittedModel}: the three
+parameter vectors, their standard errors, the anchoring used, the parameter covariance, and the
+audit's verdict. Nothing downstream reaches back into how the fit was computed. That matters
+practically rather than for tidiness: the estimator is the part most likely to be replaced --- a
+different anchoring, a rating-scale model instead of partial credit, a Bayesian fit if the
+intervals prove too wide at this class size --- and confining what it exports means such a change
+cannot quietly alter what the instructor is told.
 
 The estimator's entry point takes an \texttt{AnchoredDesign}, which has a private constructor and
 one factory, \texttt{AnchoredDesign.of(design, verdict, anchoring)}. It refuses a
 \texttt{NotEstimable} verdict, and refuses any verdict whose certificate does not carry
 \emph{this} design's fingerprint. An unaudited fit is therefore not something we remember not to
 write; it is something that cannot be written, and a clean verdict earned on one course cannot be
-presented as evidence about another. The check sits at the seam rather than inside the audit
-deliberately: the halves are owned by different people and examined separately, so the audit emits
-a \emph{certificate} (rank, excess null dimension, null basis, fingerprint) and the estimator
-re-verifies it. The contract is proof-carrying --- neither side trusts the other's boolean.
+presented as evidence about another.
+
+The check sits at the point of use rather than inside the audit because the two do not run
+together. The audit needs no marks, so it runs as soon as the allocation table exists --- often
+weeks before there is anything to estimate --- and its verdict must survive until then. By that
+time the marking may have changed: a script re-marked, a row added, a fresh export produced. So
+the audit emits a \emph{certificate} (rank, excess null dimension, null basis, fingerprint) and
+the estimator re-verifies it. The verdict is evidence rather than an assertion, and a stale one is
+caught where it is used instead of silently licensing an estimate on marking nobody audited.
 
 \subsection{Nothing about a course is compile-time}
 
@@ -166,7 +175,7 @@ only the digest reaches SQLite, the salt lives in the instructor's key file whic
 never reads back, and a test scans the database bytes to prove it. Every run writes a manifest
 that reproduces its report byte-for-byte.
 
-\section{Module split and ownership}
+\section{Module structure}
 
 Nine Maven modules, dependencies flowing strictly downward. \texttt{eh-estimate}'s POM does not
 offer Spring, JPA or SQLite, so ``the estimator has tests that run without a database'' is a
@@ -176,7 +185,7 @@ second way, and \texttt{.github/CODEOWNERS} maps each module to its owner's GitH
 \begin{center}\small
 \begin{tabular}{|l|l|l|}
 \hline
-\textbf{Module} & \textbf{Responsibility} & \textbf{Owner} \\
+\textbf{Module} & \textbf{Stage / responsibility} & \textbf{Reviewer} \\
 \hline
 \texttt{eh-core} & Seam records, sealed verdicts, \texttt{CourseProfile}; zero dependencies & shared \\
 \texttt{eh-numerics} & Exact rational elimination, Jacobi eigen, Cholesky, seeded RNG & Zayaan \\

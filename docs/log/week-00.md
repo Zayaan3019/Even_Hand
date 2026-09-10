@@ -23,8 +23,9 @@ them, which corrects a claim in our proposal and is written up in §1(a) of the 
 
 ## Pruthviraj Milind Chougale (CE23B104)
 
-*To be completed by Pruthviraj.* Modules owned: `eh-linking`, `eh-outcome`, `eh-report`,
-`eh-app` — declared with their interfaces fixed, implementation begins week 1.
+*To be completed by Pruthviraj.* Reviewing this week's commits; picking up the outcome and
+reporting stages of the pipeline (`eh-linking`, `eh-outcome`, `eh-report`, `eh-app`), whose
+interfaces are fixed and whose implementation begins in week 1.
 
 ## Gaps, honestly
 

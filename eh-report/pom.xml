@@ -11,7 +11,7 @@
 
   <artifactId>eh-report</artifactId>
   <name>eh-report</name>
-  <!-- Owner: Pruthviraj -->
+  <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
   <description>Marks-unit narration, exports, Class Committee sheet, run manifest.</description>
 
   <dependencies>

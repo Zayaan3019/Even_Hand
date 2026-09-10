@@ -11,7 +11,7 @@
 
   <artifactId>eh-outcome</artifactId>
   <name>eh-outcome</name>
-  <!-- Owner: Pruthviraj -->
+  <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
   <description>Grading rules, weighted composites, boundary recomputation, transfers, shortlist.</description>
 
   <dependencies>

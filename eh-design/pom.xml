@@ -11,7 +11,7 @@
 
   <artifactId>eh-design</artifactId>
   <name>eh-design</name>
-  <!-- Owner: Zayaan -->
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
   <description>Design profiler, identifiability audit, design-only precision forecast.</description>
 
   <dependencies>

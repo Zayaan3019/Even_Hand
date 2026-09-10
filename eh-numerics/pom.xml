@@ -11,7 +11,7 @@
 
   <artifactId>eh-numerics</artifactId>
   <name>eh-numerics</name>
-  <!-- Owner: Zayaan -->
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
   <description>Linear algebra, exact rational elimination, seeded RNG. Zero third-party dependencies.</description>
 
   <dependencies>

@@ -20,22 +20,28 @@
   <description>A grading-consistency audit for IIT Madras courses (CS5013 project, team God's Eye)</description>
 
   <!--
-    MODULE OWNERSHIP (course guide s10: "every module has a single named owner").
-    Enforced a second time by .github/CODEOWNERS.
+    ONE PIPELINE, NINE MODULES.
 
-      eh-core      shared      the seam: records, sealed verdicts, CourseProfile
-      eh-numerics  Zayaan      linear algebra, exact rational elimination, seeded RNG
-      eh-ingest    Zayaan      CSV parsing and pseudonymisation
-      eh-design    Zayaan      profiler, identifiability audit, precision forecast
-      eh-estimate  Zayaan      many-facet Rasch estimation, drift, uncertainty
-      eh-linking   Pruthviraj  minimum additional double-marking
-      eh-outcome   Pruthviraj  grading rules, transfers, shortlist
-      eh-report    Pruthviraj  narration and exports
-      eh-app       Pruthviraj  Spring Boot / Thymeleaf / SQLite and the CLI
+    This is a single end-to-end system, built and delivered as one: `mvnw verify`
+    compiles and tests all of it, and a course goes in at eh-ingest and comes out
+    as a report at eh-report without leaving the reactor. The modules are stages of
+    that pipeline, not separable deliverables.
 
-    The dependency graph flows strictly downward. eh-estimate is not offered
-    Spring, JPA or SQLite by its POM, so "the estimator has tests that run
-    without a database" is a property of the build, not a matter of discipline.
+      eh-core      shared vocabulary: records, sealed verdicts, CourseProfile
+      eh-numerics  linear algebra, exact rational elimination, seeded RNG
+      eh-ingest    CSV parsing and pseudonymisation
+      eh-design    profiler, identifiability audit, precision forecast
+      eh-estimate  many-facet Rasch estimation, drift, uncertainty
+      eh-linking   minimum additional marking to reach a stated precision
+      eh-outcome   grading rules, transfers, shortlist
+      eh-report    narration and exports
+      eh-app       Spring Boot / Thymeleaf / SQLite and the CLI
+
+    The split is by responsibility, and the dependency graph flows strictly downward
+    so that it stays that way. The useful consequence is that eh-estimate is not
+    offered Spring, JPA or SQLite by its POM: "the estimator has tests that run
+    without a database" is therefore a property of the build rather than a matter of
+    discipline. Review responsibility per module is recorded in .github/CODEOWNERS.
   -->
   <modules>
     <module>eh-core</module>

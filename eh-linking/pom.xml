@@ -11,7 +11,7 @@
 
   <artifactId>eh-linking</artifactId>
   <name>eh-linking</name>
-  <!-- Owner: Pruthviraj -->
+  <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
   <description>Minimum additional double-marking to reach a stated precision.</description>
 
   <dependencies>

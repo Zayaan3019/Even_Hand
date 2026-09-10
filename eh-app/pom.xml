@@ -11,7 +11,7 @@
 
   <artifactId>eh-app</artifactId>
   <name>eh-app</name>
-  <!-- Owner: Pruthviraj -->
+  <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
   <description>
     The only module that knows about HTTP, Spring, Hibernate or SQLite. It binds to
     127.0.0.1 and makes no outbound network call; both facts are asserted by tests.

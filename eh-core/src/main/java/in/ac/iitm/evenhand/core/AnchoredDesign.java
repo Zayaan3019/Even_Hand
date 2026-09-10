@@ -4,16 +4,15 @@ package in.ac.iitm.evenhand.core;
  * A marking design that has passed the audit, together with the anchoring that will
  * fix its scale. This is the only way to obtain the input the estimator accepts.
  *
- * <p>The type is the seam between the two halves of the project. It cannot be
- * constructed without a verdict, the verdict must certify that the design is
- * identified, and the certificate must be <em>for this design</em> &mdash; the
- * fingerprint is re-checked here rather than trusted. So an unaudited fit is not
+ * <p>It cannot be constructed without a verdict, the verdict must certify that the
+ * design is identified, and the certificate must be <em>for this design</em> &mdash;
+ * the fingerprint is re-checked here rather than trusted. So an unaudited fit is not
  * something we remember not to do; it is something that cannot be written.
  *
- * <p>The check is deliberately at the seam and not inside the audit. The audit and
- * the estimator are owned by different people and examined separately; putting the
- * proof on one side and its verification on the other is what keeps them honest
- * about the contract between them.
+ * <p>The check is deliberately here and not inside the audit, because the two do not
+ * run together. The audit reads no marks and runs as soon as the allocation table
+ * exists; estimation waits for the marks. Verifying the certificate at the point of
+ * use is what catches a verdict that has outlived the marking it described.
  */
 public final class AnchoredDesign {
 

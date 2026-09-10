@@ -11,7 +11,7 @@
 
   <artifactId>eh-estimate</artifactId>
   <name>eh-estimate</name>
-  <!-- Owner: Zayaan -->
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
   <description>Many-facet Rasch estimation by JMLE, drift, permutation and uncertainty engines.</description>
 
   <dependencies>
