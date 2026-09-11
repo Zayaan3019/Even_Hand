@@ -2,31 +2,32 @@
 % Compiles with pdflatex. Uses only article + geometry, hyperref, enumitem, parskip,
 % which is the dependency set of the course's own proposal template.
 \documentclass[10pt,a4paper]{article}
-\usepackage[margin=0.75in]{geometry}
+\usepackage[margin=0.8in]{geometry}
 \usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
 \usepackage{parskip}
 
-\setlist[itemize]{leftmargin=1.1em,itemsep=0pt,topsep=1pt,parsep=0pt}
-\setlist[enumerate]{leftmargin=1.7em,itemsep=0pt,topsep=1pt,parsep=0pt}
-\setlength{\parskip}{2pt}
-% Tighter headings, defined with base LaTeX so the dependency set stays the template's.
+\setlist[itemize]{leftmargin=1.3em,itemsep=1pt,topsep=3pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.9em,itemsep=2pt,topsep=3pt,parsep=0pt}
+\setlength{\parskip}{4pt}
+\renewcommand{\arraystretch}{1.1}
+% Section spacing a little tighter than the article defaults, defined with base LaTeX
+% so the dependency set stays the course template's.
 \makeatletter
-\renewcommand\section{\@startsection{section}{1}{\z@}{-2.2ex \@plus -.5ex \@minus -.2ex}%
-  {1.0ex \@plus .2ex}{\normalfont\large\bfseries}}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}{-1.8ex \@plus -.4ex \@minus -.2ex}%
-  {0.6ex \@plus .2ex}{\normalfont\normalsize\bfseries}}
+\renewcommand\section{\@startsection{section}{1}{\z@}{-2.8ex \@plus -.6ex \@minus -.2ex}%
+  {1.3ex \@plus .2ex}{\normalfont\Large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}{-2.4ex \@plus -.5ex \@minus -.2ex}%
+  {0.9ex \@plus .2ex}{\normalfont\large\bfseries}}
 \makeatother
 
-\title{\vspace{-1.7cm}\textbf{Even Hand: Design Document}\\[2pt]
+\title{\vspace{-1.2cm}\textbf{Even Hand: Design Document}\\[4pt]
 \large A Grading-Consistency Audit for IIT Madras Courses}
 \author{Mohamed Zayaan S (CE23B092) \and Pruthviraj Milind Chougale (CE23B104)}
-\date{Team \emph{God's Eye} \quad$\cdot$\quad 11 September 2026 \quad$\cdot$\quad
+\date{Team \emph{God's Eye} \quad$\cdot$\quad 11 September 2026 \\[3pt]
 \url{https://github.com/Zayaan3019/Even_Hand}}
 
 \begin{document}
 \maketitle
-\vspace{-0.45cm}
 
 \section{What changed since the proposal}
 
@@ -60,12 +61,12 @@ without a database'' is a property of the build graph. ArchUnit asserts the same
 \texttt{.github/CODEOWNERS} maps each module to its owner. $\dagger$: signature fixed here,
 implementation planned.
 
-\begin{center}\footnotesize
-\begin{tabular}{|l|l|p{9.6cm}|l|}
+\begin{center}\small
+\begin{tabular}{|l|l|p{9.0cm}|l|}
 \hline
 \textbf{Module} & \textbf{Stage} & \textbf{Exports across its boundary} & \textbf{Owner} \\
 \hline
-\texttt{eh-core} & IR, seam & \raggedright \texttt{MarkingDesign} (no score; carries \texttt{AllocationEvidence}); sealed \texttt{AuditVerdict} with its \texttt{Exposure} and \texttt{IdentifiabilityCertificate}; \texttt{AnchoredDesign.of(design, verdict, anchoring)}; \texttt{FittedModel}; \texttt{CourseProfile} & Zayaan \\
+\texttt{eh-core} & IR, seam & \raggedright \texttt{MarkingDesign} (no score; carries \texttt{AllocationEvidence}); sealed \texttt{AuditVerdict} with its \texttt{Exposure} and \texttt{IdentifiabilityCertificate}; \texttt{AnchoredDesign.of(design, verdict, anchoring)}; \texttt{FittedModel}; \texttt{CourseProfile}, every field \texttt{Provenanced} & Zayaan \\
 \texttt{eh-numerics} & arithmetic & \raggedright \texttt{ExactRowSpace} (integer rank, row-space membership, null basis); \texttt{SymmetricEigen}; Cholesky$^\dagger$; seeded RNG$^\dagger$ & Zayaan \\
 \texttt{eh-ingest} & parser & \raggedright \texttt{CsvIngest.read(csv, pseudonymiser)} $\rightarrow$ responses, design, line-numbered diagnostics; \texttt{KeyFile.seal}, \texttt{KeyFile.open} & Zayaan \\
 \texttt{eh-design} & analysis & \raggedright \texttt{IdentifiabilityAudit.audit(design, weights)} $\rightarrow$ \texttt{AuditVerdict}; \texttt{DriftAudit.audit(design)}; \texttt{DesignProfiler.profile(design)} & Zayaan \\
@@ -95,16 +96,16 @@ basis that every marking annihilates bounds it from above.
 \item \textbf{No corrected mark ever becomes a grade.} Counterfactual marks stay inside
 \texttt{eh-outcome}; the only per-student output is a recommendation to re-check a script, and a
 grade changes only by a human re-mark (ArchUnit: no export path).
-\item \textbf{Refusal is a value}: \textsc{not-estimable} stops estimation; a failed gate yields
-\texttt{Shortlist.Refused(reason)}.
+\item \textbf{Refusal is a value}: \textsc{not-estimable} stops estimation, and a shortlist that
+fails its gate is a \texttt{Refused} value carrying its reason.
 \item \textbf{Every figure carries its interval, every input its provenance} (measured, declared or
 defaulted).
 \item \textbf{No identifier on disk except in the key file, which is sealed first; no pseudonym
 encodes order} (labels in keyed-digest order).
 \item \textbf{Nothing leaves the machine}: loopback bind; ArchUnit forbids HTTP clients and sockets.
 \item \textbf{Per-assistant figures reach only the instructor}; the committee sheet is aggregate.
-\item \textbf{Reports reproduce byte-for-byte} from manifest and key: seeded RNG, sorted iteration,
-\texttt{StrictMath}.
+\item \textbf{Reports reproduce byte-for-byte} from their manifest and key, using a seeded RNG,
+sorted iteration and \texttt{StrictMath}.
 \end{enumerate}
 
 \subsection{The audit: who could have been harmed, and can it be measured?}
@@ -130,14 +131,15 @@ arrangement, not a floating-point threshold (Facets' graph heuristic is document
 ``exotic forms of connectedness''). A harm contrast $(E_n-E_m)\gamma$ is then estimable exactly when
 every student carries the same weight inside every group of mutually comparable assistants.
 Script-wise and question-wise marking are \emph{equally} rank-deficient (excess null dimension
-$J{-}1$) but differ in kind. Question-wise, severity is confounded with difficulty and nothing about
-students separates them. Script-wise, it is absorbed into the pile's abilities, and is recoverable if
-the piles were alike. Re-asking against a design whose student columns are collapsed to one
-intercept tells the two apart --- and that collapsed design is exactly the fixed-effect part of the
-estimator's random-ability model (\S\ref{sec:est}), so the audit certifies what the estimator will
-assume. Random and roll-number splits are the same design, so the audit reports evidence instead:
-whether piles are contiguous in roll number or follow its department code, computed at ingest from
-the real roll numbers and kept only as counts.
+$J{-}1$ beyond the two that anchoring removes) but differ in kind. Question-wise, severity is
+confounded with difficulty and nothing about students separates them. Script-wise, it is absorbed
+into the pile's abilities, and is recoverable if the piles were alike. Re-asking against a design
+whose student columns are collapsed to one intercept tells the two apart --- and that collapsed
+design is exactly the fixed-effect part of the estimator's random-ability model (\S\ref{sec:est}),
+so the audit certifies what the estimator will assume. Random and roll-number splits are the same
+design, so the audit reports evidence instead: whether piles are contiguous in roll number or follow
+its department code, computed at ingest from the real roll numbers and kept only as counts. A
+400-student course audits in about a second.
 
 \textbf{3. Drift: does a late script lose?} The same test, with marking position as a column,
 exposes a trap. If every marker works through the stack in the same (usually roll-number) order,
@@ -190,10 +192,15 @@ control puts the real allocation's labels on an auto-scored component.
 \texttt{sBandPolicy}). Counterfactual marks are referenced to the panel-average assistant, and
 boundaries are recomputed on them. Hand-drawn bands have no knowable counterfactual, so we report
 the range between holding the thresholds and holding the grade counts. The shortlist gate is
-pre-registered in week 4: a shortlist is emitted only if the no-effect test rejects at 5\%; each row
-needs $P(\mathrm{grade\ changes})\ge 0.2$; at most 20 rows, ranked by expected grade-point change,
-with the expected number of false flags printed; rows run in both directions, and under a fixed
-share each promotion names the script it displaces; every row carries the R.24.1 deadline.
+pre-registered in week 4:
+\begin{itemize}
+\item a shortlist is emitted only if the no-effect test rejects at 5\%;
+\item each row needs $P(\mathrm{grade\ changes})\ge 0.2$, and there are at most 20 rows, ranked by
+expected grade-point change, with the expected number of false flags printed;
+\item rows run in both directions, and under a fixed share each promotion names the script it
+displaces;
+\item every row carries the R.24.1 revision deadline.
+\end{itemize}
 
 \textbf{Privacy and security.} Threats: a lost laptop, re-identification, appraisal misuse,
 exfiltration. Identifiers become HMAC-SHA-256 digests under a course-scoped salt, so a course's
@@ -214,8 +221,8 @@ numerics reach production. \textbf{104 tests pass today}, one of them a property
 random allocations, all in the four implemented modules; the other five have the signatures above and
 no implementation yet, so their tests are \emph{planned}.
 
-\begin{center}\footnotesize
-\begin{tabular}{|l|p{14.1cm}|}
+\begin{table}[!htbp]\centering\small
+\begin{tabular}{|l|p{13.7cm}|}
 \hline
 \textbf{Module} & \textbf{Tests} (\textsc{passing} today; \emph{planned}) \\
 \hline
@@ -230,7 +237,7 @@ no implementation yet, so their tests are \emph{planned}.
 \texttt{eh-app} & \emph{Planned}: loopback bind; no-network rule; no export path from counterfactual marks; end-to-end over HTTP; full run at $N{=}150$ under 60\,s \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
 \textbf{Defects found in review, now fixed} under regression tests: pseudonyms revealed file order;
 the roll-number evidence read row order, so an export sorted by assistant looked like a roll-number
@@ -240,6 +247,28 @@ and Q1 of a quiz and Q1 of the end-semester exam were merged into one question.
 
 \section{Revised milestone plan}
 \label{sec:milestones}
+
+The week-by-week plan, followed by the revisions behind it.
+
+\begin{center}\small
+\begin{tabular}{|l|l|p{6.0cm}|p{6.0cm}|}
+\hline
+\textbf{Wk} & \textbf{Dates} & \textbf{Zayaan} & \textbf{Pruthviraj} \\
+\hline
+W0 & 10--11 Sep & \raggedright \textsc{done}: build, seam, exact audit, generator, profiler, ingest, review fixes; 104 tests & \raggedright Review of week-0 commits \tabularnewline
+W1 & 12--18 Sep & \raggedright Real allocation $\rightarrow$ exposure, verdict, drift and SE forecast to the stakeholder & \raggedright \texttt{GradingRule} family and composite on a synthetic fit; second course requested \tabularnewline
+W2 & 19--25 Sep & \raggedright Marginal ML (binary), standard errors, recovery test & \raggedright Transfers; shortlist gate; instructor-band range \tabularnewline
+W3 & 26 Sep--2 Oct & \raggedright Partial credit, dispersion thresholds, uncertainty engine; gate & \raggedright CLI end to end on a stub fit; committee sheet; golden tests \tabularnewline
+W4 & 3--8 Oct & \raggedright Design-preserving null; coverage study; drift if order known & \raggedright Thymeleaf views; run store; pre-registration (both) \tabularnewline
+\multicolumn{4}{|p{16.0cm}|}{\raggedright \textbf{Mid-demo 9 Oct}: the stakeholder's course end to end --- exposure, verdict, estimates or refusal, grades under the confirmed rule; gap list} \tabularnewline
+W5 & 10--16 Oct & \raggedright Sessions, rater diagnostics, effective weights & \raggedright Variance share; transfers with intervals; shortlist on real data \tabularnewline
+W6 & 17--23 Oct & \raggedright Negative control; second course fitted & \raggedright Exposure-balanced linking optimiser; second-course report \tabularnewline
+W7 & 24--30 Oct & \raggedright Hardening; performance guard & \raggedright Blind re-grade issued (masked scans); handoff pack and installer \tabularnewline
+W8 & 31 Oct--5 Nov & \multicolumn{2}{p{12.3cm}|}{\raggedright Re-grade analysis; stakeholder dry-run; cross-module viva preparation (both)} \tabularnewline
+\multicolumn{4}{|l|}{\textbf{Final submission and viva 6 Nov}} \tabularnewline
+\hline
+\end{tabular}
+\end{center}
 
 \begin{enumerate}[label=R\arabic*.]
 \item \textbf{The audit moves ahead of the marks}, and already gives three answers from the
@@ -262,26 +291,6 @@ of us commit weekly.
 drift only if no marking order exists. The audit, exposure analysis, estimator, propagation and blind
 re-grade are never cut; the re-grade's pre-registration is committed in week 4.
 \end{enumerate}
-
-\begin{center}\footnotesize
-\begin{tabular}{|l|l|p{6.4cm}|p{6.4cm}|}
-\hline
-\textbf{Wk} & \textbf{Dates} & \textbf{Zayaan} & \textbf{Pruthviraj} \\
-\hline
-W0 & 10--11 Sep & \textsc{done}: audit, ingest, profiler; 104 tests & Review of week-0 commits \\
-W1 & 12--18 Sep & Real allocation $\rightarrow$ exposure, verdict, SE forecast & Grading rules, composite; request 2nd course \\
-W2 & 19--25 Sep & Marginal ML (binary), SEs, recovery test & Transfers; shortlist gate; instructor bands \\
-W3 & 26 Sep--2 Oct & Partial credit, dispersion, uncertainty engine & CLI end to end on a stub fit; committee sheet \\
-W4 & 3--8 Oct & Design-preserving null; coverage; drift & Thymeleaf views; run store; pre-registration \\
-\multicolumn{4}{|l|}{\textbf{Mid-demo 9 Oct}: the stakeholder's course end to end, estimated or refused with the repair named; gap list} \\
-W5 & 10--16 Oct & Sessions, rater diagnostics, effective weights & Variance share; shortlist on real data \\
-W6 & 17--23 Oct & Negative control; second course fitted & Exposure-balanced linking optimiser \\
-W7 & 24--30 Oct & Hardening; performance guard & Blind re-grade (masked scans); installer \\
-W8 & 31 Oct--5 Nov & \multicolumn{2}{l|}{Re-grade analysis; stakeholder dry-run; cross-module viva preparation (both)} \\
-\multicolumn{4}{|l|}{\textbf{Final submission and viva 6 Nov}} \\
-\hline
-\end{tabular}
-\end{center}
 
 \section{Risks and plan B}
 
@@ -310,25 +319,27 @@ test is directional, with its power pre-registered.
 
 Output of \texttt{AuditReport}, run by CI on every commit; every column is computed by the audit and
 asserted in the tests, each answer worked out on paper first. Exc.: null dimension beyond the two
-anchoring removes. Question maxima are equal except where stated. No row uses a mark.
+anchoring removes; ---: marking order not recorded. Question maxima are equal except where stated.
+No row uses a mark.
 
 \begin{center}\footnotesize
-\begin{tabular}{|l|c|l|l|l|p{3.7cm}|}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{|l|c|l|l|l|p{4.5cm}|}
 \hline
 \textbf{Arrangement} & \textbf{Exc.} & \textbf{Severity} & \textbf{Exposure} & \textbf{Drift} & \textbf{Headline} \\
 \hline
-Question-wise + double-marking & 0 & \textsc{estimable} & none & not recorded & Safe; stakeholder's course \\
-Question-wise, marker rotated & 0 & \textsc{estimable} & none & not recorded & Safe \\
-\quad same, maxima 5/10/15/10/10 & 0 & \textsc{estimable} & estimable & not recorded & Rotation-made; correctable \\
-Script-wise, random piles & 3 & \textsc{under-exch.} & under-exch. & not recorded & Correctable if piles alike \\
-Script-wise, roll-number blocks & 3 & \textsc{under-exch.} & under-exch. & not recorded & Same; assumption doubtful \\
-Question-wise, no overlap & 4 & \textsc{not-estimable} & none & not recorded & Safe by design \\
-Question-wise, one stack order & 4 & \textsc{not-estimable} & none & under-exch. & Safe; drift rests on order \\
+Question-wise + double-marking & 0 & \textsc{estimable} & none & --- & Safe; the stakeholder's course \\
+Question-wise, marker rotated & 0 & \textsc{estimable} & none & --- & Safe \\
+\quad same, maxima 5/10/15/10/10 & 0 & \textsc{estimable} & estimable & --- & Rotation-made; correctable \\
+Script-wise, random piles & 3 & \textsc{under-exch.} & under-exch. & --- & Correctable if the piles were alike \\
+Script-wise, roll-number blocks & 3 & \textsc{under-exch.} & under-exch. & --- & Same; the assumption is doubtful \\
+Question-wise, no overlap & 4 & \textsc{not-estimable} & none & --- & Safe by design \\
+Question-wise, one stack order & 4 & \textsc{not-estimable} & none & under-exch. & Safe; drift rests on stack order \\
 \quad alternate stacks reversed & 4 & \textsc{not-estimable} & none & estimable & Safe; drift measurable \\
-Mixed across assessments & 2 & \textsc{partial} (2+1+1) & estimable & not recorded & Correctable \\
-Single marker & 0 & \textsc{not-estimable} & none & not recorded & No grader facet \\
-Two disconnected islands & 4 & \textsc{partial} (2+2) & not estimable & not recorded & Harmful; unmeasurable \\
-Islands + one bridging mark & 3 & \textsc{under-exch.} & under-exch. & not recorded & Correctable if piles alike \\
+Mixed across assessments & 2 & \textsc{partial} (2+1+1) & estimable & --- & Correctable \\
+Single marker & 0 & \textsc{not-estimable} & none & --- & No grader facet \\
+Two disconnected islands & 4 & \textsc{partial} (2+2) & not estimable & --- & Harmful; unmeasurable \\
+Islands + one bridging mark & 3 & \textsc{under-exch.} & under-exch. & --- & Correctable if the piles were alike \\
 \hline
 \end{tabular}
 \end{center}

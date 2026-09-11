@@ -69,14 +69,15 @@ Each is enforced by a type, the build graph or a named test — never by convent
 2. **No corrected mark ever becomes a grade.** Counterfactual marks stay inside `eh-outcome`; the
    only per-student output is a recommendation to re-check a script, and a grade changes only by a
    human re-mark (ArchUnit: no export path).
-3. **Refusal is a value**: NOT-ESTIMABLE stops estimation; a failed gate yields
-   `Shortlist.Refused(reason)`.
+3. **Refusal is a value**: NOT-ESTIMABLE stops estimation, and a shortlist that fails its gate is a
+   `Refused` value carrying its reason.
 4. **Every figure carries its interval, every input its provenance** (measured, declared or defaulted).
 5. **No identifier on disk except in the key file, which is sealed first; no pseudonym encodes order**
    (labels in keyed-digest order).
 6. **Nothing leaves the machine**: loopback bind; ArchUnit forbids HTTP clients and sockets.
 7. **Per-assistant figures reach only the instructor**; the committee sheet is aggregate.
-8. **Reports reproduce byte-for-byte** from manifest and key: seeded RNG, sorted iteration, `StrictMath`.
+8. **Reports reproduce byte-for-byte** from their manifest and key, using a seeded RNG, sorted
+   iteration and `StrictMath`.
 
 ### 2.3 The audit: who could have been harmed, and can it be measured?
 
@@ -273,15 +274,15 @@ the two anchoring removes. Question maxima are equal except where stated. No row
 
 | Arrangement | Exc. | Severity | Exposure | Drift | Headline |
 | --- | --- | --- | --- | --- | --- |
-| Question-wise + double-marking | 0 | ESTIMABLE | none | not recorded | Safe; stakeholder's course |
+| Question-wise + double-marking | 0 | ESTIMABLE | none | not recorded | Safe; the stakeholder's course |
 | Question-wise, marker rotated | 0 | ESTIMABLE | none | not recorded | Safe |
 | &nbsp;&nbsp;same, maxima 5/10/15/10/10 | 0 | ESTIMABLE | estimable | not recorded | Rotation-made; correctable |
-| Script-wise, random piles | 3 | UNDER-EXCH. | under-exch. | not recorded | Correctable if piles alike |
-| Script-wise, roll-number blocks | 3 | UNDER-EXCH. | under-exch. | not recorded | Same; assumption doubtful |
+| Script-wise, random piles | 3 | UNDER-EXCH. | under-exch. | not recorded | Correctable if the piles were alike |
+| Script-wise, roll-number blocks | 3 | UNDER-EXCH. | under-exch. | not recorded | Same; the assumption is doubtful |
 | Question-wise, no overlap | 4 | NOT-ESTIMABLE | none | not recorded | Safe by design |
-| Question-wise, one stack order | 4 | NOT-ESTIMABLE | none | under-exch. | Safe; drift rests on order |
+| Question-wise, one stack order | 4 | NOT-ESTIMABLE | none | under-exch. | Safe; drift rests on stack order |
 | &nbsp;&nbsp;alternate stacks reversed | 4 | NOT-ESTIMABLE | none | estimable | Safe; drift measurable |
 | Mixed across assessments | 2 | PARTIAL (2+1+1) | estimable | not recorded | Correctable |
 | Single marker | 0 | NOT-ESTIMABLE | none | not recorded | No grader facet |
 | Two disconnected islands | 4 | PARTIAL (2+2) | not estimable | not recorded | Harmful; unmeasurable |
-| Islands + one bridging mark | 3 | UNDER-EXCH. | under-exch. | not recorded | Correctable if piles alike |
+| Islands + one bridging mark | 3 | UNDER-EXCH. | under-exch. | not recorded | Correctable if the piles were alike |
