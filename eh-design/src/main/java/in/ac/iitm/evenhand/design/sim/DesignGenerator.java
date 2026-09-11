@@ -1,5 +1,6 @@
 package in.ac.iitm.evenhand.design.sim;
 
+import in.ac.iitm.evenhand.core.AllocationEvidence;
 import in.ac.iitm.evenhand.core.DesignCell;
 import in.ac.iitm.evenhand.core.MarkingDesign;
 
@@ -19,8 +20,10 @@ import java.util.Random;
  *
  * <p>All methods return a {@link MarkingDesign}, which carries no scores. That is the
  * right level for testing the audit, because the audit's verdict does not depend on
- * any mark. {@link ResponseGenerator} adds scores from chosen parameters when the
- * estimator needs something to recover.
+ * any mark. Students are dealt in roll-number order &mdash; student {@code s} is the
+ * {@code s}-th roll number &mdash; and each design carries the {@link AllocationEvidence}
+ * that ordering implies, just as an ingested design carries the evidence its real roll
+ * numbers imply.
  */
 public final class DesignGenerator {
 
@@ -30,10 +33,10 @@ public final class DesignGenerator {
     /**
      * Each assistant marks every question for a random subset of students.
      *
-     * <p>The favourable case. Every assistant is seen on every question, so severity
-     * and difficulty separate cleanly, and because the piles were drawn at random the
-     * confound between an assistant's severity and the ability of the students they
-     * happened to receive vanishes in expectation.
+     * <p>Every assistant is seen on every question, so severity and difficulty
+     * separate cleanly, and because the piles were drawn at random the confound
+     * between an assistant's severity and the ability of the students they happened
+     * to receive vanishes in expectation.
      */
     public static MarkingDesign scriptWiseRandom(int students, int questions, int graders, long seed) {
         Random rng = new Random(seed);
@@ -52,9 +55,8 @@ public final class DesignGenerator {
      *
      * <p>Structurally identical to the random split as far as the audit is concerned,
      * and materially different for the conclusion: severity is now confounded with
-     * whatever the roll-number ordering correlates with. The audit reports the design
-     * as estimable; the profiler is what has to notice the allocation was not random,
-     * and say so.
+     * whatever the roll-number ordering correlates with. The allocation evidence is
+     * what notices the split was not random, and says so.
      */
     public static MarkingDesign scriptWiseFixedBlocks(int students, int questions, int graders) {
         List<DesignCell> cells = new ArrayList<>();
@@ -72,11 +74,10 @@ public final class DesignGenerator {
      * Each assistant marks one question across the whole class.
      *
      * <p>The arrangement teaching-practice guidance recommends and Gradescope's
-     * per-question assignment encourages, and the one in which severity is not
-     * estimable at all: an assistant's severity appears only ever alongside the
-     * difficulty of their one question, so only the sum is identified. The audit must
-     * refuse this, and refusing it correctly is the behaviour that makes the platform
-     * trustworthy on a course it has never seen.
+     * per-question assignment encourages. Severity is not estimable at all: an
+     * assistant's severity appears only ever alongside the difficulty of their one
+     * question, so only the sum is identified. And it cannot have harmed anyone, because
+     * every student met the same assistant on every question. The audit must say both.
      *
      * <p>Questions are dealt round-robin when there are more questions than graders,
      * which keeps each question owned by exactly one assistant.
@@ -92,14 +93,34 @@ public final class DesignGenerator {
     }
 
     /**
-     * Question-wise marking with a handful of scripts marked a second time by a
-     * different assistant.
+     * Question-wise marking with the order each script was marked in recorded.
      *
-     * <p>This is the arrangement of the course this project was built for, and the
-     * one that decides whether it has a subject at all. Each double-marked script
-     * links the two assistants who marked it; enough links and the whole panel is on
-     * one scale. The audit's job is to say how far the existing overlap gets, which
-     * is a question about this exact structure.
+     * @param alternateReversed when false, every assistant works through the stack in the
+     *                          same roll-number order, so a script's position is the same on
+     *                          every question; when true, the assistants on odd-numbered
+     *                          questions work through it in reverse
+     */
+    public static MarkingDesign questionWiseWithStackOrder(int students, int questions, int graders,
+                                                           boolean alternateReversed) {
+        List<DesignCell> cells = new ArrayList<>();
+        for (int s = 0; s < students; s++) {
+            for (int q = 0; q < questions; q++) {
+                int position = (alternateReversed && q % 2 == 1) ? students - s : s + 1;
+                cells.add(new DesignCell(s, q, q % graders, 0, position));
+            }
+        }
+        return build(cells, students, questions, graders);
+    }
+
+    /**
+     * Question-wise marking with a handful of scripts marked a second time by a
+     * different assistant, as a check that does not change the mark of record.
+     *
+     * <p>This is the arrangement of the course this project was built for. Each
+     * double-marked script links the two assistants who marked it; enough links and the
+     * whole panel is on one scale. Because the second marks do not count, every student's
+     * marks of record still come from one assistant per question, so nobody was exposed
+     * to a different mix of assistants.
      *
      * @param doubleMarkedPerQuestion scripts per question given a second marker
      */
@@ -111,7 +132,7 @@ public final class DesignGenerator {
             int second = (owner + 1) % graders;
             if (second == owner) continue;
             for (int k = 0; k < doubleMarkedPerQuestion && k < students; k++) {
-                cells.add(new DesignCell(k, q, second));
+                cells.add(new DesignCell(k, q, second).asSecondMark());
             }
         }
         return build(cells, students, questions, graders);
@@ -156,9 +177,8 @@ public final class DesignGenerator {
      * questions, with nothing shared between them.
      *
      * <p>Within each island severities are comparable; across islands they are not,
-     * and no anchoring makes them so. The audit should return a partial verdict that
-     * names the island it can measure and the one it cannot, rather than silently
-     * reporting all of them on one scale.
+     * and no anchoring makes them so. The audit should report both groups, rather than
+     * silently reporting all of them on one scale or calling one of them "blocked".
      */
     public static MarkingDesign disconnectedIslands(int studentsPerIsland, int questionsPerIsland,
                                                     int gradersPerIsland) {
@@ -178,16 +198,16 @@ public final class DesignGenerator {
     }
 
     /**
-     * Two islands joined by a single double-marked script: the smallest repair that
-     * can work, and the one the linking design proposes.
+     * Two islands joined by a single script second-marked across them: the smallest
+     * repair that can work.
      */
     public static MarkingDesign disconnectedIslandsWithOneBridge(int studentsPerIsland,
                                                                  int questionsPerIsland,
                                                                  int gradersPerIsland) {
         MarkingDesign islands = disconnectedIslands(studentsPerIsland, questionsPerIsland, gradersPerIsland);
         List<DesignCell> cells = new ArrayList<>(islands.cells());
-        // An assistant from the second island marks a script from the first.
-        cells.add(new DesignCell(0, 0, gradersPerIsland));
+        // An assistant from the second island second-marks a script from the first.
+        cells.add(new DesignCell(0, 0, gradersPerIsland).asSecondMark());
         return build(cells, islands.studentCount(), islands.questionCount(), islands.graderCount());
     }
 
@@ -195,17 +215,12 @@ public final class DesignGenerator {
      * Question-wise marking in which the assistant assigned to a question rotates
      * across blocks of students.
      *
-     * <p>The arrangement worth knowing about, because it costs an instructor nothing.
-     * Nobody marks a script twice, yet every assistant is seen on several questions
-     * and every student is seen by several assistants, and that crossing alone is
-     * enough to put the whole panel on one scale. Where double-marking buys
-     * identifiability with extra labour, rotation buys it by reordering labour the
-     * course was going to spend anyway.
-     *
-     * <p>The linking design proposes this before it proposes second marking, because
-     * an instructor who is told "have twelve scripts marked twice" and an instructor
-     * who is told "deal the questions round-robin by roll-number block" will not
-     * comply at the same rate.
+     * <p>Nobody marks a script twice, yet every assistant is seen on several questions
+     * and every student is seen by several assistants, and that crossing alone puts the
+     * whole panel on one scale. Whether it is harmless depends on the questions: when
+     * every student meets each assistant on questions of equal worth, nobody's mix of
+     * assistants differs, but over questions of unequal worth the rotation itself exposes
+     * students differently. That is why it is offered for feedback, not as a repair.
      */
     public static MarkingDesign rotatingCrossed(int students, int questions, int graders, int blocks) {
         List<DesignCell> cells = new ArrayList<>();
@@ -220,10 +235,14 @@ public final class DesignGenerator {
     }
 
     private static MarkingDesign build(List<DesignCell> cells, int students, int questions, int graders) {
-        return MarkingDesign.of(cells,
+        MarkingDesign design = MarkingDesign.of(cells,
                 labels("Student", students),
                 labels("Q", questions),
                 labels("Assistant ", graders));
+        int[] rollOrder = new int[students];
+        for (int s = 0; s < students; s++) rollOrder[s] = s;
+        return design.withAllocationEvidence(
+                AllocationEvidence.fromRollOrder(cells, students, graders, rollOrder, new String[students]));
     }
 
     private static List<String> labels(String prefix, int n) {

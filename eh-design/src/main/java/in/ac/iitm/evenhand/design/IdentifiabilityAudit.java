@@ -1,18 +1,21 @@
 package in.ac.iitm.evenhand.design;
 
+import in.ac.iitm.evenhand.core.AllocationEvidence;
 import in.ac.iitm.evenhand.core.AuditVerdict;
 import in.ac.iitm.evenhand.core.DesignCell;
 import in.ac.iitm.evenhand.core.Diagnostic;
+import in.ac.iitm.evenhand.core.Exposure;
 import in.ac.iitm.evenhand.core.IdentifiabilityCertificate;
 import in.ac.iitm.evenhand.core.MarkingDesign;
 import in.ac.iitm.evenhand.numerics.ExactRowSpace;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * The platform's first output, and the reason it can be trusted on a course it has
@@ -28,6 +31,16 @@ import java.util.TreeSet;
  * instructor can be told what his arrangement supports before he shares a single
  * mark, which is the difference between a tool he must trust in advance and one that
  * earns it.
+ *
+ * <h2>Two questions, not one</h2>
+ *
+ * <p>The audit asks whether severity could have moved anyone ({@link ExposureAudit})
+ * before it asks whether severity can be measured. Severity harms a student only
+ * through <em>differential exposure</em>: if every student's marks of record came from
+ * the same assistants in the same proportions, a harsh assistant is indistinguishable
+ * from a harder question and moves nobody relative to anybody. So a severity that
+ * cannot be estimated may also be unable to do harm, and the diagnostics say so
+ * rather than raising an error over nothing.
  *
  * <h2>What is being decided</h2>
  *
@@ -45,55 +58,63 @@ import java.util.TreeSet;
  *
  * <h2>The two ways a design fails, which are not the same way</h2>
  *
- * <p>Computing the rank rather than inspecting a connectivity graph surfaces a
- * distinction that matters, because the two arrangements IIT Madras courses use fail
- * differently and only one of them is recoverable.
- *
  * <ul>
  *   <li><strong>Question-wise.</strong> Each assistant marks one question across the
  *       class. Their severity is only ever observed added to that question's
  *       difficulty. No assumption about students touches this, because no student was
  *       marked on that question by anyone else. The excess null dimension is one less
- *       than the number of assistants: not a single severity difference is estimable.</li>
+ *       than the number of assistants: not a single severity difference is estimable
+ *       &mdash; and, because every student met the same marker on each question, none
+ *       of it can have moved anyone.</li>
  *   <li><strong>Script-wise.</strong> Each assistant marks a whole pile and nobody
  *       else touches it. Their severity is absorbed into the abilities of the students
- *       in that pile. The rank deficiency is exactly the same size &mdash; as algebra
- *       this is equally fatal &mdash; but it <em>is</em> rescuable, by assuming the
- *       piles were alike in ability. That is what random allocation buys.</li>
+ *       in that pile. The rank deficiency is exactly the same size, but it <em>is</em>
+ *       rescuable, by assuming the piles were alike in ability. That is what random
+ *       allocation buys.</li>
  * </ul>
  *
  * <p>The audit separates them by asking the same estimability question a second time
  * against a design whose student columns have been collapsed into one intercept
  * ({@link DesignMatrix#withStudentsCollapsed()}). Collapsing the students <em>is</em>
- * the exchangeability assumption. If a contrast becomes estimable once it is made,
- * the confound was with ability and randomisation is the remedy; if it does not, the
- * confound is with question difficulty and only a second marker on the same question
- * will do.
+ * the exchangeability assumption, and it is also the fixed-effect part of the
+ * random-ability model the estimator fits. If a contrast becomes estimable once it is
+ * made, the confound was with ability and randomisation is the remedy; if it does not,
+ * the confound is with question difficulty and only a second marker on the same
+ * question will do.
  *
- * <p>One consequence is worth stating plainly, because it limits the tool: a random
- * split and a fixed roll-number split produce <em>identical</em> designs of identical
- * rank. The audit cannot tell them apart and does not pretend to. What it can see is
- * whether each assistant's pile is a contiguous block of roll numbers, which it
- * reports as evidence for the reader to weigh rather than as a verdict.
+ * <p>A random split and a fixed roll-number split produce <em>identical</em> designs
+ * of identical rank. The audit cannot tell them apart and does not pretend to; it
+ * reports the {@link AllocationEvidence} that ingest computed from the real roll
+ * numbers instead.
  *
  * <h2>Why exactly, and why twice</h2>
  *
  * <p>Rank is computed over the integers by {@link ExactRowSpace}, so the verdict is a
  * fact about the arrangement, not a consequence of a floating-point threshold. The
- * same quantities are computed a second way from the eigenvalues of the Fisher
- * information, and the two must agree on every scenario fixture. The established tool
- * in this area, Facets, uses a graph-joining heuristic derived from Weeks and
- * Williams (1964) whose own manual notes that "there are exotic forms of
- * connectedness which Facets may falsely report as disconnected"; computing the rank
- * itself is what avoids that class of error.
+ * tests recompute every scenario's null dimension from the eigenvalues of the
+ * information matrix and require agreement, and the certificate issued here is
+ * re-verified wherever it is used. The established tool in this area, Facets, uses a
+ * graph-joining heuristic derived from Weeks and Williams (1964) whose own manual
+ * notes that "there are exotic forms of connectedness which Facets may falsely report
+ * as disconnected"; computing the rank itself is what avoids that class of error.
  */
 public final class IdentifiabilityAudit {
 
     private IdentifiabilityAudit() {
     }
 
+    /** Audits with every question weighted equally. Pass weights when maxima are known. */
     public static AuditVerdict audit(MarkingDesign design) {
+        return audit(design, ExposureAudit.unitWeights(design));
+    }
+
+    /**
+     * @param questionWeights marks each question is worth times its assessment's weight
+     *                        in the course grade; they decide exposure, never estimability
+     */
+    public static AuditVerdict audit(MarkingDesign design, double[] questionWeights) {
         List<Diagnostic> diagnostics = new ArrayList<>(doubleMarkingDiagnostics(design));
+        double[][] shares = ExposureAudit.shares(design, questionWeights);
 
         DesignMatrix full = new DesignMatrix(design);
         ExactRowSpace fullSpace = rowSpaceOf(full, design);
@@ -103,6 +124,7 @@ public final class IdentifiabilityAudit {
                 fullSpace.rank(), full.columns(), excess, design.fingerprint(), fullSpace.nullSpace());
 
         if (design.graderCount() < 2) {
+            List<Set<Integer>> everyone = design.graderCount() == 1 ? List.of(Set.of(0)) : List.of();
             diagnostics.add(Diagnostic.error(
                     Diagnostic.Code.EH001_SINGLE_MARKER,
                     "All marking was done by one person, so there is no assistant-to-assistant "
@@ -110,6 +132,7 @@ public final class IdentifiabilityAudit {
                     design.graderLabels(),
                     "No repair applies. Severity is only meaningful when marking is divided."));
             return new AuditVerdict.NotEstimable(certificate, diagnostics,
+                    ExposureAudit.assess(shares, everyone, everyone),
                     "only one person marked this assessment");
         }
 
@@ -120,16 +143,29 @@ public final class IdentifiabilityAudit {
         boolean[][] underExchangeability = comparability(collapsed, collapsedSpace, design.graderCount());
 
         List<Set<Integer>> designClasses = classes(fromDesign, design.graderCount());
+        List<Set<Integer>> exchangeabilityClasses = classes(underExchangeability, design.graderCount());
+        Exposure exposure = ExposureAudit.assess(shares, designClasses, exchangeabilityClasses);
+
         if (designClasses.size() == 1) {
-            return new AuditVerdict.Estimable(
-                    new IdentifiabilityCertificate(fullSpace.rank(), full.columns(), 0,
-                            design.fingerprint(), fullSpace.nullSpace()),
-                    diagnostics);
+            if (excess == 0) {
+                return new AuditVerdict.Estimable(certificate, diagnostics, exposure);
+            }
+            // Every severity difference is estimable, yet something else is not: groups of
+            // students who were never set a question in common. Their abilities share a scale
+            // only if the groups were alike, and saying "estimable" outright would hide that.
+            diagnostics.add(Diagnostic.warning(
+                    Diagnostic.Code.EH009_RESTS_ON_EXCHANGEABILITY,
+                    "Every assistant can be placed on one scale, but some groups of students were never "
+                    + "marked on a question in common, so their abilities share a scale only if those "
+                    + "groups were alike to begin with.",
+                    List.of(),
+                    "Setting every group at least one common question removes the assumption."));
+            return new AuditVerdict.EstimableUnderExchangeability(certificate, diagnostics, exposure,
+                    "that groups of students who were set different questions were alike in ability",
+                    describeAllocation(design));
         }
 
         diagnostics.addAll(nestingDiagnostics(design, underExchangeability));
-
-        List<Set<Integer>> exchangeabilityClasses = classes(underExchangeability, design.graderCount());
         String allocationEvidence = describeAllocation(design);
 
         if (exchangeabilityClasses.size() == 1) {
@@ -139,65 +175,76 @@ public final class IdentifiabilityAudit {
                     + "the ability of the students in their pile if those piles are taken to have "
                     + "been alike to begin with. " + allocationEvidence,
                     design.graderLabels(),
-                    "Marking a small number of scripts a second time would remove the assumption "
-                    + "entirely, and rotating which assistant marks which question across blocks "
-                    + "of roll numbers would do the same at no extra marking cost."));
-            return new AuditVerdict.EstimableUnderExchangeability(certificate, diagnostics,
+                    "Marking a small number of scripts a second time would remove the assumption entirely."));
+            return new AuditVerdict.EstimableUnderExchangeability(certificate, diagnostics, exposure,
                     "that the piles of scripts given to each assistant were alike in ability",
                     allocationEvidence);
         }
 
-        Set<Integer> largest = exchangeabilityClasses.stream()
-                .max((a, b) -> Integer.compare(a.size(), b.size()))
-                .orElseThrow();
+        List<List<Integer>> groups = exchangeabilityClasses.stream()
+                .map(c -> c.stream().sorted().toList())
+                .sorted(Comparator.comparing((List<Integer> g) -> g.get(0)))
+                .toList();
 
-        if (largest.size() < 2) {
-            diagnostics.add(Diagnostic.error(
-                    Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                    "No two assistants can be placed on the same scale. Each one's severity is only "
-                    + "ever seen together with the difficulty of the question they marked, so only "
-                    + "the sum of the two is estimable, and no amount of student overlap separates "
-                    + "them.",
-                    design.graderLabels(),
-                    "Two repairs work, and the cheaper is worth trying first. Rotate which assistant "
-                    + "marks which question across blocks of roll numbers: nobody marks more, and "
-                    + "every severity becomes estimable. Failing that, have a second assistant mark "
-                    + "a subset of scripts on each question."));
-            return new AuditVerdict.NotEstimable(certificate, diagnostics,
+        if (groups.stream().noneMatch(g -> g.size() >= 2)) {
+            diagnostics.add(noComparablePair(design, exposure));
+            return new AuditVerdict.NotEstimable(certificate, diagnostics, exposure,
                     "no two assistants share enough marking to be compared");
         }
 
-        List<Integer> blocked = new ArrayList<>();
-        for (int g = 0; g < design.graderCount(); g++) {
-            if (!largest.contains(g)) blocked.add(g);
-        }
-        boolean largestHoldsWithoutAssumption = true;
-        List<Integer> largestList = new ArrayList<>(largest);
-        for (int i = 0; i < largestList.size() && largestHoldsWithoutAssumption; i++) {
-            for (int j = i + 1; j < largestList.size(); j++) {
-                if (!fromDesign[largestList.get(i)][largestList.get(j)]) {
-                    largestHoldsWithoutAssumption = false;
-                    break;
-                }
+        List<String> restingOnAssumption = new ArrayList<>();
+        for (List<Integer> group : groups) {
+            if (group.size() >= 2 && !allComparable(fromDesign, group)) {
+                group.forEach(g -> restingOnAssumption.add(design.graderLabels().get(g)));
             }
         }
-        if (!largestHoldsWithoutAssumption) {
+        if (!restingOnAssumption.isEmpty()) {
             diagnostics.add(Diagnostic.warning(
                     Diagnostic.Code.EH009_RESTS_ON_EXCHANGEABILITY,
-                    "Even among the assistants that can be compared, the comparison holds only if "
-                    + "their piles of scripts are taken to have been alike in ability. "
-                    + allocationEvidence,
-                    largestList.stream().map(g -> design.graderLabels().get(g)).toList(),
+                    "Within their groups, these assistants can be compared only if their piles of scripts "
+                    + "are taken to have been alike in ability. " + allocationEvidence,
+                    restingOnAssumption,
                     "Marking a small number of scripts a second time would remove the assumption."));
         }
+        String rendered = groups.stream()
+                .map(g -> g.stream().map(i -> design.graderLabels().get(i))
+                        .collect(Collectors.joining(", ", "[", "]")))
+                .collect(Collectors.joining(", "));
         diagnostics.add(Diagnostic.warning(
                 Diagnostic.Code.EH002_DISCONNECTED_GRADERS,
-                "These assistants are not on a comparable scale with the rest, because no chain of "
-                + "shared marking connects them to it.",
-                blocked.stream().map(g -> design.graderLabels().get(g)).toList(),
-                "One shared unit per unconnected group is the minimum that can work: have one of "
-                + "their scripts marked by an assistant from the connected group."));
-        return new AuditVerdict.PartiallyEstimable(certificate, diagnostics, largestList, blocked);
+                "The assistants fall into " + groups.size() + " groups with no chain of shared marking "
+                + "between them: " + rendered + ". Severities can be compared within a group, never "
+                + "across groups.",
+                design.graderLabels(),
+                "Connecting " + groups.size() + " groups needs at least " + (groups.size() - 1)
+                + " shared unit(s): each a script marked by assistants from two different groups."));
+        return new AuditVerdict.PartiallyEstimable(certificate, diagnostics, exposure, groups);
+    }
+
+    /** The verdict-level explanation when no two assistants can be compared at all. */
+    private static Diagnostic noComparablePair(MarkingDesign design, Exposure exposure) {
+        if (exposure.isNone()) {
+            return Diagnostic.note(
+                    Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
+                    "No two assistants can be placed on the same scale: each one's severity is only ever "
+                    + "seen together with the difficulty of the question they marked. That also means it "
+                    + "cannot have moved anyone, because every student's marks of record came from the "
+                    + "same assistants in the same proportions.",
+                    design.graderLabels(),
+                    "Only if you want per-assistant feedback: have a second assistant mark a few scripts on "
+                    + "each question. Rotating markers also works, but only in a form that leaves every "
+                    + "student with the same mix of assistants, or it creates the harm it measures.");
+        }
+        return Diagnostic.error(
+                Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
+                "No two assistants can be placed on the same scale. Each one's severity is only ever seen "
+                + "together with the difficulty of the question they marked, so only the sum of the two is "
+                + "estimable, and students met different mixes of assistants, so it may have moved some of "
+                + "them.",
+                design.graderLabels(),
+                "Have a second assistant mark a subset of scripts on each question. Where students met "
+                + "different assistants on the same question, giving every student the same mix removes "
+                + "the harm outright.");
     }
 
     private static ExactRowSpace rowSpaceOf(DesignMatrix matrix, MarkingDesign design) {
@@ -224,6 +271,15 @@ public final class IdentifiabilityAudit {
             }
         }
         return out;
+    }
+
+    private static boolean allComparable(boolean[][] comparable, List<Integer> group) {
+        for (int i = 0; i < group.size(); i++) {
+            for (int j = i + 1; j < group.size(); j++) {
+                if (!comparable[group.get(i)][group.get(j)]) return false;
+            }
+        }
+        return true;
     }
 
     /** Groups of mutually comparable graders, by transitive closure. */
@@ -264,53 +320,26 @@ public final class IdentifiabilityAudit {
     }
 
     /**
-     * What the allocation looks like, from the allocation alone.
+     * What the allocation looks like, as ingest read it from the real roll numbers.
      *
      * <p>Whether the piles were alike in ability is not knowable without the marks and
      * is not claimed here. Whether they were dealt in roll-number order <em>is</em>
-     * visible, and it is the thing most likely to make the assumption false: a split by
-     * roll number groups students by admission rank, branch or section, none of which
-     * are independent of ability.
+     * knowable, but only from the roll numbers, which never reach this module; ingest
+     * reduces them to {@link AllocationEvidence}. The student indices here are in
+     * pseudonym order and say nothing about roll numbers, so without that evidence the
+     * audit says it does not know rather than reading meaning into them.
      */
     private static String describeAllocation(MarkingDesign design) {
-        int contiguous = 0;
-        int assessed = 0;
-        for (int g = 0; g < design.graderCount(); g++) {
-            TreeSet<Integer> pile = new TreeSet<>();
-            for (DesignCell c : design.cells()) {
-                if (c.grader() == g) pile.add(c.student());
-            }
-            // An assistant who marked the whole class has a trivially contiguous "pile",
-            // and reading that as a roll-number split would be flatly wrong. Contiguity
-            // only carries information about how piles were dealt when there were piles.
-            if (pile.size() < 2 || pile.size() >= 0.9 * design.studentCount()) continue;
-            assessed++;
-            int runs = 1;
-            Integer previous = null;
-            for (int s : pile) {
-                if (previous != null && s != previous + 1) runs++;
-                previous = s;
-            }
-            // A pile dealt at random breaks into roughly as many runs as it has members.
-            if (runs <= Math.max(2, pile.size() / 10)) contiguous++;
-        }
-        if (assessed == 0) {
-            return "There is not enough marking per assistant to say how the piles were formed.";
-        }
-        if (contiguous == assessed) {
-            return "Every assistant's pile is a contiguous block of roll numbers, so the split was "
-                    + "made by roll number rather than at random, and the assumption that the piles "
-                    + "were alike in ability is the one most worth doubting.";
-        }
-        if (contiguous == 0) {
-            return "Assistants' piles are interleaved across roll numbers, which is consistent with "
-                    + "a random deal.";
-        }
-        return contiguous + " of " + assessed + " assistants' piles are contiguous blocks of roll "
-                + "numbers, so the split was at least partly made by roll number.";
+        return design.allocationEvidence()
+                .map(AllocationEvidence::describe)
+                .orElse("How the piles were dealt is not known, because the allocation arrived without "
+                        + "roll numbers to judge it by.");
     }
 
-    /** Reports assistants whose severity is pinned to a single question's difficulty. */
+    /**
+     * Reports assistants whose severity is pinned to a single question's difficulty,
+     * and says whether that can have harmed anyone.
+     */
     private static List<Diagnostic> nestingDiagnostics(MarkingDesign design, boolean[][] underExchangeability) {
         List<Diagnostic> out = new ArrayList<>();
         for (int g = 0; g < design.graderCount(); g++) {
@@ -328,18 +357,40 @@ public final class IdentifiabilityAudit {
             }
             if (anyComparable) continue;
 
-            out.add(Diagnostic.error(
-                    Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                    "This assistant marked only " + design.questionLabels().get(q)
-                    + ", and nobody else marked it. Their severity and that question's difficulty are "
-                    + "only ever observed added together, so a harsh assistant and a hard question "
-                    + "cannot be told apart.",
-                    List.of(design.graderLabels().get(g), design.questionLabels().get(q)),
-                    "Have a second assistant mark some of the scripts for "
-                    + design.questionLabels().get(q) + ", or rotate this question's marker across "
-                    + "blocks of roll numbers next time."));
+            String grader = design.graderLabels().get(g);
+            String question = design.questionLabels().get(q);
+            if (everyStudentsMarkOfRecordOn(design, q)) {
+                out.add(Diagnostic.note(
+                        Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
+                        "This assistant alone marked " + question + ", so their severity cannot be separated "
+                        + "from " + question + "'s difficulty. It also cannot have moved anyone: every "
+                        + "student's " + question + " was marked by this assistant.",
+                        List.of(grader, question),
+                        "Only if you want per-assistant feedback: have a second assistant mark ten or so "
+                        + question + " scripts."));
+            } else {
+                out.add(Diagnostic.error(
+                        Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
+                        "This assistant marked only " + question + ", and nobody else marked it. Their "
+                        + "severity and that question's difficulty are only ever observed added together, so "
+                        + "a harsh assistant and a hard question cannot be told apart, and not every student "
+                        + "answered " + question + ", so it may have moved some of them.",
+                        List.of(grader, question),
+                        "Have a second assistant mark some of the scripts for " + question + "."));
+            }
         }
         return out;
+    }
+
+    /** Whether every student in the design has a mark of record on this question. */
+    private static boolean everyStudentsMarkOfRecordOn(MarkingDesign design, int question) {
+        Set<Integer> everyone = new HashSet<>();
+        Set<Integer> marked = new HashSet<>();
+        for (DesignCell c : design.cells()) {
+            everyone.add(c.student());
+            if (c.question() == question && c.ofRecord()) marked.add(c.student());
+        }
+        return marked.equals(everyone);
     }
 
     /** Counts units that carry two marks, since those are what link assistants outright. */
