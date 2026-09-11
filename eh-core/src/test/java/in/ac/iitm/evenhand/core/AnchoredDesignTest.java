@@ -34,8 +34,23 @@ class AnchoredDesignTest {
                 List.of("Student1"), List.of("Q1", "Q2"), List.of("Assistant 1", "Assistant 2"));
     }
 
+    /**
+     * The true certificate for {@link #twoGraderDesign()}: five parameters, rank three,
+     * and a null space made only of the two shifts every design has (abilities with
+     * difficulties, abilities with severities).
+     */
     private static IdentifiabilityCertificate cleanCertificateFor(MarkingDesign design) {
-        return new IdentifiabilityCertificate(4, 5, 0, design.fingerprint(), List.of());
+        return new IdentifiabilityCertificate(3, 5, 0, design.fingerprint(), List.of(
+                new double[] {1, 1, 1, 0, 0},
+                new double[] {1, 1, 0, 1, 1}));
+    }
+
+    /** Two assistants, each marking one question for both students: confounded. */
+    private static MarkingDesign questionWiseDesign() {
+        return MarkingDesign.of(
+                List.of(new DesignCell(0, 0, 0), new DesignCell(1, 0, 0),
+                        new DesignCell(0, 1, 1), new DesignCell(1, 1, 1)),
+                List.of("Student1", "Student2"), List.of("Q1", "Q2"), List.of("Assistant 1", "Assistant 2"));
     }
 
     @Test
@@ -75,6 +90,51 @@ class AnchoredDesignTest {
         assertThatThrownBy(() -> AnchoredDesign.of(unaudited, clean, Anchoring.standard()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("different marking design");
+    }
+
+    @Test
+    @DisplayName("a certificate claiming more identification than the marking supports is caught")
+    void forgedFullIdentificationIsCaught() {
+        MarkingDesign confounded = questionWiseDesign();
+        // Internally consistent and carrying the right fingerprint, so only checking it
+        // against the marking itself can expose it: the true rank is 3, not 4.
+        IdentifiabilityCertificate forged = new IdentifiabilityCertificate(4, 6, 0, confounded.fingerprint(),
+                List.of(new double[] {1, 1, 1, 1, 0, 0}, new double[] {1, 1, 0, 0, 1, 1}));
+
+        assertThatThrownBy(() -> AnchoredDesign.of(confounded,
+                new AuditVerdict.Estimable(forged, List.of()), Anchoring.standard()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("only 3 can be confirmed");
+    }
+
+    @Test
+    @DisplayName("a certificate claiming more confounding than the marking contains is caught")
+    void forgedConfoundingIsCaught() {
+        MarkingDesign design = twoGraderDesign();
+        IdentifiabilityCertificate understated = new IdentifiabilityCertificate(2, 5, 1, design.fingerprint(),
+                List.of(new double[] {1, 1, 1, 0, 0}, new double[] {1, 1, 0, 1, 1}, new double[] {0, 0, 0, 1, -1}));
+
+        // Understating identification is the safe direction of error, but it is still an
+        // error: it would tell the instructor a conclusion rests on an assumption when the
+        // marking settles it outright.
+        assertThatThrownBy(() -> AnchoredDesign.of(design,
+                new AuditVerdict.EstimableUnderExchangeability(understated, List.of(), "piles alike", "interleaved"),
+                Anchoring.standard()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("more confounding than the marking contains");
+    }
+
+    @Test
+    @DisplayName("a null basis the marking does not annihilate is not a null basis")
+    void nullBasisIsCheckedAgainstTheMarking() {
+        MarkingDesign design = twoGraderDesign();
+        IdentifiabilityCertificate wrongBasis = new IdentifiabilityCertificate(3, 5, 0, design.fingerprint(),
+                List.of(new double[] {1, 1, 1, 0, 0}, new double[] {0, 0, 0, 1, -1}));
+
+        assertThatThrownBy(() -> AnchoredDesign.of(design,
+                new AuditVerdict.Estimable(wrongBasis, List.of()), Anchoring.standard()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not a null direction");
     }
 
     @Test

@@ -47,10 +47,15 @@ public final class AuditReport {
         };
     }
 
-    private record Scenario(String label, MarkingDesign design) {}
+    /** One row of the scenario matrix: an arrangement whose right answer was worked out on paper. */
+    public record Scenario(String label, MarkingDesign design) {}
 
-    public static void main(String[] args) {
-        List<Scenario> scenarios = List.of(
+    /**
+     * The scenario matrix. The design document's Appendix A is this list's output, and
+     * the tests run their cross-checks over exactly this list, so the two cannot drift.
+     */
+    public static List<Scenario> scenarios() {
+        return List.of(
                 new Scenario("Question-wise + double-marking",
                         DesignGenerator.questionWiseWithDoubleMarking(60, 5, 5, 8)),
                 new Scenario("Question-wise, marker rotated",
@@ -69,6 +74,10 @@ public final class AuditReport {
                         DesignGenerator.disconnectedIslands(30, 3, 2)),
                 new Scenario("Islands + one bridging mark",
                         DesignGenerator.disconnectedIslandsWithOneBridge(30, 3, 2)));
+    }
+
+    public static void main(String[] args) {
+        List<Scenario> scenarios = scenarios();
 
         System.out.printf("%-34s %3s %3s  %-22s%n", "ARRANGEMENT", "J", "EXC", "VERDICT");
         System.out.println("-".repeat(70));
