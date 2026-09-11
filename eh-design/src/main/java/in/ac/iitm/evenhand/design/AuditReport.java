@@ -91,9 +91,9 @@ public final class AuditReport {
                         DesignGenerator.scriptWiseFixedBlocks(60, 5, 4)),
                 new Scenario("Question-wise, no overlap",
                         DesignGenerator.questionWise(60, 5, 5)),
-                new Scenario("Question-wise, shared stack order",
+                new Scenario("Question-wise, one stack order",
                         DesignGenerator.questionWiseWithStackOrder(60, 5, 5, false)),
-                new Scenario("Question-wise, alternate stacks reversed",
+                new Scenario("  alternate stacks reversed",
                         DesignGenerator.questionWiseWithStackOrder(60, 5, 5, true)),
                 new Scenario("Mixed across assessments",
                         DesignGenerator.mixed(60, 6, 4, 7L)),
@@ -106,9 +106,9 @@ public final class AuditReport {
     }
 
     public static void main(String[] args) {
-        String format = "%-40s %3s %3s  %-15s %-14s %-13s%n";
+        String format = "%-33s %3s %3s  %-15s %-14s %-13s%n";
         System.out.printf(format, "ARRANGEMENT", "J", "EXC", "SEVERITY", "EXPOSURE", "DRIFT");
-        System.out.println("-".repeat(92));
+        System.out.println("-".repeat(85));
         for (Scenario s : scenarios()) {
             AuditVerdict v = s.audit();
             System.out.printf(format, s.label(), s.design().graderCount(), v.certificate().excessNullity(),
