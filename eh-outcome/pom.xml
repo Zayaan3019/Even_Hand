@@ -12,7 +12,7 @@
   <artifactId>eh-outcome</artifactId>
   <name>eh-outcome</name>
   <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
-  <description>Grading rules, weighted composites, boundary recomputation, transfers, shortlist.</description>
+  <description>IITM grading rules, weighted composites, grades as marked vs corrected, re-check list.</description>
 
   <dependencies>
     <dependency>
