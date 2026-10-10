@@ -8,7 +8,7 @@ It is short on purpose, and every row names the override.
 | --- | --- | --- | --- |
 | A1 | The marks in the input are the marks the grade was computed from | none — it is the input | structural |
 | A2 | Each question is marked in steps no finer than a thousandth of a mark; each step it was actually marked in (whole, half, quarter…) is a category | a maximum column; `ScoreType.ORDINAL` for rubric bands | enforced — finer values are refused as computed, not awarded |
-| A3 | An assistant's severity is constant within one marking session | session facet; pooling across sessions tested by likelihood ratio, never assumed | planned with the estimator |
+| A3 | An assistant's severity is constant across the course (all their marking sessions) | none yet; a per-session facet is future work | **stated** (10 Oct: the simpler estimator pools sessions) |
 | A4 | The cut-off rule is whatever the instructor says it is | `CourseProfile.cutoffPolicy`, `sBandPolicy` | configurable |
 | A5 | Grade points follow R.21.1: S=10, A=9, B=8, C=7, D=6, E=4, U=0 | `LetterGrade` | **verified** against the printed table in the 2015 B.Tech Ordinances |
 | A6 | A course grade is a weighted composite of assessments (R.19.1) | `CourseProfile.assessmentWeights`; the same weights, times question maxima, decide exposure | configurable |
@@ -17,7 +17,10 @@ It is short on purpose, and every row names the override.
 | A9 | What each question was marked out of is **declared**, not inferred | a maximum column in the CSV, or `CourseProfile.maxScorePerQuestion` | enforced — see below |
 | A10 | Where a response was marked twice, the mark that counts is the one the `role` column says; with no such column, the first mark in the file | a `role` column (`record` / `second`); two marks of record are read as averaged | enforced, and warned (EH012) whenever it had to decide |
 | A11 | A question belongs to its assessment: Q1 of a quiz and Q1 of the end-semester exam are different questions | none needed | structural |
-| A12 | Severity acts additively on the logit scale, so its effect on a student is, to first order, their exposure to each assistant times that assistant's severity | the exact statement for one marker of record per question needs only that each question's expected mark rises with ability | stated; nonlinearity is the estimator's to report |
+| A12 | Severity acts additively (the estimator works in percentage points of each question's maximum; the benchmark generates marks on a logistic curve to test that this is good enough), and on the logit scale, so its effect on a student is, to first order, their exposure to each assistant times that assistant's severity | the exact statement for one marker of record per question needs only that each question's expected mark rises with ability | stated; nonlinearity is the estimator's to report |
+| A13 | A student with no marks at all in an assessment was absent: they met no assistant there | none needed | enforced in `ExposureAudit.shares`; a missing *question* in a paper they sat is treated as structural, not absence |
+| A14 | Where the audit says comparison rests on the piles being alike, that assumption is imposed by shrinking each student towards the class average (strength trained on the benchmark: 5 marks) | `Settings.studentShrinkage` | stated, and the re-check list is refused when piles follow the department code |
+| A15 | The marks in a simulated course follow a logistic curve with reading noise, half-mark rounding and 1% absence | `CourseSimulator` | the benchmark's own assumption; it deliberately differs from the estimator's |
 
 ## Three limits worth stating plainly
 

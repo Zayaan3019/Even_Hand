@@ -7,6 +7,13 @@ Mohamed Zayaan S (CE23B092) · Pruthviraj Milind Chougale (CE23B104) — Team *G
 > This is the repository-readable mirror of `DESIGN.tex`, which is the submitted PDF source.
 > Where the two differ, the `.tex` is authoritative.
 
+> **Revision, 10 October 2026.** The system as built departs from this design in five places
+> (an additive estimator in marks instead of marginal-ML Rasch in logits; a student bootstrap; no
+> `eh-linking`; the JDK's HTTP server and a CLI instead of Spring/SQLite; severity pooled across
+> sessions). Each departure, its reason and its evidence is in [`ARCHITECTURE.md`](ARCHITECTURE.md);
+> the benchmark that justifies the estimator is in [`BENCHMARK.md`](BENCHMARK.md). The text below
+> is the document as submitted on 11 September.
+
 ---
 
 ## 1. What changed since the proposal
