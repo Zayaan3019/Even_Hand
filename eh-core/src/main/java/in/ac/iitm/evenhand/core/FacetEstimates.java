@@ -3,7 +3,7 @@ package in.ac.iitm.evenhand.core;
 import java.util.List;
 
 /**
- * Estimates for one facet, in logits, each with its standard error.
+ * Estimates for one facet, in percentage points of a question's maximum, each with its standard error.
  *
  * <p>Every figure carries an interval. A severity estimate without one is unusable,
  * and worse than unusable if it is about a person: an assistant who marked thirty
@@ -11,12 +11,12 @@ import java.util.List;
  * or the output invites a comparison the data does not support.
  *
  * @param labels    pseudonymised element labels, parallel to the arrays
- * @param estimates parameter estimates in logits
- * @param standardErrors standard errors from the observed information
+ * @param estimates parameter estimates in percentage points
+ * @param standardErrors bootstrap standard errors (zero where none were drawn)
  * @param counts    observations behind each estimate, which is what makes the
  *                  differing precision legible
- * @param extreme   elements with a zero or perfect score, whose estimates are not
- *                  finite and are reported as bounds rather than values
+ * @param extreme   elements with a zero or perfect score, whose estimates are
+ *                  pinned at a bound and reported as such
  */
 public record FacetEstimates(Facet facet,
                              List<String> labels,

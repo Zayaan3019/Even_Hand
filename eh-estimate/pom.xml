@@ -12,7 +12,7 @@
   <artifactId>eh-estimate</artifactId>
   <name>eh-estimate</name>
   <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
-  <description>Many-facet Rasch estimation by JMLE, drift, permutation and uncertainty engines.</description>
+  <description>Assistant severity in marks: backfitted additive model, student bootstrap, design-preserving no-effect test.</description>
 
   <dependencies>
     <dependency>
@@ -26,6 +26,11 @@
     <dependency>
       <groupId>in.ac.iitm.evenhand</groupId>
       <artifactId>eh-design</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-ingest</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.jqwik</groupId>

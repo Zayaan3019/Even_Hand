@@ -1,81 +1,82 @@
 package in.ac.iitm.evenhand.core;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Everything the measurement stage knows, in one typed record.
+ * Everything the measurement stage knows, in one typed record: the seam between
+ * measurement ({@code eh-estimate}) and consequence ({@code eh-outcome}).
  *
- * <p>It is the whole interface between measurement and consequence. Profiling, the
- * audit, the measurement model and drift produce it; grading-rule propagation, the
- * shortlist, the linking design and the instructor's views consume it and nothing
- * else. Nothing downstream reaches back into how the fit was computed.
+ * <p>Every figure is in <strong>percentage points of a question's maximum</strong>, the
+ * unit an instructor grades in. A severity of {@code +4.0} means: on a question worth
+ * 10 marks, this assistant awarded about 0.4 marks less than the panel average would
+ * have for the same answer. Positive is harsh, negative is lenient.
  *
- * <p>That matters for a practical reason rather than a tidiness one. The estimator is
- * the part of this system most likely to be replaced &mdash; a different anchoring, a
- * rating-scale model instead of partial credit, a Bayesian fit if the intervals prove
- * too wide at this class size. Confining what it exports to this record means such a
- * change cannot quietly alter what the instructor is told.
+ * <p>Nothing downstream reaches back into how the fit was computed, so the estimator
+ * can be replaced without changing what the instructor is told.
  *
- * @param anchoring     what the scale was anchored to; reported, never implicit
- * @param students      ability estimates
- * @param questions     difficulty estimates
- * @param graderSessions severity estimates, one per (grader, marking session),
- *                      because severity is a property of a marking session rather
- *                      than a standing verdict on a person
- * @param covariance    covariance of the estimated parameters on the identified
- *                      subspace; every interval downstream is drawn from this, so
- *                      the shortlist's probabilities and the transfer counts come
- *                      from one place that can be tested once
- * @param scale         how to say a logit in marks, which is the only unit an
- *                      instructor grades in
- * @param drift         position-in-pile effect, when the marking order was recorded
- * @param diagnostics   convergence and fit
+ * @param verdict      the audit verdict the fit was licensed by
+ * @param anchoring    what the scale was anchored to; reported, never implicit
+ * @param mean         the overall mean percentage
+ * @param students     ability: how far above the class average each student scores
+ * @param questions    easiness: how far above the paper average each question scores
+ * @param graders      severity: how many percentage points each assistant takes off,
+ *                     relative to the panel average of their comparable group
+ * @param groups       graders that share a scale; severities are comparable only
+ *                     within a group
+ * @param residualSd   spread of what the model does not explain, per response
+ * @param severityDraws bootstrap replicates of the severities, {@code [draw][grader]};
+ *                     every interval downstream comes from these, so the re-check
+ *                     probabilities and transfer counts come from one tested place
+ * @param noEffect     the design-preserving test of "the assistants do not differ"
+ * @param diagnostics  convergence
  */
 public record FittedModel(AuditVerdict verdict,
                           Anchoring anchoring,
+                          double mean,
                           FacetEstimates students,
                           FacetEstimates questions,
-                          FacetEstimates graderSessions,
-                          double[][] covariance,
-                          ScoreScale scale,
-                          Optional<DriftEstimate> drift,
+                          FacetEstimates graders,
+                          List<List<Integer>> groups,
+                          double residualSd,
+                          double[][] severityDraws,
+                          NoEffectTest noEffect,
                           FitDiagnostics diagnostics) {
 
-    /**
-     * Converts logits to the units the instructor grades in.
-     *
-     * <p>The conversion is not a constant multiplier: the expected-score curve is
-     * steepest in the middle, so the same severity costs a mid-range student more
-     * marks than a very strong or very weak one. {@code marksPerLogitAtMean} is the
-     * slope at the cohort mean and is what the headline figure is quoted in; the
-     * per-student effect is computed exactly rather than from this slope.
-     */
-    public record ScoreScale(double marksPerLogitAtMean, double totalMarksAvailable) {}
+    public FittedModel {
+        groups = groups.stream().map(List::copyOf).toList();
+    }
+
+    /** Severity of grader {@code j} in percentage points (positive = harsh). */
+    public double severity(int j) {
+        return graders.estimates()[j];
+    }
+
+    /** The 2.5th and 97.5th percentiles of grader {@code j}'s bootstrap draws. */
+    public double[] interval95(int j) {
+        double[] column = new double[severityDraws.length];
+        for (int b = 0; b < column.length; b++) column[b] = severityDraws[b][j];
+        java.util.Arrays.sort(column);
+        if (column.length == 0) return new double[] { severity(j), severity(j) };
+        return new double[] { column[(int) Math.floor(0.025 * (column.length - 1))],
+                              column[(int) Math.ceil(0.975 * (column.length - 1))] };
+    }
 
     /**
-     * Whether marks fall as a grader works deeper into a pile.
-     *
-     * @param slopePerHundred change in logits over one hundred scripts
-     * @param standardError   its standard error
-     * @param likelihoodRatioP p-value of the test against no drift
+     * Could the assistants' differences be chance? The marking is re-simulated many
+     * times on the <em>same</em> allocation with every assistant equally severe, and
+     * refitted; {@code pValue} is the share of those no-effect worlds whose severity
+     * spread is at least the one observed.
      */
-    public record DriftEstimate(double slopePerHundred, double standardError, double likelihoodRatioP) {}
-
-    /**
-     * @param iterations     iterations to convergence
-     * @param maxParamChange largest parameter change on the final iteration
-     * @param converged      whether the criterion was met rather than the cap hit
-     * @param misfitting     elements whose fit statistics say the model does not
-     *                       describe them; an erratic grader is a different finding
-     *                       from a harsh one and must not be reported as severity
-     */
-    public record FitDiagnostics(int iterations,
-                                 double maxParamChange,
-                                 boolean converged,
-                                 List<String> misfitting) {
-        public FitDiagnostics {
-            misfitting = List.copyOf(misfitting);
+    public record NoEffectTest(double observedSpread, double pValue, int simulations) {
+        public boolean rejectsAt(double alpha) {
+            return pValue < alpha;
         }
     }
+
+    /**
+     * @param iterations     backfitting sweeps to convergence
+     * @param maxChange      largest change on the final sweep, in percentage points
+     * @param converged      whether the criterion was met rather than the cap hit
+     */
+    public record FitDiagnostics(int iterations, double maxChange, boolean converged) {}
 }
