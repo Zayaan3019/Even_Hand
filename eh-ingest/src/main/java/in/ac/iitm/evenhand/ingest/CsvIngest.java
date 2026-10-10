@@ -114,16 +114,20 @@ public final class CsvIngest {
      * @param keyFileContents the pseudonymisation key, in memory only; write it only via
      *                        {@link #sealedKeyFile}
      * @param saltFingerprint safe to record in a run manifest
+     * @param assessmentLabels assessment names in index order (not identifying), so a
+     *                        course's weights can be given by name
      */
     public record IngestResult(List<Response> responses,
                                MarkingDesign design,
                                List<Diagnostic> diagnostics,
                                String keyFileContents,
-                               String saltFingerprint) {
+                               String saltFingerprint,
+                               List<String> assessmentLabels) {
 
         public IngestResult {
             responses = List.copyOf(responses);
             diagnostics = List.copyOf(diagnostics);
+            assessmentLabels = List.copyOf(assessmentLabels);
         }
 
         public boolean hasErrors() {
@@ -207,7 +211,7 @@ public final class CsvIngest {
                 questionNames, diagnostics);
         if (maxima == null) {
             return new IngestResult(List.of(), MarkingDesign.of(List.of(), List.of(), List.of(), List.of()),
-                    diagnostics, pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint());
+                    diagnostics, pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(), List.of());
         }
 
         List<RawRow> valid = new ArrayList<>();
@@ -273,7 +277,8 @@ public final class CsvIngest {
                 .withAllocationEvidence(evidence);
 
         return new IngestResult(responses, design, diagnostics,
-                pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint());
+                pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(),
+                List.copyOf(assessmentIndex.keySet()));
     }
 
     /**
