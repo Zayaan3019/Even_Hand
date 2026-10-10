@@ -12,7 +12,7 @@
   <artifactId>eh-report</artifactId>
   <name>eh-report</name>
   <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
-  <description>Marks-unit narration, exports, Class Committee sheet, run manifest.</description>
+  <description>Self-contained HTML: instructor report and aggregate-only Class Committee sheet.</description>
 
   <dependencies>
     <dependency>
@@ -22,10 +22,6 @@
     <dependency>
       <groupId>in.ac.iitm.evenhand</groupId>
       <artifactId>eh-outcome</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>in.ac.iitm.evenhand</groupId>
-      <artifactId>eh-linking</artifactId>
     </dependency>
     <dependency>
       <groupId>net.jqwik</groupId>
