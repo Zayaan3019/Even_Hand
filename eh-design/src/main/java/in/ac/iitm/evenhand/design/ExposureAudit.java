@@ -42,6 +42,12 @@ public final class ExposureAudit {
      * {@code shares[n][j]}: weighted marks of student {@code n}'s composite whose mark of
      * record came from assistant {@code j}. A response with several marks of record is
      * taken as their average, so each of its assistants carries an equal share.
+     *
+     * <p>An assessment a student has no marks in at all (they were absent) is counted with
+     * the class's own mix of assistants for its questions. Absence is not exposure: the
+     * absentee met no assistant on that paper, so none can have moved them on it relative
+     * to anyone else. Without this, one absentee from one quiz made every real course look
+     * differentially exposed and unmeasurable, and suppressed every re-check list.
      */
     public static double[][] shares(MarkingDesign design, double[] questionWeights) {
         if (questionWeights.length != design.questionCount()) {
@@ -60,12 +66,31 @@ public final class ExposureAudit {
             recordGraders.computeIfAbsent(unit, k -> new ArrayList<>()).add(c.grader());
         }
         double[][] shares = new double[design.studentCount()][design.graderCount()];
+        double[][] classMix = new double[design.questionCount()][design.graderCount()];
+        int[] present = new int[design.questionCount()];
         for (Map.Entry<Long, List<Integer>> e : recordGraders.entrySet()) {
             int student = (int) (e.getKey() / design.questionCount());
             int question = (int) (e.getKey() % design.questionCount());
             double each = questionWeights[question] / e.getValue().size();
             for (int g : e.getValue()) {
                 shares[student][g] += each;
+                classMix[question][g] += each;
+            }
+            present[question]++;
+        }
+        // Only whole-assessment absence is imputed. A student who sat the paper but has no
+        // mark on one question (an optional question, or a different section's paper) is a
+        // structural difference and stays one.
+        int[] assessmentOf = new int[design.questionCount()];
+        boolean[][] sat = new boolean[design.studentCount()][design.assessmentCount()];
+        for (DesignCell c : design.cells()) {
+            assessmentOf[c.question()] = c.assessment();
+            if (c.ofRecord()) sat[c.student()][c.assessment()] = true;
+        }
+        for (int s = 0; s < design.studentCount(); s++) {
+            for (int q = 0; q < design.questionCount(); q++) {
+                if (present[q] == 0 || sat[s][assessmentOf[q]]) continue;
+                for (int g = 0; g < design.graderCount(); g++) shares[s][g] += classMix[q][g] / present[q];
             }
         }
         return shares;

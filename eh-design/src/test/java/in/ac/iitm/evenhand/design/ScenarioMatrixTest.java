@@ -187,6 +187,26 @@ class ScenarioMatrixTest {
     }
 
     @Test
+    @DisplayName("question-wise where one student missed the whole paper: still safe, absence is not exposure")
+    void anAbsenteeIsNotDifferentlyExposed() {
+        MarkingDesign full = DesignGenerator.questionWise(60, 5, 5);
+        List<DesignCell> cells = full.cells().stream()
+                .filter(c -> c.student() != 0)
+                .toList();
+        MarkingDesign design = MarkingDesign.of(cells,
+                full.studentLabels(), full.questionLabels(), full.graderLabels());
+
+        AuditVerdict verdict = IdentifiabilityAudit.audit(design);
+
+        // Regression: before the fix, the absentee's empty row of shares differed from
+        // everyone else's, so every real course (which always has an absentee) was called
+        // differentially exposed and unmeasurable, and no re-check list was ever produced.
+        // Contrast the test above: skipping one question of a paper one sat is structural.
+        assertThat(verdict).isInstanceOf(AuditVerdict.NotEstimable.class);
+        assertThat(verdict.exposure().status()).isEqualTo(Exposure.Status.NONE);
+    }
+
+    @Test
     @DisplayName("one marker: refused, because there is no severity to be about")
     void singleMarkerIsRefused() {
         MarkingDesign design = DesignGenerator.singleMarker(60, 5);
