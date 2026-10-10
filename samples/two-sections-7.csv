@@ -1,0 +1,2312 @@
+roll_no,assessment,question,max_marks,marks,ta,role
+EE24B001,Quiz 1,Q1,5,2.5,TA03,record
+EE24B001,Quiz 1,Q2,5,3,TA03,record
+EE24B001,Quiz 1,Q3,5,2.5,TA03,record
+EE24B001,Quiz 1,Q4,5,1.5,TA03,record
+CH24B001,Quiz 1,Q1,5,4.5,TA02,record
+CH24B001,Quiz 1,Q2,5,4.5,TA02,record
+CH24B001,Quiz 1,Q3,5,3.5,TA02,record
+CH24B001,Quiz 1,Q4,5,3.5,TA02,record
+CE24B002,Quiz 1,Q1,5,3.5,TA01,record
+CE24B002,Quiz 1,Q2,5,3,TA01,record
+CE24B002,Quiz 1,Q3,5,1,TA01,record
+CE24B002,Quiz 1,Q4,5,1.5,TA01,record
+EE24B004,Quiz 1,Q1,5,4,TA04,record
+EE24B004,Quiz 1,Q2,5,4,TA04,record
+EE24B004,Quiz 1,Q3,5,3,TA04,record
+EE24B004,Quiz 1,Q4,5,3,TA04,record
+CE24B003,Quiz 1,Q1,5,4,TA02,record
+CE24B003,Quiz 1,Q2,5,3.5,TA02,record
+CE24B003,Quiz 1,Q3,5,2.5,TA02,record
+CE24B003,Quiz 1,Q4,5,2.5,TA02,record
+ME24B003,Quiz 1,Q1,5,3.5,TA03,record
+ME24B003,Quiz 1,Q2,5,2,TA03,record
+ME24B003,Quiz 1,Q3,5,2,TA03,record
+ME24B003,Quiz 1,Q4,5,1.5,TA03,record
+CH24B006,Quiz 1,Q1,5,4,TA02,record
+CH24B006,Quiz 1,Q2,5,4,TA02,record
+CH24B006,Quiz 1,Q3,5,2,TA02,record
+CH24B006,Quiz 1,Q4,5,2,TA02,record
+CH24B009,Quiz 1,Q1,5,5,TA02,record
+CH24B009,Quiz 1,Q2,5,4.5,TA02,record
+CH24B009,Quiz 1,Q3,5,4,TA02,record
+CH24B009,Quiz 1,Q4,5,3.5,TA02,record
+ME24B004,Quiz 1,Q1,5,4,TA03,record
+ME24B004,Quiz 1,Q2,5,3.5,TA03,record
+ME24B004,Quiz 1,Q3,5,2.5,TA03,record
+ME24B004,Quiz 1,Q4,5,2.5,TA03,record
+ME24B006,Quiz 1,Q1,5,2.5,TA04,record
+ME24B006,Quiz 1,Q2,5,3,TA04,record
+ME24B006,Quiz 1,Q3,5,1.5,TA04,record
+ME24B006,Quiz 1,Q4,5,1.5,TA04,record
+EE24B006,Quiz 1,Q1,5,3.5,TA04,record
+EE24B006,Quiz 1,Q2,5,3.5,TA04,record
+EE24B006,Quiz 1,Q3,5,3.5,TA04,record
+EE24B006,Quiz 1,Q4,5,1,TA04,record
+ME24B007,Quiz 1,Q1,5,1,TA04,record
+ME24B007,Quiz 1,Q2,5,1.5,TA04,record
+ME24B007,Quiz 1,Q3,5,1,TA04,record
+ME24B007,Quiz 1,Q4,5,1,TA04,record
+ME24B010,Quiz 1,Q1,5,2.5,TA03,record
+ME24B010,Quiz 1,Q2,5,2.5,TA03,record
+ME24B010,Quiz 1,Q3,5,2.5,TA03,record
+ME24B010,Quiz 1,Q4,5,1.5,TA03,record
+CE24B004,Quiz 1,Q1,5,1,TA02,record
+CE24B004,Quiz 1,Q2,5,2,TA02,record
+CE24B004,Quiz 1,Q3,5,1,TA02,record
+CE24B004,Quiz 1,Q4,5,1.5,TA02,record
+CH24B011,Quiz 1,Q1,5,3.5,TA02,record
+CH24B011,Quiz 1,Q2,5,4,TA02,record
+CH24B011,Quiz 1,Q3,5,4,TA02,record
+CH24B011,Quiz 1,Q4,5,3.5,TA02,record
+ME24B012,Quiz 1,Q1,5,2.5,TA04,record
+ME24B012,Quiz 1,Q2,5,2.5,TA04,record
+ME24B012,Quiz 1,Q3,5,2,TA04,record
+ME24B012,Quiz 1,Q4,5,1,TA04,record
+ME24B014,Quiz 1,Q1,5,3,TA03,record
+ME24B014,Quiz 1,Q2,5,2.5,TA03,record
+ME24B014,Quiz 1,Q3,5,3,TA03,record
+ME24B014,Quiz 1,Q4,5,1.5,TA03,record
+CH24B012,Quiz 1,Q1,5,2.5,TA01,record
+CH24B012,Quiz 1,Q2,5,3.5,TA01,record
+CH24B012,Quiz 1,Q3,5,1.5,TA01,record
+CH24B012,Quiz 1,Q4,5,1.5,TA01,record
+CH24B014,Quiz 1,Q1,5,4,TA01,record
+CH24B014,Quiz 1,Q2,5,4.5,TA01,record
+CH24B014,Quiz 1,Q3,5,3.5,TA01,record
+CH24B014,Quiz 1,Q4,5,3.5,TA01,record
+EE24B008,Quiz 1,Q1,5,2.5,TA03,record
+EE24B008,Quiz 1,Q2,5,2,TA03,record
+EE24B008,Quiz 1,Q3,5,1,TA03,record
+EE24B008,Quiz 1,Q4,5,1.5,TA03,record
+CH24B015,Quiz 1,Q1,5,0,TA01,record
+CH24B015,Quiz 1,Q2,5,1.5,TA01,record
+CH24B015,Quiz 1,Q3,5,0.5,TA01,record
+CH24B015,Quiz 1,Q4,5,1,TA01,record
+CH24B016,Quiz 1,Q1,5,3,TA02,record
+CH24B016,Quiz 1,Q2,5,3,TA02,record
+CH24B016,Quiz 1,Q3,5,2.5,TA02,record
+CH24B016,Quiz 1,Q4,5,2,TA02,record
+EE24B010,Quiz 1,Q1,5,2,TA04,record
+EE24B010,Quiz 1,Q2,5,2,TA04,record
+EE24B010,Quiz 1,Q3,5,1,TA04,record
+EE24B010,Quiz 1,Q4,5,0.5,TA04,record
+CH24B017,Quiz 1,Q1,5,2,TA02,record
+CH24B017,Quiz 1,Q2,5,2.5,TA02,record
+CH24B017,Quiz 1,Q3,5,1,TA02,record
+CH24B017,Quiz 1,Q4,5,1.5,TA02,record
+CH24B020,Quiz 1,Q1,5,5,TA02,record
+CH24B020,Quiz 1,Q2,5,4.5,TA02,record
+CH24B020,Quiz 1,Q3,5,3.5,TA02,record
+CH24B020,Quiz 1,Q4,5,4,TA02,record
+CE24B006,Quiz 1,Q1,5,1.5,TA02,record
+CE24B006,Quiz 1,Q2,5,2,TA02,record
+CE24B006,Quiz 1,Q3,5,1,TA02,record
+CE24B006,Quiz 1,Q4,5,1,TA02,record
+EE24B013,Quiz 1,Q1,5,2,TA04,record
+EE24B013,Quiz 1,Q2,5,1.5,TA04,record
+EE24B013,Quiz 1,Q3,5,0.5,TA04,record
+EE24B013,Quiz 1,Q4,5,0.5,TA04,record
+CE24B008,Quiz 1,Q1,5,4.5,TA02,record
+CE24B008,Quiz 1,Q2,5,4.5,TA02,record
+CE24B008,Quiz 1,Q3,5,2,TA02,record
+CE24B008,Quiz 1,Q4,5,3,TA02,record
+EE24B015,Quiz 1,Q1,5,3,TA03,record
+EE24B015,Quiz 1,Q2,5,4,TA03,record
+EE24B015,Quiz 1,Q3,5,2.5,TA03,record
+EE24B015,Quiz 1,Q4,5,2,TA03,record
+CH24B021,Quiz 1,Q1,5,5,TA02,record
+CH24B021,Quiz 1,Q2,5,5,TA02,record
+CH24B021,Quiz 1,Q3,5,4.5,TA02,record
+CH24B021,Quiz 1,Q4,5,4.5,TA02,record
+ME24B016,Quiz 1,Q1,5,2,TA03,record
+ME24B016,Quiz 1,Q2,5,2,TA03,record
+ME24B016,Quiz 1,Q3,5,1.5,TA03,record
+ME24B016,Quiz 1,Q4,5,1,TA03,record
+CE24B009,Quiz 1,Q1,5,4.5,TA01,record
+CE24B009,Quiz 1,Q2,5,4.5,TA01,record
+CE24B009,Quiz 1,Q3,5,4,TA01,record
+CE24B009,Quiz 1,Q4,5,4,TA01,record
+ME24B019,Quiz 1,Q1,5,1,TA04,record
+ME24B019,Quiz 1,Q2,5,2.5,TA04,record
+ME24B019,Quiz 1,Q3,5,1.5,TA04,record
+ME24B019,Quiz 1,Q4,5,1,TA04,record
+EE24B016,Quiz 1,Q1,5,3.5,TA04,record
+EE24B016,Quiz 1,Q2,5,3.5,TA04,record
+EE24B016,Quiz 1,Q3,5,1,TA04,record
+EE24B016,Quiz 1,Q4,5,2.5,TA04,record
+CE24B010,Quiz 1,Q1,5,3,TA02,record
+CE24B010,Quiz 1,Q2,5,3,TA02,record
+CE24B010,Quiz 1,Q3,5,2,TA02,record
+CE24B010,Quiz 1,Q4,5,2,TA02,record
+EE24B019,Quiz 1,Q1,5,4,TA03,record
+EE24B019,Quiz 1,Q2,5,4,TA03,record
+EE24B019,Quiz 1,Q3,5,3.5,TA03,record
+EE24B019,Quiz 1,Q4,5,3,TA03,record
+CE24B013,Quiz 1,Q1,5,2.5,TA02,record
+CE24B013,Quiz 1,Q2,5,4,TA02,record
+CE24B013,Quiz 1,Q3,5,3,TA02,record
+CE24B013,Quiz 1,Q4,5,2,TA02,record
+CH24B023,Quiz 1,Q1,5,3.5,TA02,record
+CH24B023,Quiz 1,Q2,5,3.5,TA02,record
+CH24B023,Quiz 1,Q3,5,2.5,TA02,record
+CH24B023,Quiz 1,Q4,5,2.5,TA02,record
+CH24B024,Quiz 1,Q1,5,4.5,TA02,record
+CH24B024,Quiz 1,Q2,5,5,TA02,record
+CH24B024,Quiz 1,Q3,5,4,TA02,record
+CH24B024,Quiz 1,Q4,5,3.5,TA02,record
+CH24B027,Quiz 1,Q1,5,3.5,TA01,record
+CH24B027,Quiz 1,Q2,5,4.5,TA01,record
+CH24B027,Quiz 1,Q3,5,3,TA01,record
+CH24B027,Quiz 1,Q4,5,3.5,TA01,record
+EE24B020,Quiz 1,Q1,5,1.5,TA04,record
+EE24B020,Quiz 1,Q2,5,2,TA04,record
+EE24B020,Quiz 1,Q3,5,1,TA04,record
+EE24B020,Quiz 1,Q4,5,0.5,TA04,record
+CE24B016,Quiz 1,Q1,5,3.5,TA01,record
+CE24B016,Quiz 1,Q2,5,4,TA01,record
+CE24B016,Quiz 1,Q3,5,4.5,TA01,record
+CE24B016,Quiz 1,Q4,5,2.5,TA01,record
+CE24B018,Quiz 1,Q1,5,4,TA01,record
+CE24B018,Quiz 1,Q2,5,4,TA01,record
+CE24B018,Quiz 1,Q3,5,2.5,TA01,record
+CE24B018,Quiz 1,Q4,5,4,TA01,record
+EE24B022,Quiz 1,Q1,5,0,TA04,record
+EE24B022,Quiz 1,Q2,5,1,TA04,record
+EE24B022,Quiz 1,Q3,5,0.5,TA04,record
+EE24B022,Quiz 1,Q4,5,0,TA04,record
+EE24B024,Quiz 1,Q1,5,2,TA03,record
+EE24B024,Quiz 1,Q2,5,2,TA03,record
+EE24B024,Quiz 1,Q3,5,2,TA03,record
+EE24B024,Quiz 1,Q4,5,1.5,TA03,record
+ME24B020,Quiz 1,Q1,5,3,TA04,record
+ME24B020,Quiz 1,Q2,5,3,TA04,record
+ME24B020,Quiz 1,Q3,5,1.5,TA04,record
+ME24B020,Quiz 1,Q4,5,1,TA04,record
+ME24B023,Quiz 1,Q1,5,3.5,TA03,record
+ME24B023,Quiz 1,Q2,5,4,TA03,record
+ME24B023,Quiz 1,Q3,5,2,TA03,record
+ME24B023,Quiz 1,Q4,5,2,TA03,record
+CE24B021,Quiz 1,Q1,5,2,TA02,record
+CE24B021,Quiz 1,Q2,5,2,TA02,record
+CE24B021,Quiz 1,Q3,5,1.5,TA02,record
+CE24B021,Quiz 1,Q4,5,1.5,TA02,record
+CE24B022,Quiz 1,Q1,5,1.5,TA01,record
+CE24B022,Quiz 1,Q2,5,1.5,TA01,record
+CE24B022,Quiz 1,Q3,5,0,TA01,record
+CE24B022,Quiz 1,Q4,5,0.5,TA01,record
+EE24B025,Quiz 1,Q1,5,3,TA04,record
+EE24B025,Quiz 1,Q2,5,4.5,TA04,record
+EE24B025,Quiz 1,Q3,5,3,TA04,record
+EE24B025,Quiz 1,Q4,5,4,TA04,record
+CH24B028,Quiz 1,Q1,5,3.5,TA01,record
+CH24B028,Quiz 1,Q2,5,3,TA01,record
+CH24B028,Quiz 1,Q3,5,3,TA01,record
+CH24B028,Quiz 1,Q4,5,1.5,TA01,record
+CE24B023,Quiz 1,Q1,5,4,TA02,record
+CE24B023,Quiz 1,Q2,5,4.5,TA02,record
+CE24B023,Quiz 1,Q3,5,4,TA02,record
+CE24B023,Quiz 1,Q4,5,3.5,TA02,record
+ME24B025,Quiz 1,Q1,5,4,TA04,record
+ME24B025,Quiz 1,Q2,5,4,TA04,record
+ME24B025,Quiz 1,Q3,5,2,TA04,record
+ME24B025,Quiz 1,Q4,5,2,TA04,record
+CH24B029,Quiz 1,Q1,5,1.5,TA02,record
+CH24B029,Quiz 1,Q2,5,2.5,TA02,record
+CH24B029,Quiz 1,Q3,5,1.5,TA02,record
+CH24B029,Quiz 1,Q4,5,1,TA02,record
+ME24B026,Quiz 1,Q1,5,1,TA04,record
+ME24B026,Quiz 1,Q2,5,2,TA04,record
+ME24B026,Quiz 1,Q3,5,0.5,TA04,record
+ME24B026,Quiz 1,Q4,5,0.5,TA04,record
+ME24B029,Quiz 1,Q1,5,2,TA03,record
+ME24B029,Quiz 1,Q2,5,1.5,TA03,record
+ME24B029,Quiz 1,Q3,5,1.5,TA03,record
+ME24B029,Quiz 1,Q4,5,1,TA03,record
+EE24B027,Quiz 1,Q1,5,1.5,TA04,record
+EE24B027,Quiz 1,Q2,5,2,TA04,record
+EE24B027,Quiz 1,Q3,5,2,TA04,record
+EE24B027,Quiz 1,Q4,5,1,TA04,record
+EE24B030,Quiz 1,Q1,5,1,TA03,record
+EE24B030,Quiz 1,Q2,5,0.5,TA03,record
+EE24B030,Quiz 1,Q3,5,1,TA03,record
+EE24B030,Quiz 1,Q4,5,0.5,TA03,record
+ME24B031,Quiz 1,Q1,5,2,TA04,record
+ME24B031,Quiz 1,Q2,5,2.5,TA04,record
+ME24B031,Quiz 1,Q3,5,2,TA04,record
+ME24B031,Quiz 1,Q4,5,2,TA04,record
+CE24B026,Quiz 1,Q1,5,3.5,TA01,record
+CE24B026,Quiz 1,Q2,5,3.5,TA01,record
+CE24B026,Quiz 1,Q3,5,2,TA01,record
+CE24B026,Quiz 1,Q4,5,2.5,TA01,record
+CH24B030,Quiz 1,Q1,5,4,TA02,record
+CH24B030,Quiz 1,Q2,5,3.5,TA02,record
+CH24B030,Quiz 1,Q3,5,2.5,TA02,record
+CH24B030,Quiz 1,Q4,5,3.5,TA02,record
+CE24B027,Quiz 1,Q1,5,3.5,TA02,record
+CE24B027,Quiz 1,Q2,5,4.5,TA02,record
+CE24B027,Quiz 1,Q3,5,2,TA02,record
+CE24B027,Quiz 1,Q4,5,2.5,TA02,record
+CH24B032,Quiz 1,Q1,5,2.5,TA02,record
+CH24B032,Quiz 1,Q2,5,1.5,TA02,record
+CH24B032,Quiz 1,Q3,5,2,TA02,record
+CH24B032,Quiz 1,Q4,5,1.5,TA02,record
+CE24B029,Quiz 1,Q1,5,3,TA02,record
+CE24B029,Quiz 1,Q2,5,2.5,TA02,record
+CE24B029,Quiz 1,Q3,5,1,TA02,record
+CE24B029,Quiz 1,Q4,5,2.5,TA02,record
+EE24B031,Quiz 1,Q1,5,2.5,TA03,record
+EE24B031,Quiz 1,Q2,5,3,TA03,record
+EE24B031,Quiz 1,Q3,5,3,TA03,record
+EE24B031,Quiz 1,Q4,5,2,TA03,record
+ME24B033,Quiz 1,Q1,5,1,TA04,record
+ME24B033,Quiz 1,Q2,5,1.5,TA04,record
+ME24B033,Quiz 1,Q3,5,1,TA04,record
+ME24B033,Quiz 1,Q4,5,1,TA04,record
+CE24B031,Quiz 1,Q1,5,1.5,TA02,record
+CE24B031,Quiz 1,Q2,5,1,TA02,record
+CE24B031,Quiz 1,Q3,5,0.5,TA02,record
+CE24B031,Quiz 1,Q4,5,0.5,TA02,record
+ME24B036,Quiz 1,Q1,5,2,TA03,record
+ME24B036,Quiz 1,Q2,5,1.5,TA03,record
+ME24B036,Quiz 1,Q3,5,1,TA03,record
+ME24B036,Quiz 1,Q4,5,1,TA03,record
+EE24B033,Quiz 1,Q1,5,4,TA03,record
+EE24B033,Quiz 1,Q2,5,4,TA03,record
+EE24B033,Quiz 1,Q3,5,4,TA03,record
+EE24B033,Quiz 1,Q4,5,3.5,TA03,record
+CE24B033,Quiz 1,Q1,5,4,TA02,record
+CE24B033,Quiz 1,Q2,5,2.5,TA02,record
+CE24B033,Quiz 1,Q3,5,3.5,TA02,record
+CE24B033,Quiz 1,Q4,5,2.5,TA02,record
+CE24B036,Quiz 1,Q1,5,3.5,TA01,record
+CE24B036,Quiz 1,Q2,5,3.5,TA01,record
+CE24B036,Quiz 1,Q3,5,2,TA01,record
+CE24B036,Quiz 1,Q4,5,1.5,TA01,record
+ME24B038,Quiz 1,Q1,5,1.5,TA04,record
+ME24B038,Quiz 1,Q2,5,3.5,TA04,record
+ME24B038,Quiz 1,Q3,5,2,TA04,record
+ME24B038,Quiz 1,Q4,5,2,TA04,record
+ME24B040,Quiz 1,Q1,5,1.5,TA03,record
+ME24B040,Quiz 1,Q2,5,2,TA03,record
+ME24B040,Quiz 1,Q3,5,1,TA03,record
+ME24B040,Quiz 1,Q4,5,0.5,TA03,record
+CE24B039,Quiz 1,Q1,5,5,TA02,record
+CE24B039,Quiz 1,Q2,5,5,TA02,record
+CE24B039,Quiz 1,Q3,5,4.5,TA02,record
+CE24B039,Quiz 1,Q4,5,3.5,TA02,record
+ME24B043,Quiz 1,Q1,5,1,TA04,record
+ME24B043,Quiz 1,Q2,5,1,TA04,record
+ME24B043,Quiz 1,Q3,5,0,TA04,record
+ME24B043,Quiz 1,Q4,5,0.5,TA04,record
+EE24B035,Quiz 1,Q1,5,3.5,TA03,record
+EE24B035,Quiz 1,Q2,5,4,TA03,record
+EE24B035,Quiz 1,Q3,5,2,TA03,record
+EE24B035,Quiz 1,Q4,5,1.5,TA03,record
+EE24B036,Quiz 1,Q1,5,4,TA03,record
+EE24B036,Quiz 1,Q2,5,4,TA03,record
+EE24B036,Quiz 1,Q3,5,4,TA03,record
+EE24B036,Quiz 1,Q4,5,3.5,TA03,record
+CE24B040,Quiz 1,Q1,5,3.5,TA01,record
+CE24B040,Quiz 1,Q2,5,4,TA01,record
+CE24B040,Quiz 1,Q3,5,2,TA01,record
+CE24B040,Quiz 1,Q4,5,2.5,TA01,record
+CH24B035,Quiz 1,Q1,5,3,TA02,record
+CH24B035,Quiz 1,Q2,5,3.5,TA02,record
+CH24B035,Quiz 1,Q3,5,2,TA02,record
+CH24B035,Quiz 1,Q4,5,2,TA02,record
+CH24B036,Quiz 1,Q1,5,4,TA02,record
+CH24B036,Quiz 1,Q2,5,4.5,TA02,record
+CH24B036,Quiz 1,Q3,5,3.5,TA02,record
+CH24B036,Quiz 1,Q4,5,3.5,TA02,record
+EE24B039,Quiz 1,Q1,5,0.5,TA04,record
+EE24B039,Quiz 1,Q2,5,2,TA04,record
+EE24B039,Quiz 1,Q3,5,1,TA04,record
+EE24B039,Quiz 1,Q4,5,0.5,TA04,record
+CH24B039,Quiz 1,Q1,5,4.5,TA02,record
+CH24B039,Quiz 1,Q2,5,4,TA02,record
+CH24B039,Quiz 1,Q3,5,2,TA02,record
+CH24B039,Quiz 1,Q4,5,2.5,TA02,record
+CE24B041,Quiz 1,Q1,5,1,TA02,record
+CE24B041,Quiz 1,Q2,5,2.5,TA02,record
+CE24B041,Quiz 1,Q3,5,1,TA02,record
+CE24B041,Quiz 1,Q4,5,1,TA02,record
+ME24B045,Quiz 1,Q1,5,3.5,TA03,record
+ME24B045,Quiz 1,Q2,5,3.5,TA03,record
+ME24B045,Quiz 1,Q3,5,2.5,TA03,record
+ME24B045,Quiz 1,Q4,5,2,TA03,record
+CE24B043,Quiz 1,Q1,5,4,TA02,record
+CE24B043,Quiz 1,Q2,5,5,TA02,record
+CE24B043,Quiz 1,Q3,5,3,TA02,record
+CE24B043,Quiz 1,Q4,5,4,TA02,record
+ME24B047,Quiz 1,Q1,5,3.5,TA03,record
+ME24B047,Quiz 1,Q2,5,4,TA03,record
+ME24B047,Quiz 1,Q3,5,2,TA03,record
+ME24B047,Quiz 1,Q4,5,2,TA03,record
+EE24B040,Quiz 1,Q1,5,1.5,TA03,record
+EE24B040,Quiz 1,Q2,5,3.5,TA03,record
+EE24B040,Quiz 1,Q3,5,1.5,TA03,record
+EE24B040,Quiz 1,Q4,5,2,TA03,record
+EE24B041,Quiz 1,Q1,5,2,TA04,record
+EE24B041,Quiz 1,Q2,5,2,TA04,record
+EE24B041,Quiz 1,Q3,5,2,TA04,record
+EE24B041,Quiz 1,Q4,5,1.5,TA04,record
+CE24B045,Quiz 1,Q1,5,3.5,TA01,record
+CE24B045,Quiz 1,Q2,5,3,TA01,record
+CE24B045,Quiz 1,Q3,5,2.5,TA01,record
+CE24B045,Quiz 1,Q4,5,2,TA01,record
+CH24B041,Quiz 1,Q1,5,4,TA01,record
+CH24B041,Quiz 1,Q2,5,4,TA01,record
+CH24B041,Quiz 1,Q3,5,4,TA01,record
+CH24B041,Quiz 1,Q4,5,4,TA01,record
+ME24B048,Quiz 1,Q1,5,3.5,TA04,record
+ME24B048,Quiz 1,Q2,5,4,TA04,record
+ME24B048,Quiz 1,Q3,5,2.5,TA04,record
+ME24B048,Quiz 1,Q4,5,2.5,TA04,record
+CE24B048,Quiz 1,Q1,5,4.5,TA01,record
+CE24B048,Quiz 1,Q2,5,4.5,TA01,record
+CE24B048,Quiz 1,Q3,5,3.5,TA01,record
+CE24B048,Quiz 1,Q4,5,3,TA01,record
+CE24B050,Quiz 1,Q1,5,4.5,TA01,record
+CE24B050,Quiz 1,Q2,5,5,TA01,record
+CE24B050,Quiz 1,Q3,5,3,TA01,record
+CE24B050,Quiz 1,Q4,5,3,TA01,record
+CH24B043,Quiz 1,Q1,5,4.5,TA02,record
+CH24B043,Quiz 1,Q2,5,4.5,TA02,record
+CH24B043,Quiz 1,Q3,5,3.5,TA02,record
+CH24B043,Quiz 1,Q4,5,2.5,TA02,record
+ME24B050,Quiz 1,Q1,5,2.5,TA04,record
+ME24B050,Quiz 1,Q2,5,1.5,TA04,record
+ME24B050,Quiz 1,Q3,5,1.5,TA04,record
+ME24B050,Quiz 1,Q4,5,1.5,TA04,record
+CE24B053,Quiz 1,Q1,5,4.5,TA02,record
+CE24B053,Quiz 1,Q2,5,4.5,TA02,record
+CE24B053,Quiz 1,Q3,5,4.5,TA02,record
+CE24B053,Quiz 1,Q4,5,4.5,TA02,record
+ME24B052,Quiz 1,Q1,5,3,TA04,record
+ME24B052,Quiz 1,Q2,5,3.5,TA04,record
+ME24B052,Quiz 1,Q3,5,1.5,TA04,record
+ME24B052,Quiz 1,Q4,5,2.5,TA04,record
+CH24B045,Quiz 1,Q1,5,5,TA02,record
+CH24B045,Quiz 1,Q2,5,5,TA02,record
+CH24B045,Quiz 1,Q3,5,4.5,TA02,record
+CH24B045,Quiz 1,Q4,5,4.5,TA02,record
+ME24B053,Quiz 1,Q1,5,1.5,TA04,record
+ME24B053,Quiz 1,Q2,5,2.5,TA04,record
+ME24B053,Quiz 1,Q3,5,0.5,TA04,record
+ME24B053,Quiz 1,Q4,5,1,TA04,record
+CE24B054,Quiz 1,Q1,5,5,TA01,record
+CE24B054,Quiz 1,Q2,5,4.5,TA01,record
+CE24B054,Quiz 1,Q3,5,5,TA01,record
+CE24B054,Quiz 1,Q4,5,4.5,TA01,record
+CE24B056,Quiz 1,Q1,5,3.5,TA01,record
+CE24B056,Quiz 1,Q2,5,3,TA01,record
+CE24B056,Quiz 1,Q3,5,1.5,TA01,record
+CE24B056,Quiz 1,Q4,5,2,TA01,record
+CH24B047,Quiz 1,Q1,5,4.5,TA02,record
+CH24B047,Quiz 1,Q2,5,4.5,TA02,record
+CH24B047,Quiz 1,Q3,5,3.5,TA02,record
+CH24B047,Quiz 1,Q4,5,3,TA02,record
+CE24B057,Quiz 1,Q1,5,5,TA02,record
+CE24B057,Quiz 1,Q2,5,4,TA02,record
+CE24B057,Quiz 1,Q3,5,4,TA02,record
+CE24B057,Quiz 1,Q4,5,4.5,TA02,record
+ME24B055,Quiz 1,Q1,5,3,TA04,record
+ME24B055,Quiz 1,Q2,5,3.5,TA04,record
+ME24B055,Quiz 1,Q3,5,2.5,TA04,record
+ME24B055,Quiz 1,Q4,5,3,TA04,record
+CE24B059,Quiz 1,Q1,5,2.5,TA01,record
+CE24B059,Quiz 1,Q2,5,3,TA01,record
+CE24B059,Quiz 1,Q3,5,2,TA01,record
+CE24B059,Quiz 1,Q4,5,1.5,TA01,record
+CE24B061,Quiz 1,Q1,5,2,TA02,record
+CE24B061,Quiz 1,Q2,5,3,TA02,record
+CE24B061,Quiz 1,Q3,5,2,TA02,record
+CE24B061,Quiz 1,Q4,5,2,TA02,record
+CH24B048,Quiz 1,Q1,5,4.5,TA01,record
+CH24B048,Quiz 1,Q2,5,3.5,TA01,record
+CH24B048,Quiz 1,Q3,5,3,TA01,record
+CH24B048,Quiz 1,Q4,5,3,TA01,record
+ME24B056,Quiz 1,Q1,5,3.5,TA04,record
+ME24B056,Quiz 1,Q2,5,4,TA04,record
+ME24B056,Quiz 1,Q3,5,1,TA04,record
+ME24B056,Quiz 1,Q4,5,2.5,TA04,record
+CE24B064,Quiz 1,Q1,5,3,TA02,record
+CE24B064,Quiz 1,Q2,5,3,TA02,record
+CE24B064,Quiz 1,Q3,5,2,TA02,record
+CE24B064,Quiz 1,Q4,5,1,TA02,record
+CH24B050,Quiz 1,Q1,5,1,TA02,record
+CH24B050,Quiz 1,Q2,5,3,TA02,record
+CH24B050,Quiz 1,Q3,5,1,TA02,record
+CH24B050,Quiz 1,Q4,5,1.5,TA02,record
+ME24B059,Quiz 1,Q1,5,3.5,TA04,record
+ME24B059,Quiz 1,Q2,5,3,TA04,record
+ME24B059,Quiz 1,Q3,5,1.5,TA04,record
+ME24B059,Quiz 1,Q4,5,2,TA04,record
+CE24B065,Quiz 1,Q1,5,3.5,TA01,record
+CE24B065,Quiz 1,Q2,5,3,TA01,record
+CE24B065,Quiz 1,Q3,5,3,TA01,record
+CE24B065,Quiz 1,Q4,5,2,TA01,record
+CH24B051,Quiz 1,Q1,5,2,TA02,record
+CH24B051,Quiz 1,Q2,5,2.5,TA02,record
+CH24B051,Quiz 1,Q3,5,2,TA02,record
+CH24B051,Quiz 1,Q4,5,1,TA02,record
+CH24B053,Quiz 1,Q1,5,1.5,TA01,record
+CH24B053,Quiz 1,Q2,5,2.5,TA01,record
+CH24B053,Quiz 1,Q3,5,1.5,TA01,record
+CH24B053,Quiz 1,Q4,5,1,TA01,record
+CE24B068,Quiz 1,Q1,5,3,TA02,record
+CE24B068,Quiz 1,Q2,5,4,TA02,record
+CE24B068,Quiz 1,Q3,5,3,TA02,record
+CE24B068,Quiz 1,Q4,5,3.5,TA02,record
+EE24B043,Quiz 1,Q1,5,3.5,TA03,record
+EE24B043,Quiz 1,Q2,5,4,TA03,record
+EE24B043,Quiz 1,Q3,5,1.5,TA03,record
+EE24B043,Quiz 1,Q4,5,1.5,TA03,record
+CE24B069,Quiz 1,Q1,5,3.5,TA01,record
+CE24B069,Quiz 1,Q2,5,3,TA01,record
+CE24B069,Quiz 1,Q3,5,3,TA01,record
+CE24B069,Quiz 1,Q4,5,2.5,TA01,record
+ME24B060,Quiz 1,Q1,5,1.5,TA03,record
+ME24B060,Quiz 1,Q2,5,1,TA03,record
+ME24B060,Quiz 1,Q3,5,1,TA03,record
+ME24B060,Quiz 1,Q4,5,1,TA03,record
+EE24B044,Quiz 1,Q1,5,4.5,TA03,record
+EE24B044,Quiz 1,Q2,5,4,TA03,record
+EE24B044,Quiz 1,Q3,5,4.5,TA03,record
+EE24B044,Quiz 1,Q4,5,2.5,TA03,record
+CH24B055,Quiz 1,Q1,5,4,TA02,record
+CH24B055,Quiz 1,Q2,5,4.5,TA02,record
+CH24B055,Quiz 1,Q3,5,4,TA02,record
+CH24B055,Quiz 1,Q4,5,3,TA02,record
+CE24B072,Quiz 1,Q1,5,3.5,TA01,record
+CE24B072,Quiz 1,Q2,5,3.5,TA01,record
+CE24B072,Quiz 1,Q3,5,3,TA01,record
+CE24B072,Quiz 1,Q4,5,1.5,TA01,record
+ME24B062,Quiz 1,Q1,5,2.5,TA04,record
+ME24B062,Quiz 1,Q2,5,3.5,TA04,record
+ME24B062,Quiz 1,Q3,5,2,TA04,record
+ME24B062,Quiz 1,Q4,5,1,TA04,record
+EE24B047,Quiz 1,Q1,5,2,TA03,record
+EE24B047,Quiz 1,Q2,5,1.5,TA03,record
+EE24B047,Quiz 1,Q3,5,1.5,TA03,record
+EE24B047,Quiz 1,Q4,5,1,TA03,record
+EE24B049,Quiz 1,Q1,5,4,TA03,record
+EE24B049,Quiz 1,Q2,5,4,TA03,record
+EE24B049,Quiz 1,Q3,5,3,TA03,record
+EE24B049,Quiz 1,Q4,5,3,TA03,record
+CH24B057,Quiz 1,Q1,5,2.5,TA01,record
+CH24B057,Quiz 1,Q2,5,3.5,TA01,record
+CH24B057,Quiz 1,Q3,5,2.5,TA01,record
+CH24B057,Quiz 1,Q4,5,1.5,TA01,record
+CE24B079,Quiz 1,Q1,5,5,TA01,record
+CE24B079,Quiz 1,Q2,5,4,TA01,record
+CE24B079,Quiz 1,Q3,5,4,TA01,record
+CE24B079,Quiz 1,Q4,5,3.5,TA01,record
+ME24B063,Quiz 1,Q1,5,3,TA03,record
+ME24B063,Quiz 1,Q2,5,4.5,TA03,record
+ME24B063,Quiz 1,Q3,5,1.5,TA03,record
+ME24B063,Quiz 1,Q4,5,2.5,TA03,record
+ME24B065,Quiz 1,Q1,5,2,TA04,record
+ME24B065,Quiz 1,Q2,5,2,TA04,record
+ME24B065,Quiz 1,Q3,5,1,TA04,record
+ME24B065,Quiz 1,Q4,5,1,TA04,record
+EE24B050,Quiz 1,Q1,5,3,TA04,record
+EE24B050,Quiz 1,Q2,5,2.5,TA04,record
+EE24B050,Quiz 1,Q3,5,1.5,TA04,record
+EE24B050,Quiz 1,Q4,5,0.5,TA04,record
+ME24B068,Quiz 1,Q1,5,4,TA03,record
+ME24B068,Quiz 1,Q2,5,4,TA03,record
+ME24B068,Quiz 1,Q3,5,3,TA03,record
+ME24B068,Quiz 1,Q4,5,2.5,TA03,record
+ME24B071,Quiz 1,Q1,5,1,TA04,record
+ME24B071,Quiz 1,Q2,5,1,TA04,record
+ME24B071,Quiz 1,Q3,5,0.5,TA04,record
+ME24B071,Quiz 1,Q4,5,0.5,TA04,record
+EE24B053,Quiz 1,Q1,5,2.5,TA03,record
+EE24B053,Quiz 1,Q2,5,2,TA03,record
+EE24B053,Quiz 1,Q3,5,1.5,TA03,record
+EE24B053,Quiz 1,Q4,5,1.5,TA03,record
+EE24B056,Quiz 1,Q1,5,3,TA03,record
+EE24B056,Quiz 1,Q2,5,4.5,TA03,record
+EE24B056,Quiz 1,Q3,5,3,TA03,record
+EE24B056,Quiz 1,Q4,5,2,TA03,record
+CH24B058,Quiz 1,Q1,5,3,TA01,record
+CH24B058,Quiz 1,Q2,5,5,TA01,record
+CH24B058,Quiz 1,Q3,5,3.5,TA01,record
+CH24B058,Quiz 1,Q4,5,4,TA01,record
+CH24B061,Quiz 1,Q1,5,3,TA02,record
+CH24B061,Quiz 1,Q2,5,3,TA02,record
+CH24B061,Quiz 1,Q3,5,2,TA02,record
+CH24B061,Quiz 1,Q4,5,1,TA02,record
+CH24B064,Quiz 1,Q1,5,4.5,TA01,record
+CH24B064,Quiz 1,Q2,5,4,TA01,record
+CH24B064,Quiz 1,Q3,5,3,TA01,record
+CH24B064,Quiz 1,Q4,5,2,TA01,record
+CH24B066,Quiz 1,Q1,5,3,TA01,record
+CH24B066,Quiz 1,Q2,5,3,TA01,record
+CH24B066,Quiz 1,Q3,5,1,TA01,record
+CH24B066,Quiz 1,Q4,5,2,TA01,record
+CE24B082,Quiz 1,Q1,5,1.5,TA01,record
+CE24B082,Quiz 1,Q2,5,2,TA01,record
+CE24B082,Quiz 1,Q3,5,1,TA01,record
+CE24B082,Quiz 1,Q4,5,1,TA01,record
+EE24B057,Quiz 1,Q1,5,2.5,TA04,record
+EE24B057,Quiz 1,Q2,5,3.5,TA04,record
+EE24B057,Quiz 1,Q3,5,2,TA04,record
+EE24B057,Quiz 1,Q4,5,3.5,TA04,record
+CE24B085,Quiz 1,Q1,5,4,TA02,record
+CE24B085,Quiz 1,Q2,5,3.5,TA02,record
+CE24B085,Quiz 1,Q3,5,2.5,TA02,record
+CE24B085,Quiz 1,Q4,5,4,TA02,record
+EE24B060,Quiz 1,Q1,5,2.5,TA03,record
+EE24B060,Quiz 1,Q2,5,1,TA03,record
+EE24B060,Quiz 1,Q3,5,0.5,TA03,record
+EE24B060,Quiz 1,Q4,5,0.5,TA03,record
+CE24B087,Quiz 1,Q1,5,4,TA02,record
+CE24B087,Quiz 1,Q2,5,4,TA02,record
+CE24B087,Quiz 1,Q3,5,3.5,TA02,record
+CE24B087,Quiz 1,Q4,5,3,TA02,record
+ME24B074,Quiz 1,Q1,5,3,TA03,record
+ME24B074,Quiz 1,Q2,5,4.5,TA03,record
+ME24B074,Quiz 1,Q3,5,2,TA03,record
+ME24B074,Quiz 1,Q4,5,2,TA03,record
+ME24B077,Quiz 1,Q1,5,3,TA03,record
+ME24B077,Quiz 1,Q2,5,4,TA03,record
+ME24B077,Quiz 1,Q3,5,2,TA03,record
+ME24B077,Quiz 1,Q4,5,1,TA03,record
+CE24B089,Quiz 1,Q1,5,3.5,TA01,record
+CE24B089,Quiz 1,Q2,5,2,TA01,record
+CE24B089,Quiz 1,Q3,5,1,TA01,record
+CE24B089,Quiz 1,Q4,5,1.5,TA01,record
+EE24B062,Quiz 1,Q1,5,2.5,TA04,record
+EE24B062,Quiz 1,Q2,5,3.5,TA04,record
+EE24B062,Quiz 1,Q3,5,2.5,TA04,record
+EE24B062,Quiz 1,Q4,5,2,TA04,record
+CH24B068,Quiz 1,Q1,5,4,TA03,record
+CH24B068,Quiz 1,Q2,5,4,TA03,record
+CH24B068,Quiz 1,Q3,5,3.5,TA03,record
+CH24B068,Quiz 1,Q4,5,4,TA03,record
+ME24B080,Quiz 1,Q1,5,3,TA03,record
+ME24B080,Quiz 1,Q2,5,3,TA03,record
+ME24B080,Quiz 1,Q3,5,1.5,TA03,record
+ME24B080,Quiz 1,Q4,5,2.5,TA03,record
+EE24B065,Quiz 1,Q1,5,3,TA04,record
+EE24B065,Quiz 1,Q2,5,3.5,TA04,record
+EE24B065,Quiz 1,Q3,5,1.5,TA04,record
+EE24B065,Quiz 1,Q4,5,2.5,TA04,record
+CE24B092,Quiz 1,Q1,5,2.5,TA01,record
+CE24B092,Quiz 1,Q2,5,2.5,TA01,record
+CE24B092,Quiz 1,Q3,5,1,TA01,record
+CE24B092,Quiz 1,Q4,5,0.5,TA01,record
+CE24B093,Quiz 1,Q1,5,5,TA02,record
+CE24B093,Quiz 1,Q2,5,4.5,TA02,record
+CE24B093,Quiz 1,Q3,5,4,TA02,record
+CE24B093,Quiz 1,Q4,5,4.5,TA02,record
+CE24B096,Quiz 1,Q1,5,2,TA01,record
+CE24B096,Quiz 1,Q2,5,4,TA01,record
+CE24B096,Quiz 1,Q3,5,1.5,TA01,record
+CE24B096,Quiz 1,Q4,5,2.5,TA01,record
+CH24B069,Quiz 1,Q1,5,4.5,TA04,record
+CH24B069,Quiz 1,Q2,5,4,TA04,record
+CH24B069,Quiz 1,Q3,5,2.5,TA04,record
+CH24B069,Quiz 1,Q4,5,2,TA04,record
+ME24B083,Quiz 1,Q1,5,2.5,TA03,record
+ME24B083,Quiz 1,Q2,5,3,TA03,record
+ME24B083,Quiz 1,Q3,5,2,TA03,record
+ME24B083,Quiz 1,Q4,5,2.5,TA03,record
+EE24B067,Quiz 1,Q1,5,4,TA04,record
+EE24B067,Quiz 1,Q2,5,4.5,TA04,record
+EE24B067,Quiz 1,Q3,5,3,TA04,record
+EE24B067,Quiz 1,Q4,5,3.5,TA04,record
+CE24B098,Quiz 1,Q1,5,2.5,TA01,record
+CE24B098,Quiz 1,Q2,5,3.5,TA01,record
+CE24B098,Quiz 1,Q3,5,1.5,TA01,record
+CE24B098,Quiz 1,Q4,5,2.5,TA01,record
+ME24B085,Quiz 1,Q1,5,2.5,TA04,record
+ME24B085,Quiz 1,Q2,5,2.5,TA04,record
+ME24B085,Quiz 1,Q3,5,1,TA04,record
+ME24B085,Quiz 1,Q4,5,2.5,TA04,record
+CH24B072,Quiz 1,Q1,5,1.5,TA04,record
+CH24B072,Quiz 1,Q2,5,2,TA04,record
+CH24B072,Quiz 1,Q3,5,1.5,TA04,record
+CH24B072,Quiz 1,Q4,5,1.5,TA04,record
+ME24B088,Quiz 1,Q1,5,4.5,TA04,record
+ME24B088,Quiz 1,Q2,5,4.5,TA04,record
+ME24B088,Quiz 1,Q3,5,3,TA04,record
+ME24B088,Quiz 1,Q4,5,3.5,TA04,record
+CE24B099,Quiz 1,Q1,5,4,TA02,record
+CE24B099,Quiz 1,Q2,5,3.5,TA02,record
+CE24B099,Quiz 1,Q3,5,2,TA02,record
+CE24B099,Quiz 1,Q4,5,2,TA02,record
+CE24B100,Quiz 1,Q1,5,2.5,TA02,record
+CE24B100,Quiz 1,Q2,5,2.5,TA02,record
+CE24B100,Quiz 1,Q3,5,2,TA02,record
+CE24B100,Quiz 1,Q4,5,1.5,TA02,record
+CH24B073,Quiz 1,Q1,5,0.5,TA04,record
+CH24B073,Quiz 1,Q2,5,1.5,TA04,record
+CH24B073,Quiz 1,Q3,5,1,TA04,record
+CH24B073,Quiz 1,Q4,5,0.5,TA04,record
+CE24B103,Quiz 1,Q1,5,4.5,TA02,record
+CE24B103,Quiz 1,Q2,5,2.5,TA02,record
+CE24B103,Quiz 1,Q3,5,2,TA02,record
+CE24B103,Quiz 1,Q4,5,1.5,TA02,record
+EE24B070,Quiz 1,Q1,5,3.5,TA04,record
+EE24B070,Quiz 1,Q2,5,3.5,TA04,record
+EE24B070,Quiz 1,Q3,5,1.5,TA04,record
+EE24B070,Quiz 1,Q4,5,3.5,TA04,record
+CE24B106,Quiz 1,Q1,5,0.5,TA01,record
+CE24B106,Quiz 1,Q2,5,0.5,TA01,record
+CE24B106,Quiz 1,Q3,5,0.5,TA01,record
+CE24B106,Quiz 1,Q4,5,0.5,TA01,record
+ME24B089,Quiz 1,Q1,5,4.5,TA04,record
+ME24B089,Quiz 1,Q2,5,4.5,TA04,record
+ME24B089,Quiz 1,Q3,5,3.5,TA04,record
+ME24B089,Quiz 1,Q4,5,3.5,TA04,record
+ME24B091,Quiz 1,Q1,5,2.5,TA04,record
+ME24B091,Quiz 1,Q2,5,3,TA04,record
+ME24B091,Quiz 1,Q3,5,2,TA04,record
+ME24B091,Quiz 1,Q4,5,2,TA04,record
+EE24B072,Quiz 1,Q1,5,4,TA03,record
+EE24B072,Quiz 1,Q2,5,4,TA03,record
+EE24B072,Quiz 1,Q3,5,3.5,TA03,record
+EE24B072,Quiz 1,Q4,5,3,TA03,record
+EE24B074,Quiz 1,Q1,5,2.5,TA04,record
+EE24B074,Quiz 1,Q2,5,2.5,TA04,record
+EE24B074,Quiz 1,Q3,5,1,TA04,record
+EE24B074,Quiz 1,Q4,5,1.5,TA04,record
+EE24B076,Quiz 1,Q1,5,4.5,TA03,record
+EE24B076,Quiz 1,Q2,5,4.5,TA03,record
+EE24B076,Quiz 1,Q3,5,3.5,TA03,record
+EE24B076,Quiz 1,Q4,5,3.5,TA03,record
+ME24B094,Quiz 1,Q1,5,3.5,TA03,record
+ME24B094,Quiz 1,Q2,5,4,TA03,record
+ME24B094,Quiz 1,Q3,5,3,TA03,record
+ME24B094,Quiz 1,Q4,5,2.5,TA03,record
+EE24B078,Quiz 1,Q1,5,3,TA03,record
+EE24B078,Quiz 1,Q2,5,4,TA03,record
+EE24B078,Quiz 1,Q3,5,2.5,TA03,record
+EE24B078,Quiz 1,Q4,5,3,TA03,record
+CE24B109,Quiz 1,Q1,5,2,TA02,record
+CE24B109,Quiz 1,Q2,5,2,TA02,record
+CE24B109,Quiz 1,Q3,5,1.5,TA02,record
+CE24B109,Quiz 1,Q4,5,1.5,TA02,record
+CH24B076,Quiz 1,Q1,5,3,TA04,record
+CH24B076,Quiz 1,Q2,5,3.5,TA04,record
+CH24B076,Quiz 1,Q3,5,1.5,TA04,record
+CH24B076,Quiz 1,Q4,5,1,TA04,record
+CH24B079,Quiz 1,Q1,5,3.5,TA03,record
+CH24B079,Quiz 1,Q2,5,4,TA03,record
+CH24B079,Quiz 1,Q3,5,2.5,TA03,record
+CH24B079,Quiz 1,Q4,5,2.5,TA03,record
+CH24B080,Quiz 1,Q1,5,3,TA03,record
+CH24B080,Quiz 1,Q2,5,4,TA03,record
+CH24B080,Quiz 1,Q3,5,2,TA03,record
+CH24B080,Quiz 1,Q4,5,2,TA03,record
+EE24B001,Quiz 2,Q1,5,2.5,TA03,record
+EE24B001,Quiz 2,Q2,5,3,TA03,record
+EE24B001,Quiz 2,Q3,5,2.5,TA03,record
+EE24B001,Quiz 2,Q4,5,2.5,TA03,record
+CH24B001,Quiz 2,Q1,5,5,TA02,record
+CH24B001,Quiz 2,Q2,5,4.5,TA02,record
+CH24B001,Quiz 2,Q3,5,3.5,TA02,record
+CH24B001,Quiz 2,Q4,5,4,TA02,record
+CE24B002,Quiz 2,Q1,5,3.5,TA01,record
+CE24B002,Quiz 2,Q2,5,4,TA01,record
+CE24B002,Quiz 2,Q3,5,2,TA01,record
+CE24B002,Quiz 2,Q4,5,1.5,TA01,record
+EE24B004,Quiz 2,Q1,5,4.5,TA03,record
+EE24B004,Quiz 2,Q2,5,4.5,TA03,record
+EE24B004,Quiz 2,Q3,5,4,TA03,record
+EE24B004,Quiz 2,Q4,5,4,TA03,record
+CE24B003,Quiz 2,Q1,5,4,TA01,record
+CE24B003,Quiz 2,Q2,5,5,TA01,record
+CE24B003,Quiz 2,Q3,5,3.5,TA01,record
+CE24B003,Quiz 2,Q4,5,2.5,TA01,record
+ME24B003,Quiz 2,Q1,5,3,TA03,record
+ME24B003,Quiz 2,Q2,5,4,TA03,record
+ME24B003,Quiz 2,Q3,5,2,TA03,record
+ME24B003,Quiz 2,Q4,5,2.5,TA03,record
+CH24B003,Quiz 2,Q1,5,3.5,TA02,record
+CH24B003,Quiz 2,Q2,5,4,TA02,record
+CH24B003,Quiz 2,Q3,5,2,TA02,record
+CH24B003,Quiz 2,Q4,5,3.5,TA02,record
+CH24B006,Quiz 2,Q1,5,3.5,TA02,record
+CH24B006,Quiz 2,Q2,5,3.5,TA02,record
+CH24B006,Quiz 2,Q3,5,3,TA02,record
+CH24B006,Quiz 2,Q4,5,2.5,TA02,record
+CH24B009,Quiz 2,Q1,5,4.5,TA02,record
+CH24B009,Quiz 2,Q2,5,5,TA02,record
+CH24B009,Quiz 2,Q3,5,3.5,TA02,record
+CH24B009,Quiz 2,Q4,5,4,TA02,record
+ME24B004,Quiz 2,Q1,5,3.5,TA03,record
+ME24B004,Quiz 2,Q2,5,4.5,TA03,record
+ME24B004,Quiz 2,Q3,5,3,TA03,record
+ME24B004,Quiz 2,Q4,5,3.5,TA03,record
+ME24B006,Quiz 2,Q1,5,4.5,TA03,record
+ME24B006,Quiz 2,Q2,5,4,TA03,record
+ME24B006,Quiz 2,Q3,5,2.5,TA03,record
+ME24B006,Quiz 2,Q4,5,3.5,TA03,record
+EE24B006,Quiz 2,Q1,5,4,TA03,record
+EE24B006,Quiz 2,Q2,5,4.5,TA03,record
+EE24B006,Quiz 2,Q3,5,3,TA03,record
+EE24B006,Quiz 2,Q4,5,2,TA03,record
+ME24B007,Quiz 2,Q1,5,1.5,TA03,record
+ME24B007,Quiz 2,Q2,5,2.5,TA03,record
+ME24B007,Quiz 2,Q3,5,1.5,TA03,record
+ME24B007,Quiz 2,Q4,5,1,TA03,record
+ME24B010,Quiz 2,Q1,5,3.5,TA03,record
+ME24B010,Quiz 2,Q2,5,3,TA03,record
+ME24B010,Quiz 2,Q3,5,2.5,TA03,record
+ME24B010,Quiz 2,Q4,5,2,TA03,record
+CE24B004,Quiz 2,Q1,5,1,TA01,record
+CE24B004,Quiz 2,Q2,5,1,TA01,record
+CE24B004,Quiz 2,Q3,5,0.5,TA01,record
+CE24B004,Quiz 2,Q4,5,0,TA01,record
+CH24B011,Quiz 2,Q1,5,3,TA02,record
+CH24B011,Quiz 2,Q2,5,3.5,TA02,record
+CH24B011,Quiz 2,Q3,5,3,TA02,record
+CH24B011,Quiz 2,Q4,5,2,TA02,record
+ME24B012,Quiz 2,Q1,5,3,TA03,record
+ME24B012,Quiz 2,Q2,5,3,TA03,record
+ME24B012,Quiz 2,Q3,5,2.5,TA03,record
+ME24B012,Quiz 2,Q4,5,2.5,TA03,record
+ME24B014,Quiz 2,Q1,5,3.5,TA03,record
+ME24B014,Quiz 2,Q2,5,3.5,TA03,record
+ME24B014,Quiz 2,Q3,5,2.5,TA03,record
+ME24B014,Quiz 2,Q4,5,2,TA03,record
+CH24B012,Quiz 2,Q1,5,3,TA01,record
+CH24B012,Quiz 2,Q2,5,3.5,TA01,record
+CH24B012,Quiz 2,Q3,5,1.5,TA01,record
+CH24B012,Quiz 2,Q4,5,3,TA01,record
+CH24B014,Quiz 2,Q1,5,4.5,TA01,record
+CH24B014,Quiz 2,Q2,5,4,TA01,record
+CH24B014,Quiz 2,Q3,5,3.5,TA01,record
+CH24B014,Quiz 2,Q4,5,4,TA01,record
+EE24B008,Quiz 2,Q1,5,1.5,TA04,record
+EE24B008,Quiz 2,Q2,5,2.5,TA04,record
+EE24B008,Quiz 2,Q3,5,1.5,TA04,record
+EE24B008,Quiz 2,Q4,5,1.5,TA04,record
+CH24B015,Quiz 2,Q1,5,1.5,TA01,record
+CH24B015,Quiz 2,Q2,5,1.5,TA01,record
+CH24B015,Quiz 2,Q3,5,1,TA01,record
+CH24B015,Quiz 2,Q4,5,1,TA01,record
+CH24B016,Quiz 2,Q1,5,2.5,TA01,record
+CH24B016,Quiz 2,Q2,5,3,TA01,record
+CH24B016,Quiz 2,Q3,5,2,TA01,record
+CH24B016,Quiz 2,Q4,5,3.5,TA01,record
+EE24B010,Quiz 2,Q1,5,2,TA04,record
+EE24B010,Quiz 2,Q2,5,2.5,TA04,record
+EE24B010,Quiz 2,Q3,5,1,TA04,record
+EE24B010,Quiz 2,Q4,5,1.5,TA04,record
+CH24B017,Quiz 2,Q1,5,2.5,TA01,record
+CH24B017,Quiz 2,Q2,5,2.5,TA01,record
+CH24B017,Quiz 2,Q3,5,1.5,TA01,record
+CH24B017,Quiz 2,Q4,5,2,TA01,record
+CH24B020,Quiz 2,Q1,5,4,TA01,record
+CH24B020,Quiz 2,Q2,5,5,TA01,record
+CH24B020,Quiz 2,Q3,5,4,TA01,record
+CH24B020,Quiz 2,Q4,5,4.5,TA01,record
+CE24B006,Quiz 2,Q1,5,2,TA02,record
+CE24B006,Quiz 2,Q2,5,2.5,TA02,record
+CE24B006,Quiz 2,Q3,5,1,TA02,record
+CE24B006,Quiz 2,Q4,5,2,TA02,record
+EE24B013,Quiz 2,Q1,5,3,TA04,record
+EE24B013,Quiz 2,Q2,5,4,TA04,record
+EE24B013,Quiz 2,Q3,5,1,TA04,record
+EE24B013,Quiz 2,Q4,5,1.5,TA04,record
+CE24B008,Quiz 2,Q1,5,3.5,TA02,record
+CE24B008,Quiz 2,Q2,5,5,TA02,record
+CE24B008,Quiz 2,Q3,5,4.5,TA02,record
+CE24B008,Quiz 2,Q4,5,3,TA02,record
+EE24B015,Quiz 2,Q1,5,4,TA03,record
+EE24B015,Quiz 2,Q2,5,4,TA03,record
+EE24B015,Quiz 2,Q3,5,2.5,TA03,record
+EE24B015,Quiz 2,Q4,5,3,TA03,record
+CH24B021,Quiz 2,Q1,5,5,TA01,record
+CH24B021,Quiz 2,Q2,5,4.5,TA01,record
+CH24B021,Quiz 2,Q3,5,4.5,TA01,record
+CH24B021,Quiz 2,Q4,5,5,TA01,record
+ME24B016,Quiz 2,Q1,5,1.5,TA04,record
+ME24B016,Quiz 2,Q2,5,2,TA04,record
+ME24B016,Quiz 2,Q3,5,0.5,TA04,record
+ME24B016,Quiz 2,Q4,5,0.5,TA04,record
+CE24B009,Quiz 2,Q1,5,5,TA02,record
+CE24B009,Quiz 2,Q2,5,5,TA02,record
+CE24B009,Quiz 2,Q3,5,4.5,TA02,record
+CE24B009,Quiz 2,Q4,5,4.5,TA02,record
+ME24B019,Quiz 2,Q1,5,3,TA03,record
+ME24B019,Quiz 2,Q2,5,3,TA03,record
+ME24B019,Quiz 2,Q3,5,1.5,TA03,record
+ME24B019,Quiz 2,Q4,5,3.5,TA03,record
+EE24B016,Quiz 2,Q1,5,4.5,TA03,record
+EE24B016,Quiz 2,Q2,5,4,TA03,record
+EE24B016,Quiz 2,Q3,5,3,TA03,record
+EE24B016,Quiz 2,Q4,5,3,TA03,record
+CE24B010,Quiz 2,Q1,5,3.5,TA02,record
+CE24B010,Quiz 2,Q2,5,3,TA02,record
+CE24B010,Quiz 2,Q3,5,1.5,TA02,record
+CE24B010,Quiz 2,Q4,5,2.5,TA02,record
+EE24B019,Quiz 2,Q1,5,4.5,TA03,record
+EE24B019,Quiz 2,Q2,5,4,TA03,record
+EE24B019,Quiz 2,Q3,5,4,TA03,record
+EE24B019,Quiz 2,Q4,5,3.5,TA03,record
+CE24B013,Quiz 2,Q1,5,2.5,TA01,record
+CE24B013,Quiz 2,Q2,5,3.5,TA01,record
+CE24B013,Quiz 2,Q3,5,1.5,TA01,record
+CE24B013,Quiz 2,Q4,5,1.5,TA01,record
+CH24B023,Quiz 2,Q1,5,4,TA02,record
+CH24B023,Quiz 2,Q2,5,4.5,TA02,record
+CH24B023,Quiz 2,Q3,5,3.5,TA02,record
+CH24B023,Quiz 2,Q4,5,2.5,TA02,record
+CH24B024,Quiz 2,Q1,5,5,TA02,record
+CH24B024,Quiz 2,Q2,5,5,TA02,record
+CH24B024,Quiz 2,Q3,5,4,TA02,record
+CH24B024,Quiz 2,Q4,5,4.5,TA02,record
+CH24B027,Quiz 2,Q1,5,4,TA02,record
+CH24B027,Quiz 2,Q2,5,4,TA02,record
+CH24B027,Quiz 2,Q3,5,3.5,TA02,record
+CH24B027,Quiz 2,Q4,5,3.5,TA02,record
+EE24B020,Quiz 2,Q1,5,1,TA04,record
+EE24B020,Quiz 2,Q2,5,3.5,TA04,record
+EE24B020,Quiz 2,Q3,5,1.5,TA04,record
+EE24B020,Quiz 2,Q4,5,1,TA04,record
+CE24B016,Quiz 2,Q1,5,4.5,TA02,record
+CE24B016,Quiz 2,Q2,5,4.5,TA02,record
+CE24B016,Quiz 2,Q3,5,3.5,TA02,record
+CE24B016,Quiz 2,Q4,5,4.5,TA02,record
+CE24B018,Quiz 2,Q1,5,4,TA01,record
+CE24B018,Quiz 2,Q2,5,4.5,TA01,record
+CE24B018,Quiz 2,Q3,5,3.5,TA01,record
+CE24B018,Quiz 2,Q4,5,3.5,TA01,record
+EE24B022,Quiz 2,Q1,5,0.5,TA04,record
+EE24B022,Quiz 2,Q2,5,1,TA04,record
+EE24B022,Quiz 2,Q3,5,0.5,TA04,record
+EE24B022,Quiz 2,Q4,5,0.5,TA04,record
+EE24B024,Quiz 2,Q1,5,2,TA03,record
+EE24B024,Quiz 2,Q2,5,2.5,TA03,record
+EE24B024,Quiz 2,Q3,5,1.5,TA03,record
+EE24B024,Quiz 2,Q4,5,2,TA03,record
+ME24B020,Quiz 2,Q1,5,3,TA03,record
+ME24B020,Quiz 2,Q2,5,4.5,TA03,record
+ME24B020,Quiz 2,Q3,5,3,TA03,record
+ME24B020,Quiz 2,Q4,5,3.5,TA03,record
+ME24B023,Quiz 2,Q1,5,3,TA04,record
+ME24B023,Quiz 2,Q2,5,4.5,TA04,record
+ME24B023,Quiz 2,Q3,5,3,TA04,record
+ME24B023,Quiz 2,Q4,5,2.5,TA04,record
+CE24B021,Quiz 2,Q1,5,1.5,TA01,record
+CE24B021,Quiz 2,Q2,5,2.5,TA01,record
+CE24B021,Quiz 2,Q3,5,1.5,TA01,record
+CE24B021,Quiz 2,Q4,5,1,TA01,record
+CE24B022,Quiz 2,Q1,5,1,TA01,record
+CE24B022,Quiz 2,Q2,5,3,TA01,record
+CE24B022,Quiz 2,Q3,5,1,TA01,record
+CE24B022,Quiz 2,Q4,5,0.5,TA01,record
+EE24B025,Quiz 2,Q1,5,4.5,TA04,record
+EE24B025,Quiz 2,Q2,5,4.5,TA04,record
+EE24B025,Quiz 2,Q3,5,3,TA04,record
+EE24B025,Quiz 2,Q4,5,3.5,TA04,record
+CH24B028,Quiz 2,Q1,5,4,TA02,record
+CH24B028,Quiz 2,Q2,5,4,TA02,record
+CH24B028,Quiz 2,Q3,5,4,TA02,record
+CH24B028,Quiz 2,Q4,5,4,TA02,record
+CE24B023,Quiz 2,Q1,5,4.5,TA02,record
+CE24B023,Quiz 2,Q2,5,4.5,TA02,record
+CE24B023,Quiz 2,Q3,5,4.5,TA02,record
+CE24B023,Quiz 2,Q4,5,4,TA02,record
+ME24B025,Quiz 2,Q1,5,4,TA03,record
+ME24B025,Quiz 2,Q2,5,3.5,TA03,record
+ME24B025,Quiz 2,Q3,5,2,TA03,record
+ME24B025,Quiz 2,Q4,5,3.5,TA03,record
+CH24B029,Quiz 2,Q1,5,3,TA02,record
+CH24B029,Quiz 2,Q2,5,3,TA02,record
+CH24B029,Quiz 2,Q3,5,2.5,TA02,record
+CH24B029,Quiz 2,Q4,5,1.5,TA02,record
+ME24B026,Quiz 2,Q1,5,1.5,TA04,record
+ME24B026,Quiz 2,Q2,5,1.5,TA04,record
+ME24B026,Quiz 2,Q3,5,1,TA04,record
+ME24B026,Quiz 2,Q4,5,0.5,TA04,record
+ME24B029,Quiz 2,Q1,5,2,TA04,record
+ME24B029,Quiz 2,Q2,5,2,TA04,record
+ME24B029,Quiz 2,Q3,5,1.5,TA04,record
+ME24B029,Quiz 2,Q4,5,1.5,TA04,record
+EE24B027,Quiz 2,Q1,5,2.5,TA03,record
+EE24B027,Quiz 2,Q2,5,3,TA03,record
+EE24B027,Quiz 2,Q3,5,1.5,TA03,record
+EE24B027,Quiz 2,Q4,5,2,TA03,record
+EE24B030,Quiz 2,Q1,5,1,TA03,record
+EE24B030,Quiz 2,Q2,5,1.5,TA03,record
+EE24B030,Quiz 2,Q3,5,0,TA03,record
+EE24B030,Quiz 2,Q4,5,0.5,TA03,record
+ME24B031,Quiz 2,Q1,5,3,TA04,record
+ME24B031,Quiz 2,Q2,5,3,TA04,record
+ME24B031,Quiz 2,Q3,5,2.5,TA04,record
+ME24B031,Quiz 2,Q4,5,2,TA04,record
+CE24B026,Quiz 2,Q1,5,3,TA01,record
+CE24B026,Quiz 2,Q2,5,4,TA01,record
+CE24B026,Quiz 2,Q3,5,3.5,TA01,record
+CE24B026,Quiz 2,Q4,5,3.5,TA01,record
+CH24B030,Quiz 2,Q1,5,3,TA01,record
+CH24B030,Quiz 2,Q2,5,3.5,TA01,record
+CH24B030,Quiz 2,Q3,5,2.5,TA01,record
+CH24B030,Quiz 2,Q4,5,2.5,TA01,record
+CE24B027,Quiz 2,Q1,5,4,TA02,record
+CE24B027,Quiz 2,Q2,5,4.5,TA02,record
+CE24B027,Quiz 2,Q3,5,3.5,TA02,record
+CE24B027,Quiz 2,Q4,5,3.5,TA02,record
+CH24B032,Quiz 2,Q1,5,2,TA02,record
+CH24B032,Quiz 2,Q2,5,2.5,TA02,record
+CH24B032,Quiz 2,Q3,5,1,TA02,record
+CH24B032,Quiz 2,Q4,5,0.5,TA02,record
+CE24B029,Quiz 2,Q1,5,3,TA01,record
+CE24B029,Quiz 2,Q2,5,2.5,TA01,record
+CE24B029,Quiz 2,Q3,5,2.5,TA01,record
+CE24B029,Quiz 2,Q4,5,4,TA01,record
+EE24B031,Quiz 2,Q1,5,1.5,TA04,record
+EE24B031,Quiz 2,Q2,5,2.5,TA04,record
+EE24B031,Quiz 2,Q3,5,2,TA04,record
+EE24B031,Quiz 2,Q4,5,2,TA04,record
+ME24B033,Quiz 2,Q1,5,1.5,TA04,record
+ME24B033,Quiz 2,Q2,5,2,TA04,record
+ME24B033,Quiz 2,Q3,5,1,TA04,record
+ME24B033,Quiz 2,Q4,5,0,TA04,record
+CE24B031,Quiz 2,Q1,5,1.5,TA02,record
+CE24B031,Quiz 2,Q2,5,1,TA02,record
+CE24B031,Quiz 2,Q3,5,1.5,TA02,record
+CE24B031,Quiz 2,Q4,5,0.5,TA02,record
+ME24B036,Quiz 2,Q1,5,3,TA04,record
+ME24B036,Quiz 2,Q2,5,2,TA04,record
+ME24B036,Quiz 2,Q3,5,2,TA04,record
+ME24B036,Quiz 2,Q4,5,1.5,TA04,record
+EE24B033,Quiz 2,Q1,5,4,TA03,record
+EE24B033,Quiz 2,Q2,5,4.5,TA03,record
+EE24B033,Quiz 2,Q3,5,2.5,TA03,record
+EE24B033,Quiz 2,Q4,5,3.5,TA03,record
+CE24B033,Quiz 2,Q1,5,4,TA01,record
+CE24B033,Quiz 2,Q2,5,3.5,TA01,record
+CE24B033,Quiz 2,Q3,5,3.5,TA01,record
+CE24B033,Quiz 2,Q4,5,3,TA01,record
+CE24B036,Quiz 2,Q1,5,3.5,TA02,record
+CE24B036,Quiz 2,Q2,5,4,TA02,record
+CE24B036,Quiz 2,Q3,5,3,TA02,record
+CE24B036,Quiz 2,Q4,5,2.5,TA02,record
+ME24B038,Quiz 2,Q1,5,2.5,TA04,record
+ME24B038,Quiz 2,Q2,5,3.5,TA04,record
+ME24B038,Quiz 2,Q3,5,2,TA04,record
+ME24B038,Quiz 2,Q4,5,1.5,TA04,record
+ME24B040,Quiz 2,Q1,5,1.5,TA04,record
+ME24B040,Quiz 2,Q2,5,2.5,TA04,record
+ME24B040,Quiz 2,Q3,5,1,TA04,record
+ME24B040,Quiz 2,Q4,5,1,TA04,record
+ME24B043,Quiz 2,Q1,5,1,TA03,record
+ME24B043,Quiz 2,Q2,5,1.5,TA03,record
+ME24B043,Quiz 2,Q3,5,0.5,TA03,record
+ME24B043,Quiz 2,Q4,5,0.5,TA03,record
+EE24B035,Quiz 2,Q1,5,4,TA04,record
+EE24B035,Quiz 2,Q2,5,3.5,TA04,record
+EE24B035,Quiz 2,Q3,5,2.5,TA04,record
+EE24B035,Quiz 2,Q4,5,2,TA04,record
+EE24B036,Quiz 2,Q1,5,4,TA03,record
+EE24B036,Quiz 2,Q2,5,4.5,TA03,record
+EE24B036,Quiz 2,Q3,5,4,TA03,record
+EE24B036,Quiz 2,Q4,5,3.5,TA03,record
+CE24B040,Quiz 2,Q1,5,5,TA02,record
+CE24B040,Quiz 2,Q2,5,4.5,TA02,record
+CE24B040,Quiz 2,Q3,5,3,TA02,record
+CE24B040,Quiz 2,Q4,5,4,TA02,record
+CH24B035,Quiz 2,Q1,5,4.5,TA01,record
+CH24B035,Quiz 2,Q2,5,4.5,TA01,record
+CH24B035,Quiz 2,Q3,5,3,TA01,record
+CH24B035,Quiz 2,Q4,5,1.5,TA01,record
+CH24B036,Quiz 2,Q1,5,5,TA02,record
+CH24B036,Quiz 2,Q2,5,5,TA02,record
+CH24B036,Quiz 2,Q3,5,3.5,TA02,record
+CH24B036,Quiz 2,Q4,5,3.5,TA02,record
+EE24B039,Quiz 2,Q1,5,1.5,TA04,record
+EE24B039,Quiz 2,Q2,5,2.5,TA04,record
+EE24B039,Quiz 2,Q3,5,0.5,TA04,record
+EE24B039,Quiz 2,Q4,5,1,TA04,record
+CH24B039,Quiz 2,Q1,5,4,TA01,record
+CH24B039,Quiz 2,Q2,5,4,TA01,record
+CH24B039,Quiz 2,Q3,5,2.5,TA01,record
+CH24B039,Quiz 2,Q4,5,3.5,TA01,record
+CE24B041,Quiz 2,Q1,5,2.5,TA02,record
+CE24B041,Quiz 2,Q2,5,1.5,TA02,record
+CE24B041,Quiz 2,Q3,5,2.5,TA02,record
+CE24B041,Quiz 2,Q4,5,1,TA02,record
+ME24B045,Quiz 2,Q1,5,3.5,TA03,record
+ME24B045,Quiz 2,Q2,5,4.5,TA03,record
+ME24B045,Quiz 2,Q3,5,2.5,TA03,record
+ME24B045,Quiz 2,Q4,5,1.5,TA03,record
+CE24B043,Quiz 2,Q1,5,4,TA01,record
+CE24B043,Quiz 2,Q2,5,4.5,TA01,record
+CE24B043,Quiz 2,Q3,5,3.5,TA01,record
+CE24B043,Quiz 2,Q4,5,4,TA01,record
+ME24B047,Quiz 2,Q1,5,3.5,TA03,record
+ME24B047,Quiz 2,Q2,5,4,TA03,record
+ME24B047,Quiz 2,Q3,5,2,TA03,record
+ME24B047,Quiz 2,Q4,5,4,TA03,record
+EE24B040,Quiz 2,Q1,5,3,TA03,record
+EE24B040,Quiz 2,Q2,5,2.5,TA03,record
+EE24B040,Quiz 2,Q3,5,2,TA03,record
+EE24B040,Quiz 2,Q4,5,2.5,TA03,record
+EE24B041,Quiz 2,Q1,5,2.5,TA03,record
+EE24B041,Quiz 2,Q2,5,3,TA03,record
+EE24B041,Quiz 2,Q3,5,2,TA03,record
+EE24B041,Quiz 2,Q4,5,2,TA03,record
+CE24B045,Quiz 2,Q1,5,3,TA02,record
+CE24B045,Quiz 2,Q2,5,4.5,TA02,record
+CE24B045,Quiz 2,Q3,5,2.5,TA02,record
+CE24B045,Quiz 2,Q4,5,3.5,TA02,record
+CH24B041,Quiz 2,Q1,5,4.5,TA02,record
+CH24B041,Quiz 2,Q2,5,5,TA02,record
+CH24B041,Quiz 2,Q3,5,4.5,TA02,record
+CH24B041,Quiz 2,Q4,5,4,TA02,record
+ME24B048,Quiz 2,Q1,5,4,TA03,record
+ME24B048,Quiz 2,Q2,5,4,TA03,record
+ME24B048,Quiz 2,Q3,5,2.5,TA03,record
+ME24B048,Quiz 2,Q4,5,3,TA03,record
+CE24B048,Quiz 2,Q1,5,4,TA01,record
+CE24B048,Quiz 2,Q2,5,4.5,TA01,record
+CE24B048,Quiz 2,Q3,5,3,TA01,record
+CE24B048,Quiz 2,Q4,5,4.5,TA01,record
+CE24B050,Quiz 2,Q1,5,4.5,TA02,record
+CE24B050,Quiz 2,Q2,5,4.5,TA02,record
+CE24B050,Quiz 2,Q3,5,3.5,TA02,record
+CE24B050,Quiz 2,Q4,5,4.5,TA02,record
+CH24B043,Quiz 2,Q1,5,5,TA02,record
+CH24B043,Quiz 2,Q2,5,5,TA02,record
+CH24B043,Quiz 2,Q3,5,3.5,TA02,record
+CH24B043,Quiz 2,Q4,5,4,TA02,record
+ME24B050,Quiz 2,Q1,5,2.5,TA04,record
+ME24B050,Quiz 2,Q2,5,2,TA04,record
+ME24B050,Quiz 2,Q3,5,2,TA04,record
+ME24B050,Quiz 2,Q4,5,2,TA04,record
+CE24B053,Quiz 2,Q1,5,4.5,TA02,record
+CE24B053,Quiz 2,Q2,5,4.5,TA02,record
+CE24B053,Quiz 2,Q3,5,4.5,TA02,record
+CE24B053,Quiz 2,Q4,5,4.5,TA02,record
+ME24B052,Quiz 2,Q1,5,3.5,TA03,record
+ME24B052,Quiz 2,Q2,5,4.5,TA03,record
+ME24B052,Quiz 2,Q3,5,3.5,TA03,record
+ME24B052,Quiz 2,Q4,5,3.5,TA03,record
+CH24B045,Quiz 2,Q1,5,5,TA01,record
+CH24B045,Quiz 2,Q2,5,4.5,TA01,record
+CH24B045,Quiz 2,Q3,5,5,TA01,record
+CH24B045,Quiz 2,Q4,5,4.5,TA01,record
+ME24B053,Quiz 2,Q1,5,1.5,TA04,record
+ME24B053,Quiz 2,Q2,5,3,TA04,record
+ME24B053,Quiz 2,Q3,5,1,TA04,record
+ME24B053,Quiz 2,Q4,5,1,TA04,record
+CE24B054,Quiz 2,Q1,5,5,TA01,record
+CE24B054,Quiz 2,Q2,5,5,TA01,record
+CE24B054,Quiz 2,Q3,5,5,TA01,record
+CE24B054,Quiz 2,Q4,5,4,TA01,record
+CE24B056,Quiz 2,Q1,5,3.5,TA02,record
+CE24B056,Quiz 2,Q2,5,4.5,TA02,record
+CE24B056,Quiz 2,Q3,5,1.5,TA02,record
+CE24B056,Quiz 2,Q4,5,3.5,TA02,record
+CH24B047,Quiz 2,Q1,5,4,TA01,record
+CH24B047,Quiz 2,Q2,5,4.5,TA01,record
+CH24B047,Quiz 2,Q3,5,3.5,TA01,record
+CH24B047,Quiz 2,Q4,5,4,TA01,record
+CE24B057,Quiz 2,Q1,5,4.5,TA01,record
+CE24B057,Quiz 2,Q2,5,4,TA01,record
+CE24B057,Quiz 2,Q3,5,4.5,TA01,record
+CE24B057,Quiz 2,Q4,5,4.5,TA01,record
+ME24B055,Quiz 2,Q1,5,4,TA03,record
+ME24B055,Quiz 2,Q2,5,4,TA03,record
+ME24B055,Quiz 2,Q3,5,2,TA03,record
+ME24B055,Quiz 2,Q4,5,2.5,TA03,record
+CE24B059,Quiz 2,Q1,5,3.5,TA02,record
+CE24B059,Quiz 2,Q2,5,3.5,TA02,record
+CE24B059,Quiz 2,Q3,5,2,TA02,record
+CE24B059,Quiz 2,Q4,5,4,TA02,record
+CE24B061,Quiz 2,Q1,5,3,TA02,record
+CE24B061,Quiz 2,Q2,5,3,TA02,record
+CE24B061,Quiz 2,Q3,5,2,TA02,record
+CE24B061,Quiz 2,Q4,5,2.5,TA02,record
+CH24B048,Quiz 2,Q1,5,4,TA02,record
+CH24B048,Quiz 2,Q2,5,4.5,TA02,record
+CH24B048,Quiz 2,Q3,5,4,TA02,record
+CH24B048,Quiz 2,Q4,5,4,TA02,record
+ME24B056,Quiz 2,Q1,5,2.5,TA04,record
+ME24B056,Quiz 2,Q2,5,4,TA04,record
+ME24B056,Quiz 2,Q3,5,2,TA04,record
+ME24B056,Quiz 2,Q4,5,2.5,TA04,record
+CE24B064,Quiz 2,Q1,5,2.5,TA02,record
+CE24B064,Quiz 2,Q2,5,3,TA02,record
+CE24B064,Quiz 2,Q3,5,2,TA02,record
+CE24B064,Quiz 2,Q4,5,2,TA02,record
+CH24B050,Quiz 2,Q1,5,2,TA02,record
+CH24B050,Quiz 2,Q2,5,3,TA02,record
+CH24B050,Quiz 2,Q3,5,2,TA02,record
+CH24B050,Quiz 2,Q4,5,2,TA02,record
+ME24B059,Quiz 2,Q1,5,3,TA03,record
+ME24B059,Quiz 2,Q2,5,4,TA03,record
+ME24B059,Quiz 2,Q3,5,3,TA03,record
+ME24B059,Quiz 2,Q4,5,3.5,TA03,record
+CE24B065,Quiz 2,Q1,5,4,TA01,record
+CE24B065,Quiz 2,Q2,5,3.5,TA01,record
+CE24B065,Quiz 2,Q3,5,3,TA01,record
+CE24B065,Quiz 2,Q4,5,3.5,TA01,record
+CH24B051,Quiz 2,Q1,5,2.5,TA02,record
+CH24B051,Quiz 2,Q2,5,2,TA02,record
+CH24B051,Quiz 2,Q3,5,1.5,TA02,record
+CH24B051,Quiz 2,Q4,5,2,TA02,record
+CH24B053,Quiz 2,Q1,5,2,TA01,record
+CH24B053,Quiz 2,Q2,5,2.5,TA01,record
+CH24B053,Quiz 2,Q3,5,1,TA01,record
+CH24B053,Quiz 2,Q4,5,1.5,TA01,record
+CE24B068,Quiz 2,Q1,5,4.5,TA02,record
+CE24B068,Quiz 2,Q2,5,4,TA02,record
+CE24B068,Quiz 2,Q3,5,2.5,TA02,record
+CE24B068,Quiz 2,Q4,5,3.5,TA02,record
+EE24B043,Quiz 2,Q1,5,4.5,TA03,record
+EE24B043,Quiz 2,Q2,5,3.5,TA03,record
+EE24B043,Quiz 2,Q3,5,3.5,TA03,record
+EE24B043,Quiz 2,Q4,5,2,TA03,record
+CE24B069,Quiz 2,Q1,5,3.5,TA02,record
+CE24B069,Quiz 2,Q2,5,3.5,TA02,record
+CE24B069,Quiz 2,Q3,5,3,TA02,record
+CE24B069,Quiz 2,Q4,5,2.5,TA02,record
+ME24B060,Quiz 2,Q1,5,1.5,TA04,record
+ME24B060,Quiz 2,Q2,5,1,TA04,record
+ME24B060,Quiz 2,Q3,5,0.5,TA04,record
+ME24B060,Quiz 2,Q4,5,0.5,TA04,record
+EE24B044,Quiz 2,Q1,5,4.5,TA03,record
+EE24B044,Quiz 2,Q2,5,4.5,TA03,record
+EE24B044,Quiz 2,Q3,5,3.5,TA03,record
+EE24B044,Quiz 2,Q4,5,4,TA03,record
+CH24B055,Quiz 2,Q1,5,4,TA01,record
+CH24B055,Quiz 2,Q2,5,4.5,TA01,record
+CH24B055,Quiz 2,Q3,5,3.5,TA01,record
+CH24B055,Quiz 2,Q4,5,4.5,TA01,record
+CE24B072,Quiz 2,Q1,5,4,TA02,record
+CE24B072,Quiz 2,Q2,5,4.5,TA02,record
+CE24B072,Quiz 2,Q3,5,3,TA02,record
+CE24B072,Quiz 2,Q4,5,3.5,TA02,record
+CE24B074,Quiz 2,Q1,5,3.5,TA02,record
+CE24B074,Quiz 2,Q2,5,4.5,TA02,record
+CE24B074,Quiz 2,Q3,5,1,TA02,record
+CE24B074,Quiz 2,Q4,5,2.5,TA02,record
+ME24B062,Quiz 2,Q1,5,3,TA03,record
+ME24B062,Quiz 2,Q2,5,3.5,TA03,record
+ME24B062,Quiz 2,Q3,5,1,TA03,record
+ME24B062,Quiz 2,Q4,5,3,TA03,record
+CE24B077,Quiz 2,Q1,5,4,TA01,record
+CE24B077,Quiz 2,Q2,5,4.5,TA01,record
+CE24B077,Quiz 2,Q3,5,4,TA01,record
+CE24B077,Quiz 2,Q4,5,4.5,TA01,record
+EE24B047,Quiz 2,Q1,5,1.5,TA04,record
+EE24B047,Quiz 2,Q2,5,3,TA04,record
+EE24B047,Quiz 2,Q3,5,0.5,TA04,record
+EE24B047,Quiz 2,Q4,5,1,TA04,record
+EE24B049,Quiz 2,Q1,5,4,TA03,record
+EE24B049,Quiz 2,Q2,5,4,TA03,record
+EE24B049,Quiz 2,Q3,5,3,TA03,record
+EE24B049,Quiz 2,Q4,5,3.5,TA03,record
+CH24B057,Quiz 2,Q1,5,3,TA02,record
+CH24B057,Quiz 2,Q2,5,3.5,TA02,record
+CH24B057,Quiz 2,Q3,5,3,TA02,record
+CH24B057,Quiz 2,Q4,5,3.5,TA02,record
+CE24B079,Quiz 2,Q1,5,4,TA01,record
+CE24B079,Quiz 2,Q2,5,5,TA01,record
+CE24B079,Quiz 2,Q3,5,4.5,TA01,record
+CE24B079,Quiz 2,Q4,5,4,TA01,record
+ME24B063,Quiz 2,Q1,5,2.5,TA03,record
+ME24B063,Quiz 2,Q2,5,3.5,TA03,record
+ME24B063,Quiz 2,Q3,5,2,TA03,record
+ME24B063,Quiz 2,Q4,5,3,TA03,record
+ME24B065,Quiz 2,Q1,5,2.5,TA03,record
+ME24B065,Quiz 2,Q2,5,3.5,TA03,record
+ME24B065,Quiz 2,Q3,5,1.5,TA03,record
+ME24B065,Quiz 2,Q4,5,1.5,TA03,record
+EE24B050,Quiz 2,Q1,5,3,TA04,record
+EE24B050,Quiz 2,Q2,5,3.5,TA04,record
+EE24B050,Quiz 2,Q3,5,2.5,TA04,record
+EE24B050,Quiz 2,Q4,5,1,TA04,record
+ME24B068,Quiz 2,Q1,5,4,TA04,record
+ME24B068,Quiz 2,Q2,5,3.5,TA04,record
+ME24B068,Quiz 2,Q3,5,2.5,TA04,record
+ME24B068,Quiz 2,Q4,5,3.5,TA04,record
+ME24B071,Quiz 2,Q1,5,1,TA03,record
+ME24B071,Quiz 2,Q2,5,1.5,TA03,record
+ME24B071,Quiz 2,Q3,5,0.5,TA03,record
+ME24B071,Quiz 2,Q4,5,1,TA03,record
+EE24B053,Quiz 2,Q1,5,2.5,TA04,record
+EE24B053,Quiz 2,Q2,5,3.5,TA04,record
+EE24B053,Quiz 2,Q3,5,1.5,TA04,record
+EE24B053,Quiz 2,Q4,5,1.5,TA04,record
+EE24B056,Quiz 2,Q1,5,4.5,TA03,record
+EE24B056,Quiz 2,Q2,5,4.5,TA03,record
+EE24B056,Quiz 2,Q3,5,2.5,TA03,record
+EE24B056,Quiz 2,Q4,5,3.5,TA03,record
+CH24B058,Quiz 2,Q1,5,4.5,TA02,record
+CH24B058,Quiz 2,Q2,5,4.5,TA02,record
+CH24B058,Quiz 2,Q3,5,4.5,TA02,record
+CH24B058,Quiz 2,Q4,5,4.5,TA02,record
+CH24B061,Quiz 2,Q1,5,2,TA01,record
+CH24B061,Quiz 2,Q2,5,3.5,TA01,record
+CH24B061,Quiz 2,Q3,5,2.5,TA01,record
+CH24B061,Quiz 2,Q4,5,1,TA01,record
+CH24B064,Quiz 2,Q1,5,4.5,TA01,record
+CH24B064,Quiz 2,Q2,5,4.5,TA01,record
+CH24B064,Quiz 2,Q3,5,4,TA01,record
+CH24B064,Quiz 2,Q4,5,3.5,TA01,record
+CH24B066,Quiz 2,Q1,5,3.5,TA01,record
+CH24B066,Quiz 2,Q2,5,3.5,TA01,record
+CH24B066,Quiz 2,Q3,5,2.5,TA01,record
+CH24B066,Quiz 2,Q4,5,2,TA01,record
+CE24B082,Quiz 2,Q1,5,2,TA02,record
+CE24B082,Quiz 2,Q2,5,2.5,TA02,record
+CE24B082,Quiz 2,Q3,5,1,TA02,record
+CE24B082,Quiz 2,Q4,5,2,TA02,record
+EE24B057,Quiz 2,Q1,5,4,TA04,record
+EE24B057,Quiz 2,Q2,5,3.5,TA04,record
+EE24B057,Quiz 2,Q3,5,2,TA04,record
+EE24B057,Quiz 2,Q4,5,3,TA04,record
+CE24B085,Quiz 2,Q1,5,4.5,TA01,record
+CE24B085,Quiz 2,Q2,5,3.5,TA01,record
+CE24B085,Quiz 2,Q3,5,2.5,TA01,record
+CE24B085,Quiz 2,Q4,5,3.5,TA01,record
+EE24B060,Quiz 2,Q1,5,1.5,TA03,record
+EE24B060,Quiz 2,Q2,5,2,TA03,record
+EE24B060,Quiz 2,Q3,5,1,TA03,record
+EE24B060,Quiz 2,Q4,5,1,TA03,record
+CE24B087,Quiz 2,Q1,5,2.5,TA01,record
+CE24B087,Quiz 2,Q2,5,4,TA01,record
+CE24B087,Quiz 2,Q3,5,3.5,TA01,record
+CE24B087,Quiz 2,Q4,5,3.5,TA01,record
+ME24B074,Quiz 2,Q1,5,2.5,TA03,record
+ME24B074,Quiz 2,Q2,5,3,TA03,record
+ME24B074,Quiz 2,Q3,5,2,TA03,record
+ME24B074,Quiz 2,Q4,5,3,TA03,record
+ME24B077,Quiz 2,Q1,5,3,TA04,record
+ME24B077,Quiz 2,Q2,5,4,TA04,record
+ME24B077,Quiz 2,Q3,5,2.5,TA04,record
+ME24B077,Quiz 2,Q4,5,2.5,TA04,record
+CE24B089,Quiz 2,Q1,5,3.5,TA01,record
+CE24B089,Quiz 2,Q2,5,3.5,TA01,record
+CE24B089,Quiz 2,Q3,5,2,TA01,record
+CE24B089,Quiz 2,Q4,5,1.5,TA01,record
+EE24B062,Quiz 2,Q1,5,3.5,TA04,record
+EE24B062,Quiz 2,Q2,5,3,TA04,record
+EE24B062,Quiz 2,Q3,5,2,TA04,record
+EE24B062,Quiz 2,Q4,5,2.5,TA04,record
+CH24B068,Quiz 2,Q1,5,4,TA03,record
+CH24B068,Quiz 2,Q2,5,5,TA03,record
+CH24B068,Quiz 2,Q3,5,3.5,TA03,record
+CH24B068,Quiz 2,Q4,5,3,TA03,record
+ME24B080,Quiz 2,Q1,5,3.5,TA03,record
+ME24B080,Quiz 2,Q2,5,3.5,TA03,record
+ME24B080,Quiz 2,Q3,5,2.5,TA03,record
+ME24B080,Quiz 2,Q4,5,2,TA03,record
+EE24B065,Quiz 2,Q1,5,3,TA03,record
+EE24B065,Quiz 2,Q2,5,4,TA03,record
+EE24B065,Quiz 2,Q3,5,3.5,TA03,record
+EE24B065,Quiz 2,Q4,5,3.5,TA03,record
+CE24B092,Quiz 2,Q1,5,2.5,TA02,record
+CE24B092,Quiz 2,Q2,5,2,TA02,record
+CE24B092,Quiz 2,Q3,5,0.5,TA02,record
+CE24B092,Quiz 2,Q4,5,1.5,TA02,record
+CE24B093,Quiz 2,Q1,5,5,TA02,record
+CE24B093,Quiz 2,Q2,5,5,TA02,record
+CE24B093,Quiz 2,Q3,5,4.5,TA02,record
+CE24B093,Quiz 2,Q4,5,4.5,TA02,record
+CE24B096,Quiz 2,Q1,5,4,TA01,record
+CE24B096,Quiz 2,Q2,5,3.5,TA01,record
+CE24B096,Quiz 2,Q3,5,3.5,TA01,record
+CE24B096,Quiz 2,Q4,5,2.5,TA01,record
+CH24B069,Quiz 2,Q1,5,4.5,TA03,record
+CH24B069,Quiz 2,Q2,5,4.5,TA03,record
+CH24B069,Quiz 2,Q3,5,3,TA03,record
+CH24B069,Quiz 2,Q4,5,4,TA03,record
+ME24B083,Quiz 2,Q1,5,3,TA03,record
+ME24B083,Quiz 2,Q2,5,3.5,TA03,record
+ME24B083,Quiz 2,Q3,5,2.5,TA03,record
+ME24B083,Quiz 2,Q4,5,2,TA03,record
+EE24B067,Quiz 2,Q1,5,5,TA03,record
+EE24B067,Quiz 2,Q2,5,4,TA03,record
+EE24B067,Quiz 2,Q3,5,3.5,TA03,record
+EE24B067,Quiz 2,Q4,5,4.5,TA03,record
+CE24B098,Quiz 2,Q1,5,2.5,TA01,record
+CE24B098,Quiz 2,Q2,5,4,TA01,record
+CE24B098,Quiz 2,Q3,5,2,TA01,record
+CE24B098,Quiz 2,Q4,5,2.5,TA01,record
+ME24B085,Quiz 2,Q1,5,2,TA04,record
+ME24B085,Quiz 2,Q2,5,2.5,TA04,record
+ME24B085,Quiz 2,Q3,5,2,TA04,record
+ME24B085,Quiz 2,Q4,5,2,TA04,record
+CH24B072,Quiz 2,Q1,5,2,TA04,record
+CH24B072,Quiz 2,Q2,5,1,TA04,record
+CH24B072,Quiz 2,Q3,5,1.5,TA04,record
+CH24B072,Quiz 2,Q4,5,2,TA04,record
+ME24B088,Quiz 2,Q1,5,4,TA04,record
+ME24B088,Quiz 2,Q2,5,5,TA04,record
+ME24B088,Quiz 2,Q3,5,3.5,TA04,record
+ME24B088,Quiz 2,Q4,5,3.5,TA04,record
+CE24B099,Quiz 2,Q1,5,3.5,TA02,record
+CE24B099,Quiz 2,Q2,5,5,TA02,record
+CE24B099,Quiz 2,Q3,5,3,TA02,record
+CE24B099,Quiz 2,Q4,5,3.5,TA02,record
+CE24B100,Quiz 2,Q1,5,2.5,TA01,record
+CE24B100,Quiz 2,Q2,5,3,TA01,record
+CE24B100,Quiz 2,Q3,5,1,TA01,record
+CE24B100,Quiz 2,Q4,5,1.5,TA01,record
+CH24B073,Quiz 2,Q1,5,1.5,TA03,record
+CH24B073,Quiz 2,Q2,5,2.5,TA03,record
+CH24B073,Quiz 2,Q3,5,2,TA03,record
+CH24B073,Quiz 2,Q4,5,1.5,TA03,record
+CE24B103,Quiz 2,Q1,5,3,TA01,record
+CE24B103,Quiz 2,Q2,5,2.5,TA01,record
+CE24B103,Quiz 2,Q3,5,2.5,TA01,record
+CE24B103,Quiz 2,Q4,5,2,TA01,record
+EE24B070,Quiz 2,Q1,5,4,TA03,record
+EE24B070,Quiz 2,Q2,5,4,TA03,record
+EE24B070,Quiz 2,Q3,5,2.5,TA03,record
+EE24B070,Quiz 2,Q4,5,3,TA03,record
+CE24B106,Quiz 2,Q1,5,1.5,TA02,record
+CE24B106,Quiz 2,Q2,5,3,TA02,record
+CE24B106,Quiz 2,Q3,5,0.5,TA02,record
+CE24B106,Quiz 2,Q4,5,1.5,TA02,record
+ME24B089,Quiz 2,Q1,5,4.5,TA04,record
+ME24B089,Quiz 2,Q2,5,4.5,TA04,record
+ME24B089,Quiz 2,Q3,5,4,TA04,record
+ME24B089,Quiz 2,Q4,5,3.5,TA04,record
+ME24B091,Quiz 2,Q1,5,3.5,TA04,record
+ME24B091,Quiz 2,Q2,5,2,TA04,record
+ME24B091,Quiz 2,Q3,5,1.5,TA04,record
+ME24B091,Quiz 2,Q4,5,2,TA04,record
+EE24B072,Quiz 2,Q1,5,4.5,TA03,record
+EE24B072,Quiz 2,Q2,5,4.5,TA03,record
+EE24B072,Quiz 2,Q3,5,3.5,TA03,record
+EE24B072,Quiz 2,Q4,5,3.5,TA03,record
+EE24B074,Quiz 2,Q1,5,3.5,TA03,record
+EE24B074,Quiz 2,Q2,5,3.5,TA03,record
+EE24B074,Quiz 2,Q3,5,2.5,TA03,record
+EE24B074,Quiz 2,Q4,5,2,TA03,record
+EE24B076,Quiz 2,Q1,5,4.5,TA03,record
+EE24B076,Quiz 2,Q2,5,4.5,TA03,record
+EE24B076,Quiz 2,Q3,5,3.5,TA03,record
+EE24B076,Quiz 2,Q4,5,4,TA03,record
+ME24B094,Quiz 2,Q1,5,3.5,TA04,record
+ME24B094,Quiz 2,Q2,5,4.5,TA04,record
+ME24B094,Quiz 2,Q3,5,3,TA04,record
+ME24B094,Quiz 2,Q4,5,3,TA04,record
+EE24B078,Quiz 2,Q1,5,4.5,TA03,record
+EE24B078,Quiz 2,Q2,5,3.5,TA03,record
+EE24B078,Quiz 2,Q3,5,3,TA03,record
+EE24B078,Quiz 2,Q4,5,2.5,TA03,record
+CE24B109,Quiz 2,Q1,5,2,TA01,record
+CE24B109,Quiz 2,Q2,5,3,TA01,record
+CE24B109,Quiz 2,Q3,5,1.5,TA01,record
+CE24B109,Quiz 2,Q4,5,1,TA01,record
+CH24B076,Quiz 2,Q1,5,3,TA03,record
+CH24B076,Quiz 2,Q2,5,2.5,TA03,record
+CH24B076,Quiz 2,Q3,5,1,TA03,record
+CH24B076,Quiz 2,Q4,5,2,TA03,record
+CH24B079,Quiz 2,Q1,5,4,TA04,record
+CH24B079,Quiz 2,Q2,5,4,TA04,record
+CH24B079,Quiz 2,Q3,5,3,TA04,record
+CH24B079,Quiz 2,Q4,5,3,TA04,record
+CH24B080,Quiz 2,Q1,5,4,TA03,record
+CH24B080,Quiz 2,Q2,5,4,TA03,record
+CH24B080,Quiz 2,Q3,5,3.5,TA03,record
+CH24B080,Quiz 2,Q4,5,3.5,TA03,record
+EE24B001,End-sem,Q1,10,7.5,TA04,record
+EE24B001,End-sem,Q2,10,4,TA04,record
+EE24B001,End-sem,Q3,10,4.5,TA04,record
+EE24B001,End-sem,Q4,10,0.5,TA04,record
+EE24B001,End-sem,Q5,10,2,TA04,record
+CH24B001,End-sem,Q1,10,8.5,TA02,record
+CH24B001,End-sem,Q2,10,9,TA02,record
+CH24B001,End-sem,Q3,10,7,TA02,record
+CH24B001,End-sem,Q4,10,2.5,TA02,record
+CH24B001,End-sem,Q5,10,8,TA02,record
+CE24B002,End-sem,Q1,10,8,TA02,record
+CE24B002,End-sem,Q2,10,5.5,TA02,record
+CE24B002,End-sem,Q3,10,5,TA02,record
+CE24B002,End-sem,Q4,10,0.5,TA02,record
+CE24B002,End-sem,Q5,10,5,TA02,record
+EE24B004,End-sem,Q1,10,8.5,TA03,record
+EE24B004,End-sem,Q2,10,6.5,TA03,record
+EE24B004,End-sem,Q3,10,5.5,TA03,record
+EE24B004,End-sem,Q4,10,4.5,TA03,record
+EE24B004,End-sem,Q5,10,8.5,TA03,record
+CE24B003,End-sem,Q1,10,7,TA01,record
+CE24B003,End-sem,Q2,10,5,TA01,record
+CE24B003,End-sem,Q3,10,6,TA01,record
+CE24B003,End-sem,Q4,10,3,TA01,record
+CE24B003,End-sem,Q5,10,6.5,TA01,record
+ME24B003,End-sem,Q1,10,5,TA03,record
+ME24B003,End-sem,Q2,10,5,TA03,record
+ME24B003,End-sem,Q3,10,2.5,TA03,record
+ME24B003,End-sem,Q4,10,1.5,TA03,record
+ME24B003,End-sem,Q5,10,3.5,TA03,record
+CH24B003,End-sem,Q1,10,3.5,TA01,record
+CH24B003,End-sem,Q2,10,4,TA01,record
+CH24B003,End-sem,Q3,10,3.5,TA01,record
+CH24B003,End-sem,Q4,10,2,TA01,record
+CH24B003,End-sem,Q5,10,5.5,TA01,record
+CH24B006,End-sem,Q1,10,6,TA01,record
+CH24B006,End-sem,Q2,10,4,TA01,record
+CH24B006,End-sem,Q3,10,3.5,TA01,record
+CH24B006,End-sem,Q4,10,1,TA01,record
+CH24B006,End-sem,Q5,10,6.5,TA01,record
+CH24B009,End-sem,Q1,10,9,TA01,record
+CH24B009,End-sem,Q2,10,8,TA01,record
+CH24B009,End-sem,Q3,10,6,TA01,record
+CH24B009,End-sem,Q4,10,2,TA01,record
+CH24B009,End-sem,Q5,10,8.5,TA01,record
+ME24B004,End-sem,Q1,10,6.5,TA04,record
+ME24B004,End-sem,Q2,10,5,TA04,record
+ME24B004,End-sem,Q3,10,2.5,TA04,record
+ME24B004,End-sem,Q4,10,2,TA04,record
+ME24B004,End-sem,Q5,10,4.5,TA04,record
+ME24B006,End-sem,Q1,10,6,TA04,record
+ME24B006,End-sem,Q2,10,7,TA04,record
+ME24B006,End-sem,Q3,10,3,TA04,record
+ME24B006,End-sem,Q4,10,2,TA04,record
+ME24B006,End-sem,Q5,10,7.5,TA04,record
+EE24B006,End-sem,Q1,10,8,TA04,record
+EE24B006,End-sem,Q2,10,5,TA04,record
+EE24B006,End-sem,Q3,10,6,TA04,record
+EE24B006,End-sem,Q4,10,1.5,TA04,record
+EE24B006,End-sem,Q5,10,7,TA04,record
+ME24B007,End-sem,Q1,10,2.5,TA04,record
+ME24B007,End-sem,Q2,10,2.5,TA04,record
+ME24B007,End-sem,Q3,10,1.5,TA04,record
+ME24B007,End-sem,Q4,10,0.5,TA04,record
+ME24B007,End-sem,Q5,10,3.5,TA04,record
+ME24B010,End-sem,Q1,10,5,TA03,record
+ME24B010,End-sem,Q2,10,3.5,TA03,record
+ME24B010,End-sem,Q3,10,3.5,TA03,record
+ME24B010,End-sem,Q4,10,1,TA03,record
+ME24B010,End-sem,Q5,10,6,TA03,record
+CE24B004,End-sem,Q1,10,4.5,TA02,record
+CE24B004,End-sem,Q2,10,2,TA02,record
+CE24B004,End-sem,Q3,10,1.5,TA02,record
+CE24B004,End-sem,Q4,10,0.5,TA02,record
+CE24B004,End-sem,Q5,10,1.5,TA02,record
+CH24B011,End-sem,Q1,10,5.5,TA01,record
+CH24B011,End-sem,Q2,10,6,TA01,record
+CH24B011,End-sem,Q3,10,3.5,TA01,record
+CH24B011,End-sem,Q4,10,1,TA01,record
+CH24B011,End-sem,Q5,10,6,TA01,record
+ME24B012,End-sem,Q1,10,7,TA03,record
+ME24B012,End-sem,Q2,10,4.5,TA03,record
+ME24B012,End-sem,Q3,10,2,TA03,record
+ME24B012,End-sem,Q4,10,0.5,TA03,record
+ME24B012,End-sem,Q5,10,6,TA03,record
+ME24B014,End-sem,Q1,10,6.5,TA04,record
+ME24B014,End-sem,Q2,10,4.5,TA04,record
+ME24B014,End-sem,Q3,10,3.5,TA04,record
+ME24B014,End-sem,Q4,10,2,TA04,record
+ME24B014,End-sem,Q5,10,5,TA04,record
+CH24B012,End-sem,Q1,10,6,TA01,record
+CH24B012,End-sem,Q2,10,4,TA01,record
+CH24B012,End-sem,Q3,10,5.5,TA01,record
+CH24B012,End-sem,Q4,10,1,TA01,record
+CH24B012,End-sem,Q5,10,3,TA01,record
+CH24B014,End-sem,Q1,10,8,TA01,record
+CH24B014,End-sem,Q2,10,8,TA01,record
+CH24B014,End-sem,Q3,10,8,TA01,record
+CH24B014,End-sem,Q4,10,3,TA01,record
+CH24B014,End-sem,Q5,10,8.5,TA01,record
+EE24B008,End-sem,Q1,10,5,TA03,record
+EE24B008,End-sem,Q2,10,4,TA03,record
+EE24B008,End-sem,Q3,10,2,TA03,record
+EE24B008,End-sem,Q4,10,0.5,TA03,record
+EE24B008,End-sem,Q5,10,3.5,TA03,record
+CH24B015,End-sem,Q1,10,3.5,TA01,record
+CH24B015,End-sem,Q2,10,1.5,TA01,record
+CH24B015,End-sem,Q3,10,1.5,TA01,record
+CH24B015,End-sem,Q4,10,0,TA01,record
+CH24B015,End-sem,Q5,10,2.5,TA01,record
+CH24B016,End-sem,Q1,10,7,TA01,record
+CH24B016,End-sem,Q2,10,2.5,TA01,record
+CH24B016,End-sem,Q3,10,3,TA01,record
+CH24B016,End-sem,Q4,10,2,TA01,record
+CH24B016,End-sem,Q5,10,6,TA01,record
+EE24B010,End-sem,Q1,10,5,TA04,record
+EE24B010,End-sem,Q2,10,2,TA04,record
+EE24B010,End-sem,Q3,10,2.5,TA04,record
+EE24B010,End-sem,Q4,10,0,TA04,record
+EE24B010,End-sem,Q5,10,2,TA04,record
+CH24B017,End-sem,Q1,10,7,TA02,record
+CH24B017,End-sem,Q2,10,3.5,TA02,record
+CH24B017,End-sem,Q3,10,2,TA02,record
+CH24B017,End-sem,Q4,10,1,TA02,record
+CH24B017,End-sem,Q5,10,2.5,TA02,record
+CH24B020,End-sem,Q1,10,9,TA02,record
+CH24B020,End-sem,Q2,10,7.5,TA02,record
+CH24B020,End-sem,Q3,10,7,TA02,record
+CH24B020,End-sem,Q4,10,4,TA02,record
+CH24B020,End-sem,Q5,10,6.5,TA02,record
+CE24B006,End-sem,Q1,10,3.5,TA01,record
+CE24B006,End-sem,Q2,10,1,TA01,record
+CE24B006,End-sem,Q3,10,0,TA01,record
+CE24B006,End-sem,Q4,10,1,TA01,record
+CE24B006,End-sem,Q5,10,1.5,TA01,record
+EE24B013,End-sem,Q1,10,4.5,TA04,record
+EE24B013,End-sem,Q2,10,4,TA04,record
+EE24B013,End-sem,Q3,10,0.5,TA04,record
+EE24B013,End-sem,Q4,10,0.5,TA04,record
+EE24B013,End-sem,Q5,10,5.5,TA04,record
+CE24B008,End-sem,Q1,10,8,TA01,record
+CE24B008,End-sem,Q2,10,6.5,TA01,record
+CE24B008,End-sem,Q3,10,5,TA01,record
+CE24B008,End-sem,Q4,10,2,TA01,record
+CE24B008,End-sem,Q5,10,7,TA01,record
+EE24B015,End-sem,Q1,10,7.5,TA04,record
+EE24B015,End-sem,Q2,10,4,TA04,record
+EE24B015,End-sem,Q3,10,4,TA04,record
+EE24B015,End-sem,Q4,10,2.5,TA04,record
+EE24B015,End-sem,Q5,10,6.5,TA04,record
+CH24B021,End-sem,Q1,10,9,TA01,record
+CH24B021,End-sem,Q2,10,9.5,TA01,record
+CH24B021,End-sem,Q3,10,10,TA01,record
+CH24B021,End-sem,Q4,10,5,TA01,record
+CH24B021,End-sem,Q5,10,9,TA01,record
+ME24B016,End-sem,Q1,10,4.5,TA03,record
+ME24B016,End-sem,Q2,10,2,TA03,record
+ME24B016,End-sem,Q3,10,1.5,TA03,record
+ME24B016,End-sem,Q4,10,1,TA03,record
+ME24B016,End-sem,Q5,10,3,TA03,record
+CE24B009,End-sem,Q1,10,9.5,TA02,record
+CE24B009,End-sem,Q2,10,9.5,TA02,record
+CE24B009,End-sem,Q3,10,9,TA02,record
+CE24B009,End-sem,Q4,10,7,TA02,record
+CE24B009,End-sem,Q5,10,9.5,TA02,record
+ME24B019,End-sem,Q1,10,4,TA04,record
+ME24B019,End-sem,Q2,10,4.5,TA04,record
+ME24B019,End-sem,Q3,10,3,TA04,record
+ME24B019,End-sem,Q4,10,0,TA04,record
+ME24B019,End-sem,Q5,10,5,TA04,record
+EE24B016,End-sem,Q1,10,8.5,TA03,record
+EE24B016,End-sem,Q2,10,5.5,TA03,record
+EE24B016,End-sem,Q3,10,7,TA03,record
+EE24B016,End-sem,Q4,10,2,TA03,record
+EE24B016,End-sem,Q5,10,7,TA03,record
+CE24B010,End-sem,Q1,10,4.5,TA02,record
+CE24B010,End-sem,Q2,10,5,TA02,record
+CE24B010,End-sem,Q3,10,2,TA02,record
+CE24B010,End-sem,Q4,10,1,TA02,record
+CE24B010,End-sem,Q5,10,4,TA02,record
+EE24B019,End-sem,Q1,10,7,TA03,record
+EE24B019,End-sem,Q2,10,7,TA03,record
+EE24B019,End-sem,Q3,10,5,TA03,record
+EE24B019,End-sem,Q4,10,2.5,TA03,record
+EE24B019,End-sem,Q5,10,7,TA03,record
+CE24B013,End-sem,Q1,10,6,TA01,record
+CE24B013,End-sem,Q2,10,2.5,TA01,record
+CE24B013,End-sem,Q3,10,3,TA01,record
+CE24B013,End-sem,Q4,10,1,TA01,record
+CE24B013,End-sem,Q5,10,4,TA01,record
+CH24B023,End-sem,Q1,10,6.5,TA01,record
+CH24B023,End-sem,Q2,10,3.5,TA01,record
+CH24B023,End-sem,Q3,10,4.5,TA01,record
+CH24B023,End-sem,Q4,10,2.5,TA01,record
+CH24B023,End-sem,Q5,10,7.5,TA01,record
+CH24B024,End-sem,Q1,10,9.5,TA01,record
+CH24B024,End-sem,Q2,10,7.5,TA01,record
+CH24B024,End-sem,Q3,10,7,TA01,record
+CH24B024,End-sem,Q4,10,3,TA01,record
+CH24B024,End-sem,Q5,10,9,TA01,record
+CH24B027,End-sem,Q1,10,7.5,TA02,record
+CH24B027,End-sem,Q2,10,7,TA02,record
+CH24B027,End-sem,Q3,10,5.5,TA02,record
+CH24B027,End-sem,Q4,10,3.5,TA02,record
+CH24B027,End-sem,Q5,10,5.5,TA02,record
+EE24B020,End-sem,Q1,10,3.5,TA03,record
+EE24B020,End-sem,Q2,10,3.5,TA03,record
+EE24B020,End-sem,Q3,10,2.5,TA03,record
+EE24B020,End-sem,Q4,10,0.5,TA03,record
+EE24B020,End-sem,Q5,10,4,TA03,record
+CE24B016,End-sem,Q1,10,7.5,TA01,record
+CE24B016,End-sem,Q2,10,8.5,TA01,record
+CE24B016,End-sem,Q3,10,5.5,TA01,record
+CE24B016,End-sem,Q4,10,4.5,TA01,record
+CE24B016,End-sem,Q5,10,7.5,TA01,record
+CE24B018,End-sem,Q1,10,9,TA01,record
+CE24B018,End-sem,Q2,10,5,TA01,record
+CE24B018,End-sem,Q3,10,6,TA01,record
+CE24B018,End-sem,Q4,10,3.5,TA01,record
+CE24B018,End-sem,Q5,10,8.5,TA01,record
+EE24B022,End-sem,Q1,10,1,TA04,record
+EE24B022,End-sem,Q2,10,0.5,TA04,record
+EE24B022,End-sem,Q3,10,0.5,TA04,record
+EE24B022,End-sem,Q4,10,0,TA04,record
+EE24B022,End-sem,Q5,10,1.5,TA04,record
+EE24B024,End-sem,Q1,10,7.5,TA03,record
+EE24B024,End-sem,Q2,10,4,TA03,record
+EE24B024,End-sem,Q3,10,3,TA03,record
+EE24B024,End-sem,Q4,10,1,TA03,record
+EE24B024,End-sem,Q5,10,3,TA03,record
+ME24B020,End-sem,Q1,10,7.5,TA04,record
+ME24B020,End-sem,Q2,10,3.5,TA04,record
+ME24B020,End-sem,Q3,10,5,TA04,record
+ME24B020,End-sem,Q4,10,0.5,TA04,record
+ME24B020,End-sem,Q5,10,5,TA04,record
+ME24B023,End-sem,Q1,10,8,TA04,record
+ME24B023,End-sem,Q2,10,3.5,TA04,record
+ME24B023,End-sem,Q3,10,5,TA04,record
+ME24B023,End-sem,Q4,10,3,TA04,record
+ME24B023,End-sem,Q5,10,5,TA04,record
+CE24B021,End-sem,Q1,10,4,TA02,record
+CE24B021,End-sem,Q2,10,1.5,TA02,record
+CE24B021,End-sem,Q3,10,2,TA02,record
+CE24B021,End-sem,Q4,10,0,TA02,record
+CE24B021,End-sem,Q5,10,4,TA02,record
+CE24B022,End-sem,Q1,10,5,TA02,record
+CE24B022,End-sem,Q2,10,2,TA02,record
+CE24B022,End-sem,Q3,10,0.5,TA02,record
+CE24B022,End-sem,Q4,10,0,TA02,record
+CE24B022,End-sem,Q5,10,3,TA02,record
+EE24B025,End-sem,Q1,10,8.5,TA03,record
+EE24B025,End-sem,Q2,10,6.5,TA03,record
+EE24B025,End-sem,Q3,10,5.5,TA03,record
+EE24B025,End-sem,Q4,10,4,TA03,record
+EE24B025,End-sem,Q5,10,8,TA03,record
+CH24B028,End-sem,Q1,10,8.5,TA01,record
+CH24B028,End-sem,Q2,10,7,TA01,record
+CH24B028,End-sem,Q3,10,6,TA01,record
+CH24B028,End-sem,Q4,10,1,TA01,record
+CH24B028,End-sem,Q5,10,7.5,TA01,record
+CE24B023,End-sem,Q1,10,9.5,TA02,record
+CE24B023,End-sem,Q2,10,7,TA02,record
+CE24B023,End-sem,Q3,10,8,TA02,record
+CE24B023,End-sem,Q4,10,5,TA02,record
+CE24B023,End-sem,Q5,10,10,TA02,record
+ME24B025,End-sem,Q1,10,7.5,TA04,record
+ME24B025,End-sem,Q2,10,4.5,TA04,record
+ME24B025,End-sem,Q3,10,3.5,TA04,record
+ME24B025,End-sem,Q4,10,1,TA04,record
+ME24B025,End-sem,Q5,10,5,TA04,record
+CH24B029,End-sem,Q1,10,5.5,TA01,record
+CH24B029,End-sem,Q2,10,2.5,TA01,record
+CH24B029,End-sem,Q3,10,1.5,TA01,record
+CH24B029,End-sem,Q4,10,0.5,TA01,record
+CH24B029,End-sem,Q5,10,2.5,TA01,record
+ME24B026,End-sem,Q1,10,2.5,TA03,record
+ME24B026,End-sem,Q2,10,2,TA03,record
+ME24B026,End-sem,Q3,10,1,TA03,record
+ME24B026,End-sem,Q4,10,0,TA03,record
+ME24B026,End-sem,Q5,10,3.5,TA03,record
+ME24B029,End-sem,Q1,10,6,TA03,record
+ME24B029,End-sem,Q2,10,3,TA03,record
+ME24B029,End-sem,Q3,10,2.5,TA03,record
+ME24B029,End-sem,Q4,10,1,TA03,record
+ME24B029,End-sem,Q5,10,5.5,TA03,record
+EE24B027,End-sem,Q1,10,4.5,TA04,record
+EE24B027,End-sem,Q2,10,3,TA04,record
+EE24B027,End-sem,Q3,10,2,TA04,record
+EE24B027,End-sem,Q4,10,0.5,TA04,record
+EE24B027,End-sem,Q5,10,2.5,TA04,record
+EE24B030,End-sem,Q1,10,2.5,TA04,record
+EE24B030,End-sem,Q2,10,1,TA04,record
+EE24B030,End-sem,Q3,10,1,TA04,record
+EE24B030,End-sem,Q4,10,0.5,TA04,record
+EE24B030,End-sem,Q5,10,2,TA04,record
+ME24B031,End-sem,Q1,10,5.5,TA04,record
+ME24B031,End-sem,Q2,10,2.5,TA04,record
+ME24B031,End-sem,Q3,10,3.5,TA04,record
+ME24B031,End-sem,Q4,10,1.5,TA04,record
+ME24B031,End-sem,Q5,10,4,TA04,record
+CE24B026,End-sem,Q1,10,9.5,TA02,record
+CE24B026,End-sem,Q2,10,8.5,TA02,record
+CE24B026,End-sem,Q3,10,4.5,TA02,record
+CE24B026,End-sem,Q4,10,3,TA02,record
+CE24B026,End-sem,Q5,10,8,TA02,record
+CH24B030,End-sem,Q1,10,5.5,TA02,record
+CH24B030,End-sem,Q2,10,1.5,TA02,record
+CH24B030,End-sem,Q3,10,3.5,TA02,record
+CH24B030,End-sem,Q4,10,1.5,TA02,record
+CH24B030,End-sem,Q5,10,7,TA02,record
+CE24B027,End-sem,Q1,10,9,TA02,record
+CE24B027,End-sem,Q2,10,6,TA02,record
+CE24B027,End-sem,Q3,10,6,TA02,record
+CE24B027,End-sem,Q4,10,3.5,TA02,record
+CE24B027,End-sem,Q5,10,6.5,TA02,record
+CH24B032,End-sem,Q1,10,3,TA01,record
+CH24B032,End-sem,Q2,10,3,TA01,record
+CH24B032,End-sem,Q3,10,2,TA01,record
+CH24B032,End-sem,Q4,10,0,TA01,record
+CH24B032,End-sem,Q5,10,2.5,TA01,record
+CE24B029,End-sem,Q1,10,6,TA01,record
+CE24B029,End-sem,Q2,10,4,TA01,record
+CE24B029,End-sem,Q3,10,2,TA01,record
+CE24B029,End-sem,Q4,10,2,TA01,record
+CE24B029,End-sem,Q5,10,5,TA01,record
+EE24B031,End-sem,Q1,10,3,TA04,record
+EE24B031,End-sem,Q2,10,6,TA04,record
+EE24B031,End-sem,Q3,10,2.5,TA04,record
+EE24B031,End-sem,Q4,10,1,TA04,record
+EE24B031,End-sem,Q5,10,6.5,TA04,record
+ME24B033,End-sem,Q1,10,3,TA04,record
+ME24B033,End-sem,Q2,10,1,TA04,record
+ME24B033,End-sem,Q3,10,1,TA04,record
+ME24B033,End-sem,Q4,10,0.5,TA04,record
+ME24B033,End-sem,Q5,10,1.5,TA04,record
+CE24B031,End-sem,Q1,10,4,TA01,record
+CE24B031,End-sem,Q2,10,2,TA01,record
+CE24B031,End-sem,Q3,10,1.5,TA01,record
+CE24B031,End-sem,Q4,10,0,TA01,record
+CE24B031,End-sem,Q5,10,1.5,TA01,record
+ME24B036,End-sem,Q1,10,4.5,TA04,record
+ME24B036,End-sem,Q2,10,3,TA04,record
+ME24B036,End-sem,Q3,10,1.5,TA04,record
+ME24B036,End-sem,Q4,10,1,TA04,record
+ME24B036,End-sem,Q5,10,4,TA04,record
+EE24B033,End-sem,Q1,10,7.5,TA04,record
+EE24B033,End-sem,Q2,10,6.5,TA04,record
+EE24B033,End-sem,Q3,10,6.5,TA04,record
+EE24B033,End-sem,Q4,10,2.5,TA04,record
+EE24B033,End-sem,Q5,10,7,TA04,record
+CE24B033,End-sem,Q1,10,7.5,TA02,record
+CE24B033,End-sem,Q2,10,6,TA02,record
+CE24B033,End-sem,Q3,10,4.5,TA02,record
+CE24B033,End-sem,Q4,10,4,TA02,record
+CE24B033,End-sem,Q5,10,7,TA02,record
+CE24B036,End-sem,Q1,10,8,TA02,record
+CE24B036,End-sem,Q2,10,5.5,TA02,record
+CE24B036,End-sem,Q3,10,5,TA02,record
+CE24B036,End-sem,Q4,10,2.5,TA02,record
+CE24B036,End-sem,Q5,10,6.5,TA02,record
+ME24B038,End-sem,Q1,10,5.5,TA04,record
+ME24B038,End-sem,Q2,10,3,TA04,record
+ME24B038,End-sem,Q3,10,4.5,TA04,record
+ME24B038,End-sem,Q4,10,1,TA04,record
+ME24B038,End-sem,Q5,10,5,TA04,record
+ME24B040,End-sem,Q1,10,3.5,TA04,record
+ME24B040,End-sem,Q2,10,1.5,TA04,record
+ME24B040,End-sem,Q3,10,2,TA04,record
+ME24B040,End-sem,Q4,10,0,TA04,record
+ME24B040,End-sem,Q5,10,3.5,TA04,record
+CE24B039,End-sem,Q1,10,10,TA02,record
+CE24B039,End-sem,Q2,10,9.5,TA02,record
+CE24B039,End-sem,Q3,10,8.5,TA02,record
+CE24B039,End-sem,Q4,10,5,TA02,record
+CE24B039,End-sem,Q5,10,9,TA02,record
+ME24B043,End-sem,Q1,10,2,TA03,record
+ME24B043,End-sem,Q2,10,0.5,TA03,record
+ME24B043,End-sem,Q3,10,0.5,TA03,record
+ME24B043,End-sem,Q4,10,0,TA03,record
+ME24B043,End-sem,Q5,10,1.5,TA03,record
+EE24B035,End-sem,Q1,10,5.5,TA04,record
+EE24B035,End-sem,Q2,10,6,TA04,record
+EE24B035,End-sem,Q3,10,5,TA04,record
+EE24B035,End-sem,Q4,10,1,TA04,record
+EE24B035,End-sem,Q5,10,4,TA04,record
+EE24B036,End-sem,Q1,10,8,TA03,record
+EE24B036,End-sem,Q2,10,8,TA03,record
+EE24B036,End-sem,Q3,10,6.5,TA03,record
+EE24B036,End-sem,Q4,10,3,TA03,record
+EE24B036,End-sem,Q5,10,4.5,TA03,record
+CE24B040,End-sem,Q1,10,9,TA01,record
+CE24B040,End-sem,Q2,10,4.5,TA01,record
+CE24B040,End-sem,Q3,10,6.5,TA01,record
+CE24B040,End-sem,Q4,10,1.5,TA01,record
+CE24B040,End-sem,Q5,10,7.5,TA01,record
+CH24B035,End-sem,Q1,10,8,TA02,record
+CH24B035,End-sem,Q2,10,4.5,TA02,record
+CH24B035,End-sem,Q3,10,5,TA02,record
+CH24B035,End-sem,Q4,10,2,TA02,record
+CH24B035,End-sem,Q5,10,6.5,TA02,record
+CH24B036,End-sem,Q1,10,8.5,TA01,record
+CH24B036,End-sem,Q2,10,6,TA01,record
+CH24B036,End-sem,Q3,10,4,TA01,record
+CH24B036,End-sem,Q4,10,3.5,TA01,record
+CH24B036,End-sem,Q5,10,8,TA01,record
+EE24B039,End-sem,Q1,10,4,TA03,record
+EE24B039,End-sem,Q2,10,3.5,TA03,record
+EE24B039,End-sem,Q3,10,2.5,TA03,record
+EE24B039,End-sem,Q4,10,1,TA03,record
+EE24B039,End-sem,Q5,10,3.5,TA03,record
+CH24B039,End-sem,Q1,10,8.5,TA02,record
+CH24B039,End-sem,Q2,10,7,TA02,record
+CH24B039,End-sem,Q3,10,3.5,TA02,record
+CH24B039,End-sem,Q4,10,3.5,TA02,record
+CH24B039,End-sem,Q5,10,4.5,TA02,record
+CE24B041,End-sem,Q1,10,5.5,TA01,record
+CE24B041,End-sem,Q2,10,1,TA01,record
+CE24B041,End-sem,Q3,10,0,TA01,record
+CE24B041,End-sem,Q4,10,0.5,TA01,record
+CE24B041,End-sem,Q5,10,3.5,TA01,record
+ME24B045,End-sem,Q1,10,7,TA03,record
+ME24B045,End-sem,Q2,10,5,TA03,record
+ME24B045,End-sem,Q3,10,5,TA03,record
+ME24B045,End-sem,Q4,10,1.5,TA03,record
+ME24B045,End-sem,Q5,10,6.5,TA03,record
+CE24B043,End-sem,Q1,10,10,TA02,record
+CE24B043,End-sem,Q2,10,8.5,TA02,record
+CE24B043,End-sem,Q3,10,8,TA02,record
+CE24B043,End-sem,Q4,10,4,TA02,record
+CE24B043,End-sem,Q5,10,9,TA02,record
+ME24B047,End-sem,Q1,10,8,TA03,record
+ME24B047,End-sem,Q2,10,5.5,TA03,record
+ME24B047,End-sem,Q3,10,4.5,TA03,record
+ME24B047,End-sem,Q4,10,2,TA03,record
+ME24B047,End-sem,Q5,10,5,TA03,record
+EE24B040,End-sem,Q1,10,6.5,TA04,record
+EE24B040,End-sem,Q2,10,2.5,TA04,record
+EE24B040,End-sem,Q3,10,4,TA04,record
+EE24B040,End-sem,Q4,10,0.5,TA04,record
+EE24B040,End-sem,Q5,10,4.5,TA04,record
+EE24B041,End-sem,Q1,10,5.5,TA04,record
+EE24B041,End-sem,Q2,10,4,TA04,record
+EE24B041,End-sem,Q3,10,1.5,TA04,record
+EE24B041,End-sem,Q4,10,1.5,TA04,record
+EE24B041,End-sem,Q5,10,2.5,TA04,record
+CE24B045,End-sem,Q1,10,6.5,TA02,record
+CE24B045,End-sem,Q2,10,6,TA02,record
+CE24B045,End-sem,Q3,10,7,TA02,record
+CE24B045,End-sem,Q4,10,0.5,TA02,record
+CE24B045,End-sem,Q5,10,4.5,TA02,record
+CH24B041,End-sem,Q1,10,9,TA02,record
+CH24B041,End-sem,Q2,10,6.5,TA02,record
+CH24B041,End-sem,Q3,10,8,TA02,record
+CH24B041,End-sem,Q4,10,5.5,TA02,record
+CH24B041,End-sem,Q5,10,8,TA02,record
+ME24B048,End-sem,Q1,10,6.5,TA04,record
+ME24B048,End-sem,Q2,10,4,TA04,record
+ME24B048,End-sem,Q3,10,5,TA04,record
+ME24B048,End-sem,Q4,10,1.5,TA04,record
+ME24B048,End-sem,Q5,10,5.5,TA04,record
+CE24B048,End-sem,Q1,10,9,TA02,record
+CE24B048,End-sem,Q2,10,6,TA02,record
+CE24B048,End-sem,Q3,10,6,TA02,record
+CE24B048,End-sem,Q4,10,4.5,TA02,record
+CE24B048,End-sem,Q5,10,9,TA02,record
+CE24B050,End-sem,Q1,10,9.5,TA02,record
+CE24B050,End-sem,Q2,10,7,TA02,record
+CE24B050,End-sem,Q3,10,7,TA02,record
+CE24B050,End-sem,Q4,10,5,TA02,record
+CE24B050,End-sem,Q5,10,8,TA02,record
+CH24B043,End-sem,Q1,10,8.5,TA01,record
+CH24B043,End-sem,Q2,10,6,TA01,record
+CH24B043,End-sem,Q3,10,6,TA01,record
+CH24B043,End-sem,Q4,10,3.5,TA01,record
+CH24B043,End-sem,Q5,10,7.5,TA01,record
+ME24B050,End-sem,Q1,10,4.5,TA04,record
+ME24B050,End-sem,Q2,10,2.5,TA04,record
+ME24B050,End-sem,Q3,10,3,TA04,record
+ME24B050,End-sem,Q4,10,1.5,TA04,record
+ME24B050,End-sem,Q5,10,3,TA04,record
+CE24B053,End-sem,Q1,10,9,TA01,record
+CE24B053,End-sem,Q2,10,7.5,TA01,record
+CE24B053,End-sem,Q3,10,9,TA01,record
+CE24B053,End-sem,Q4,10,5.5,TA01,record
+CE24B053,End-sem,Q5,10,8.5,TA01,record
+ME24B052,End-sem,Q1,10,7.5,TA03,record
+ME24B052,End-sem,Q2,10,7,TA03,record
+ME24B052,End-sem,Q3,10,6,TA03,record
+ME24B052,End-sem,Q4,10,1.5,TA03,record
+ME24B052,End-sem,Q5,10,7.5,TA03,record
+CH24B045,End-sem,Q1,10,8.5,TA02,record
+CH24B045,End-sem,Q2,10,10,TA02,record
+CH24B045,End-sem,Q3,10,9,TA02,record
+CH24B045,End-sem,Q4,10,7.5,TA02,record
+CH24B045,End-sem,Q5,10,9.5,TA02,record
+ME24B053,End-sem,Q1,10,2,TA04,record
+ME24B053,End-sem,Q2,10,1,TA04,record
+ME24B053,End-sem,Q3,10,1.5,TA04,record
+ME24B053,End-sem,Q4,10,0.5,TA04,record
+ME24B053,End-sem,Q5,10,1.5,TA04,record
+CE24B054,End-sem,Q1,10,9,TA02,record
+CE24B054,End-sem,Q2,10,10,TA02,record
+CE24B054,End-sem,Q3,10,9,TA02,record
+CE24B054,End-sem,Q4,10,6.5,TA02,record
+CE24B054,End-sem,Q5,10,9,TA02,record
+CE24B056,End-sem,Q1,10,7,TA02,record
+CE24B056,End-sem,Q2,10,5,TA02,record
+CE24B056,End-sem,Q3,10,5,TA02,record
+CE24B056,End-sem,Q4,10,1.5,TA02,record
+CE24B056,End-sem,Q5,10,6,TA02,record
+CH24B047,End-sem,Q1,10,9.5,TA02,record
+CH24B047,End-sem,Q2,10,7,TA02,record
+CH24B047,End-sem,Q3,10,6,TA02,record
+CH24B047,End-sem,Q4,10,3.5,TA02,record
+CH24B047,End-sem,Q5,10,7.5,TA02,record
+CE24B057,End-sem,Q1,10,10,TA02,record
+CE24B057,End-sem,Q2,10,8,TA02,record
+CE24B057,End-sem,Q3,10,8.5,TA02,record
+CE24B057,End-sem,Q4,10,3.5,TA02,record
+CE24B057,End-sem,Q5,10,9,TA02,record
+ME24B055,End-sem,Q1,10,6.5,TA03,record
+ME24B055,End-sem,Q2,10,4,TA03,record
+ME24B055,End-sem,Q3,10,4.5,TA03,record
+ME24B055,End-sem,Q4,10,1.5,TA03,record
+ME24B055,End-sem,Q5,10,5.5,TA03,record
+CE24B059,End-sem,Q1,10,8.5,TA01,record
+CE24B059,End-sem,Q2,10,2.5,TA01,record
+CE24B059,End-sem,Q3,10,5.5,TA01,record
+CE24B059,End-sem,Q4,10,0.5,TA01,record
+CE24B059,End-sem,Q5,10,5,TA01,record
+CE24B061,End-sem,Q1,10,4,TA01,record
+CE24B061,End-sem,Q2,10,2.5,TA01,record
+CE24B061,End-sem,Q3,10,1.5,TA01,record
+CE24B061,End-sem,Q4,10,1.5,TA01,record
+CE24B061,End-sem,Q5,10,3.5,TA01,record
+CH24B048,End-sem,Q1,10,10,TA02,record
+CH24B048,End-sem,Q2,10,8,TA02,record
+CH24B048,End-sem,Q3,10,9,TA02,record
+CH24B048,End-sem,Q4,10,3.5,TA02,record
+CH24B048,End-sem,Q5,10,8,TA02,record
+ME24B056,End-sem,Q1,10,8.5,TA04,record
+ME24B056,End-sem,Q2,10,5.5,TA04,record
+ME24B056,End-sem,Q3,10,5,TA04,record
+ME24B056,End-sem,Q4,10,2,TA04,record
+ME24B056,End-sem,Q5,10,7.5,TA04,record
+CE24B064,End-sem,Q1,10,6.5,TA02,record
+CE24B064,End-sem,Q2,10,2.5,TA02,record
+CE24B064,End-sem,Q3,10,3.5,TA02,record
+CE24B064,End-sem,Q4,10,0,TA02,record
+CE24B064,End-sem,Q5,10,5.5,TA02,record
+CH24B050,End-sem,Q1,10,5.5,TA02,record
+CH24B050,End-sem,Q2,10,3.5,TA02,record
+CH24B050,End-sem,Q3,10,3,TA02,record
+CH24B050,End-sem,Q4,10,0,TA02,record
+CH24B050,End-sem,Q5,10,4.5,TA02,record
+ME24B059,End-sem,Q1,10,7.5,TA04,record
+ME24B059,End-sem,Q2,10,4,TA04,record
+ME24B059,End-sem,Q3,10,3,TA04,record
+ME24B059,End-sem,Q4,10,1.5,TA04,record
+ME24B059,End-sem,Q5,10,5.5,TA04,record
+CE24B065,End-sem,Q1,10,6.5,TA01,record
+CE24B065,End-sem,Q2,10,5.5,TA01,record
+CE24B065,End-sem,Q3,10,7.5,TA01,record
+CE24B065,End-sem,Q4,10,1,TA01,record
+CE24B065,End-sem,Q5,10,5.5,TA01,record
+CH24B051,End-sem,Q1,10,3.5,TA01,record
+CH24B051,End-sem,Q2,10,3,TA01,record
+CH24B051,End-sem,Q3,10,0.5,TA01,record
+CH24B051,End-sem,Q4,10,0.5,TA01,record
+CH24B051,End-sem,Q5,10,2.5,TA01,record
+CH24B053,End-sem,Q1,10,4.5,TA02,record
+CH24B053,End-sem,Q2,10,2.5,TA02,record
+CH24B053,End-sem,Q3,10,1.5,TA02,record
+CH24B053,End-sem,Q4,10,0,TA02,record
+CH24B053,End-sem,Q5,10,3,TA02,record
+CE24B068,End-sem,Q1,10,9,TA02,record
+CE24B068,End-sem,Q2,10,6,TA02,record
+CE24B068,End-sem,Q3,10,4,TA02,record
+CE24B068,End-sem,Q4,10,3,TA02,record
+CE24B068,End-sem,Q5,10,6,TA02,record
+EE24B043,End-sem,Q1,10,9,TA04,record
+EE24B043,End-sem,Q2,10,4.5,TA04,record
+EE24B043,End-sem,Q3,10,6,TA04,record
+EE24B043,End-sem,Q4,10,1.5,TA04,record
+EE24B043,End-sem,Q5,10,5.5,TA04,record
+CE24B069,End-sem,Q1,10,8.5,TA01,record
+CE24B069,End-sem,Q2,10,4.5,TA01,record
+CE24B069,End-sem,Q3,10,5,TA01,record
+CE24B069,End-sem,Q4,10,3,TA01,record
+CE24B069,End-sem,Q5,10,8,TA01,record
+ME24B060,End-sem,Q1,10,2.5,TA03,record
+ME24B060,End-sem,Q2,10,2,TA03,record
+ME24B060,End-sem,Q3,10,0.5,TA03,record
+ME24B060,End-sem,Q4,10,0.5,TA03,record
+ME24B060,End-sem,Q5,10,2.5,TA03,record
+EE24B044,End-sem,Q1,10,8.5,TA04,record
+EE24B044,End-sem,Q2,10,7,TA04,record
+EE24B044,End-sem,Q3,10,7,TA04,record
+EE24B044,End-sem,Q4,10,3.5,TA04,record
+EE24B044,End-sem,Q5,10,7,TA04,record
+CH24B055,End-sem,Q1,10,10,TA02,record
+CH24B055,End-sem,Q2,10,8,TA02,record
+CH24B055,End-sem,Q3,10,7,TA02,record
+CH24B055,End-sem,Q4,10,6,TA02,record
+CH24B055,End-sem,Q5,10,7.5,TA02,record
+CE24B072,End-sem,Q1,10,9.5,TA02,record
+CE24B072,End-sem,Q2,10,5.5,TA02,record
+CE24B072,End-sem,Q3,10,6.5,TA02,record
+CE24B072,End-sem,Q4,10,3.5,TA02,record
+CE24B072,End-sem,Q5,10,7,TA02,record
+CE24B074,End-sem,Q1,10,4.5,TA01,record
+CE24B074,End-sem,Q2,10,3.5,TA01,record
+CE24B074,End-sem,Q3,10,2,TA01,record
+CE24B074,End-sem,Q4,10,1,TA01,record
+CE24B074,End-sem,Q5,10,3.5,TA01,record
+ME24B062,End-sem,Q1,10,5.5,TA03,record
+ME24B062,End-sem,Q2,10,5,TA03,record
+ME24B062,End-sem,Q3,10,2.5,TA03,record
+ME24B062,End-sem,Q4,10,2.5,TA03,record
+ME24B062,End-sem,Q5,10,6,TA03,record
+CE24B077,End-sem,Q1,10,8.5,TA01,record
+CE24B077,End-sem,Q2,10,7,TA01,record
+CE24B077,End-sem,Q3,10,6,TA01,record
+CE24B077,End-sem,Q4,10,3,TA01,record
+CE24B077,End-sem,Q5,10,8,TA01,record
+EE24B047,End-sem,Q1,10,6,TA03,record
+EE24B047,End-sem,Q2,10,3,TA03,record
+EE24B047,End-sem,Q3,10,2,TA03,record
+EE24B047,End-sem,Q4,10,0,TA03,record
+EE24B047,End-sem,Q5,10,3,TA03,record
+EE24B049,End-sem,Q1,10,7.5,TA03,record
+EE24B049,End-sem,Q2,10,8,TA03,record
+EE24B049,End-sem,Q3,10,6,TA03,record
+EE24B049,End-sem,Q4,10,2.5,TA03,record
+EE24B049,End-sem,Q5,10,7,TA03,record
+CH24B057,End-sem,Q1,10,5.5,TA01,record
+CH24B057,End-sem,Q2,10,3.5,TA01,record
+CH24B057,End-sem,Q3,10,2.5,TA01,record
+CH24B057,End-sem,Q4,10,2,TA01,record
+CH24B057,End-sem,Q5,10,6.5,TA01,record
+CE24B079,End-sem,Q1,10,8.5,TA02,record
+CE24B079,End-sem,Q2,10,7.5,TA02,record
+CE24B079,End-sem,Q3,10,8,TA02,record
+CE24B079,End-sem,Q4,10,5.5,TA02,record
+CE24B079,End-sem,Q5,10,9,TA02,record
+ME24B063,End-sem,Q1,10,6.5,TA03,record
+ME24B063,End-sem,Q2,10,6.5,TA03,record
+ME24B063,End-sem,Q3,10,4.5,TA03,record
+ME24B063,End-sem,Q4,10,1,TA03,record
+ME24B063,End-sem,Q5,10,6.5,TA03,record
+ME24B065,End-sem,Q1,10,6,TA03,record
+ME24B065,End-sem,Q2,10,2,TA03,record
+ME24B065,End-sem,Q3,10,2,TA03,record
+ME24B065,End-sem,Q4,10,0.5,TA03,record
+ME24B065,End-sem,Q5,10,4,TA03,record
+EE24B050,End-sem,Q1,10,8,TA03,record
+EE24B050,End-sem,Q2,10,6,TA03,record
+EE24B050,End-sem,Q3,10,4,TA03,record
+EE24B050,End-sem,Q4,10,1.5,TA03,record
+EE24B050,End-sem,Q5,10,4,TA03,record
+ME24B068,End-sem,Q1,10,9,TA03,record
+ME24B068,End-sem,Q2,10,7,TA03,record
+ME24B068,End-sem,Q3,10,6.5,TA03,record
+ME24B068,End-sem,Q4,10,2,TA03,record
+ME24B068,End-sem,Q5,10,7,TA03,record
+ME24B071,End-sem,Q1,10,4.5,TA04,record
+ME24B071,End-sem,Q2,10,2,TA04,record
+ME24B071,End-sem,Q3,10,1.5,TA04,record
+ME24B071,End-sem,Q4,10,0,TA04,record
+ME24B071,End-sem,Q5,10,2,TA04,record
+EE24B053,End-sem,Q1,10,4,TA03,record
+EE24B053,End-sem,Q2,10,3.5,TA03,record
+EE24B053,End-sem,Q3,10,3,TA03,record
+EE24B053,End-sem,Q4,10,1.5,TA03,record
+EE24B053,End-sem,Q5,10,4,TA03,record
+EE24B056,End-sem,Q1,10,7.5,TA03,record
+EE24B056,End-sem,Q2,10,6.5,TA03,record
+EE24B056,End-sem,Q3,10,5,TA03,record
+EE24B056,End-sem,Q4,10,3.5,TA03,record
+EE24B056,End-sem,Q5,10,7.5,TA03,record
+CH24B058,End-sem,Q1,10,9.5,TA02,record
+CH24B058,End-sem,Q2,10,8.5,TA02,record
+CH24B058,End-sem,Q3,10,8,TA02,record
+CH24B058,End-sem,Q4,10,5.5,TA02,record
+CH24B058,End-sem,Q5,10,7,TA02,record
+CH24B061,End-sem,Q1,10,6.5,TA01,record
+CH24B061,End-sem,Q2,10,4,TA01,record
+CH24B061,End-sem,Q3,10,2.5,TA01,record
+CH24B061,End-sem,Q4,10,0,TA01,record
+CH24B061,End-sem,Q5,10,4.5,TA01,record
+CH24B064,End-sem,Q1,10,9.5,TA01,record
+CH24B064,End-sem,Q2,10,7.5,TA01,record
+CH24B064,End-sem,Q3,10,6.5,TA01,record
+CH24B064,End-sem,Q4,10,2.5,TA01,record
+CH24B064,End-sem,Q5,10,8,TA01,record
+CH24B066,End-sem,Q1,10,6.5,TA01,record
+CH24B066,End-sem,Q2,10,4,TA01,record
+CH24B066,End-sem,Q3,10,3.5,TA01,record
+CH24B066,End-sem,Q4,10,0.5,TA01,record
+CH24B066,End-sem,Q5,10,5,TA01,record
+CE24B082,End-sem,Q1,10,3,TA02,record
+CE24B082,End-sem,Q2,10,4,TA02,record
+CE24B082,End-sem,Q3,10,3,TA02,record
+CE24B082,End-sem,Q4,10,0,TA02,record
+CE24B082,End-sem,Q5,10,3.5,TA02,record
+EE24B057,End-sem,Q1,10,7.5,TA03,record
+EE24B057,End-sem,Q2,10,5,TA03,record
+EE24B057,End-sem,Q3,10,6.5,TA03,record
+EE24B057,End-sem,Q4,10,2,TA03,record
+EE24B057,End-sem,Q5,10,6.5,TA03,record
+CE24B085,End-sem,Q1,10,8,TA02,record
+CE24B085,End-sem,Q2,10,7,TA02,record
+CE24B085,End-sem,Q3,10,4.5,TA02,record
+CE24B085,End-sem,Q4,10,0.5,TA02,record
+CE24B085,End-sem,Q5,10,7.5,TA02,record
+EE24B060,End-sem,Q1,10,6,TA04,record
+EE24B060,End-sem,Q2,10,2.5,TA04,record
+EE24B060,End-sem,Q3,10,0.5,TA04,record
+EE24B060,End-sem,Q4,10,0,TA04,record
+EE24B060,End-sem,Q5,10,3.5,TA04,record
+CE24B087,End-sem,Q1,10,8,TA02,record
+CE24B087,End-sem,Q2,10,7,TA02,record
+CE24B087,End-sem,Q3,10,6,TA02,record
+CE24B087,End-sem,Q4,10,3.5,TA02,record
+CE24B087,End-sem,Q5,10,6.5,TA02,record
+ME24B074,End-sem,Q1,10,6,TA03,record
+ME24B074,End-sem,Q2,10,6.5,TA03,record
+ME24B074,End-sem,Q3,10,5,TA03,record
+ME24B074,End-sem,Q4,10,1.5,TA03,record
+ME24B074,End-sem,Q5,10,5.5,TA03,record
+ME24B077,End-sem,Q1,10,6.5,TA04,record
+ME24B077,End-sem,Q2,10,5,TA04,record
+ME24B077,End-sem,Q3,10,3,TA04,record
+ME24B077,End-sem,Q4,10,2,TA04,record
+ME24B077,End-sem,Q5,10,5,TA04,record
+CE24B089,End-sem,Q1,10,4,TA01,record
+CE24B089,End-sem,Q2,10,5,TA01,record
+CE24B089,End-sem,Q3,10,2.5,TA01,record
+CE24B089,End-sem,Q4,10,0,TA01,record
+CE24B089,End-sem,Q5,10,3.5,TA01,record
+EE24B062,End-sem,Q1,10,6,TA03,record
+EE24B062,End-sem,Q2,10,5.5,TA03,record
+EE24B062,End-sem,Q3,10,4,TA03,record
+EE24B062,End-sem,Q4,10,0.5,TA03,record
+EE24B062,End-sem,Q5,10,6.5,TA03,record
+CH24B068,End-sem,Q1,10,8,TA03,record
+CH24B068,End-sem,Q2,10,7.5,TA03,record
+CH24B068,End-sem,Q3,10,5.5,TA03,record
+CH24B068,End-sem,Q4,10,3,TA03,record
+CH24B068,End-sem,Q5,10,8,TA03,record
+ME24B080,End-sem,Q1,10,6,TA04,record
+ME24B080,End-sem,Q2,10,2.5,TA04,record
+ME24B080,End-sem,Q3,10,2,TA04,record
+ME24B080,End-sem,Q4,10,1,TA04,record
+ME24B080,End-sem,Q5,10,5.5,TA04,record
+EE24B065,End-sem,Q1,10,6,TA04,record
+EE24B065,End-sem,Q2,10,4.5,TA04,record
+EE24B065,End-sem,Q3,10,3,TA04,record
+EE24B065,End-sem,Q4,10,2,TA04,record
+EE24B065,End-sem,Q5,10,5.5,TA04,record
+CE24B092,End-sem,Q1,10,7.5,TA02,record
+CE24B092,End-sem,Q2,10,2.5,TA02,record
+CE24B092,End-sem,Q3,10,4,TA02,record
+CE24B092,End-sem,Q4,10,0,TA02,record
+CE24B092,End-sem,Q5,10,2.5,TA02,record
+CE24B093,End-sem,Q1,10,9.5,TA02,record
+CE24B093,End-sem,Q2,10,6,TA02,record
+CE24B093,End-sem,Q3,10,7.5,TA02,record
+CE24B093,End-sem,Q4,10,4.5,TA02,record
+CE24B093,End-sem,Q5,10,8,TA02,record
+CE24B096,End-sem,Q1,10,7,TA01,record
+CE24B096,End-sem,Q2,10,3,TA01,record
+CE24B096,End-sem,Q3,10,5.5,TA01,record
+CE24B096,End-sem,Q4,10,1,TA01,record
+CE24B096,End-sem,Q5,10,7,TA01,record
+CH24B069,End-sem,Q1,10,8,TA04,record
+CH24B069,End-sem,Q2,10,7.5,TA04,record
+CH24B069,End-sem,Q3,10,6,TA04,record
+CH24B069,End-sem,Q4,10,2.5,TA04,record
+CH24B069,End-sem,Q5,10,8.5,TA04,record
+ME24B083,End-sem,Q1,10,6.5,TA04,record
+ME24B083,End-sem,Q2,10,3,TA04,record
+ME24B083,End-sem,Q3,10,3,TA04,record
+ME24B083,End-sem,Q4,10,1,TA04,record
+ME24B083,End-sem,Q5,10,5.5,TA04,record
+EE24B067,End-sem,Q1,10,9.5,TA03,record
+EE24B067,End-sem,Q2,10,8,TA03,record
+EE24B067,End-sem,Q3,10,7.5,TA03,record
+EE24B067,End-sem,Q4,10,3.5,TA03,record
+EE24B067,End-sem,Q5,10,8,TA03,record
+CE24B098,End-sem,Q1,10,7,TA01,record
+CE24B098,End-sem,Q2,10,4,TA01,record
+CE24B098,End-sem,Q3,10,1.5,TA01,record
+CE24B098,End-sem,Q4,10,1,TA01,record
+CE24B098,End-sem,Q5,10,4,TA01,record
+ME24B085,End-sem,Q1,10,8,TA04,record
+ME24B085,End-sem,Q2,10,4,TA04,record
+ME24B085,End-sem,Q3,10,2.5,TA04,record
+ME24B085,End-sem,Q4,10,1,TA04,record
+ME24B085,End-sem,Q5,10,3,TA04,record
+CH24B072,End-sem,Q1,10,4,TA04,record
+CH24B072,End-sem,Q2,10,2.5,TA04,record
+CH24B072,End-sem,Q3,10,1,TA04,record
+CH24B072,End-sem,Q4,10,0.5,TA04,record
+CH24B072,End-sem,Q5,10,3,TA04,record
+ME24B088,End-sem,Q1,10,8.5,TA03,record
+ME24B088,End-sem,Q2,10,7,TA03,record
+ME24B088,End-sem,Q3,10,6,TA03,record
+ME24B088,End-sem,Q4,10,2.5,TA03,record
+ME24B088,End-sem,Q5,10,8,TA03,record
+CE24B099,End-sem,Q1,10,5,TA02,record
+CE24B099,End-sem,Q2,10,6,TA02,record
+CE24B099,End-sem,Q3,10,3,TA02,record
+CE24B099,End-sem,Q4,10,2.5,TA02,record
+CE24B099,End-sem,Q5,10,4.5,TA02,record
+CE24B100,End-sem,Q1,10,6.5,TA02,record
+CE24B100,End-sem,Q2,10,2,TA02,record
+CE24B100,End-sem,Q3,10,2.5,TA02,record
+CE24B100,End-sem,Q4,10,0,TA02,record
+CE24B100,End-sem,Q5,10,2.5,TA02,record
+CH24B073,End-sem,Q1,10,3.5,TA03,record
+CH24B073,End-sem,Q2,10,2.5,TA03,record
+CH24B073,End-sem,Q3,10,2,TA03,record
+CH24B073,End-sem,Q4,10,0.5,TA03,record
+CH24B073,End-sem,Q5,10,2,TA03,record
+CE24B103,End-sem,Q1,10,6,TA01,record
+CE24B103,End-sem,Q2,10,3.5,TA01,record
+CE24B103,End-sem,Q3,10,4,TA01,record
+CE24B103,End-sem,Q4,10,0,TA01,record
+CE24B103,End-sem,Q5,10,5,TA01,record
+EE24B070,End-sem,Q1,10,8,TA04,record
+EE24B070,End-sem,Q2,10,7,TA04,record
+EE24B070,End-sem,Q3,10,5,TA04,record
+EE24B070,End-sem,Q4,10,1,TA04,record
+EE24B070,End-sem,Q5,10,5.5,TA04,record
+CE24B106,End-sem,Q1,10,1.5,TA01,record
+CE24B106,End-sem,Q2,10,2.5,TA01,record
+CE24B106,End-sem,Q3,10,3,TA01,record
+CE24B106,End-sem,Q4,10,0,TA01,record
+CE24B106,End-sem,Q5,10,1,TA01,record
+ME24B089,End-sem,Q1,10,9,TA04,record
+ME24B089,End-sem,Q2,10,7,TA04,record
+ME24B089,End-sem,Q3,10,6,TA04,record
+ME24B089,End-sem,Q4,10,3,TA04,record
+ME24B089,End-sem,Q5,10,8.5,TA04,record
+ME24B091,End-sem,Q1,10,5,TA04,record
+ME24B091,End-sem,Q2,10,3.5,TA04,record
+ME24B091,End-sem,Q3,10,2.5,TA04,record
+ME24B091,End-sem,Q4,10,1.5,TA04,record
+ME24B091,End-sem,Q5,10,5,TA04,record
+EE24B072,End-sem,Q1,10,8.5,TA04,record
+EE24B072,End-sem,Q2,10,7.5,TA04,record
+EE24B072,End-sem,Q3,10,7.5,TA04,record
+EE24B072,End-sem,Q4,10,4,TA04,record
+EE24B072,End-sem,Q5,10,9,TA04,record
+EE24B074,End-sem,Q1,10,6.5,TA04,record
+EE24B074,End-sem,Q2,10,3,TA04,record
+EE24B074,End-sem,Q3,10,2.5,TA04,record
+EE24B074,End-sem,Q4,10,1,TA04,record
+EE24B074,End-sem,Q5,10,5,TA04,record
+EE24B076,End-sem,Q1,10,9,TA03,record
+EE24B076,End-sem,Q2,10,7.5,TA03,record
+EE24B076,End-sem,Q3,10,8.5,TA03,record
+EE24B076,End-sem,Q4,10,4,TA03,record
+EE24B076,End-sem,Q5,10,8,TA03,record
+ME24B094,End-sem,Q1,10,9,TA03,record
+ME24B094,End-sem,Q2,10,6,TA03,record
+ME24B094,End-sem,Q3,10,3.5,TA03,record
+ME24B094,End-sem,Q4,10,2.5,TA03,record
+ME24B094,End-sem,Q5,10,6,TA03,record
+EE24B078,End-sem,Q1,10,7.5,TA03,record
+EE24B078,End-sem,Q2,10,5.5,TA03,record
+EE24B078,End-sem,Q3,10,6,TA03,record
+EE24B078,End-sem,Q4,10,1.5,TA03,record
+EE24B078,End-sem,Q5,10,5.5,TA03,record
+CE24B109,End-sem,Q1,10,3,TA01,record
+CE24B109,End-sem,Q2,10,4,TA01,record
+CE24B109,End-sem,Q3,10,2.5,TA01,record
+CE24B109,End-sem,Q4,10,1.5,TA01,record
+CE24B109,End-sem,Q5,10,2.5,TA01,record
+CH24B076,End-sem,Q1,10,4,TA04,record
+CH24B076,End-sem,Q2,10,4,TA04,record
+CH24B076,End-sem,Q3,10,2,TA04,record
+CH24B076,End-sem,Q4,10,0.5,TA04,record
+CH24B076,End-sem,Q5,10,3.5,TA04,record
+CH24B079,End-sem,Q1,10,8.5,TA03,record
+CH24B079,End-sem,Q2,10,5,TA03,record
+CH24B079,End-sem,Q3,10,3,TA03,record
+CH24B079,End-sem,Q4,10,2,TA03,record
+CH24B079,End-sem,Q5,10,7.5,TA03,record
+CH24B080,End-sem,Q1,10,9.5,TA04,record
+CH24B080,End-sem,Q2,10,4,TA04,record
+CH24B080,End-sem,Q3,10,4,TA04,record
+CH24B080,End-sem,Q4,10,1.5,TA04,record
+CH24B080,End-sem,Q5,10,5.5,TA04,record
