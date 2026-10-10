@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Even Hand architecture</title>
+<style>
+@page { size: A4 landscape; margin: 8mm; }
+html, body { margin: 0; background: #fff; }
+body { font-family: "Segoe UI", system-ui, sans-serif; color: #1d2433; }
+svg { width: 100%; height: auto; display: block; }
+text { font-family: "Segoe UI", system-ui, sans-serif; }
+.t { font-size: 15px; font-weight: 700; fill: #1d2433; }
+.h { font-size: 13px; font-weight: 700; fill: #1d2433; }
+.m { font-size: 11.5px; fill: #3a4252; }
+.s { font-size: 10.5px; fill: #5d6678; }
+.code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 11px; fill: #8a1c1c; }
+.stage { fill: #fff; stroke: #1d2433; stroke-width: 1.6; }
+.num { fill: #8a1c1c; }
+.numt { fill: #fff; font-size: 13px; font-weight: 700; }
+.soft { fill: #f6f4ef; stroke: #d9d4c7; stroke-width: 1.2; }
+.seam { fill: #fff6e6; stroke: #c98500; stroke-width: 1.6; }
+.edge { stroke: #1d2433; stroke-width: 1.8; fill: none; }
+.refuse { stroke: #8a1c1c; stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+.lbl { font-size: 10.5px; fill: #1d2433; font-weight: 600; }
+.rl { font-size: 10.5px; fill: #8a1c1c; font-weight: 600; }
+.boundary { fill: none; stroke: #2a78d6; stroke-width: 1.5; stroke-dasharray: 7 5; }
+.bl { font-size: 11.5px; fill: #2a78d6; font-weight: 700; }
+.bench { fill: #eef6f1; stroke: #1baf7a; stroke-width: 1.3; }
+.benchedge { stroke: #148a5f; stroke-width: 1.6; fill: none; }
+</style></head><body>
+<svg viewBox="0 0 1400 960" role="img" aria-label="Even Hand architecture">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d2433"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a1c1c"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#148a5f"/></marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="20" y="34" style="font-size:24px;font-weight:800;fill:#1d2433">Even Hand <tspan style="fill:#8a1c1c">· system architecture and data flow</tspan></text>
+  <text x="20" y="58" class="m">A grading-consistency audit for IIT Madras courses · CS5013 · Team God's Eye · Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104) · stakeholder: Prof. Aslam Kunhi Mohamed, Dept. of Civil Engineering</text>
+
+  <!-- Privacy boundary -->
+  <rect x="12" y="74" width="1376" height="610" rx="14" class="boundary"/>
+  <text x="28" y="96" class="bl">The instructor's own computer: one Java 21 jar, no framework, no database. The page server listens on 127.0.0.1 only; nothing is sent anywhere.</text>
+
+  <!-- Inputs -->
+  <rect x="30" y="118" width="210" height="96" rx="8" class="soft"/>
+  <text x="44" y="140" class="h">Marks file (CSV)</text>
+  <text x="44" y="158" class="s">one row per marked answer:</text>
+  <text x="44" y="174" class="code">roll_no, assessment, question,</text>
+  <text x="44" y="189" class="code">max_marks, marks, ta[, role]</text>
+  <text x="44" y="205" class="s">half marks, absentees, 2nd marks</text>
+
+  <rect x="30" y="226" width="210" height="72" rx="8" class="soft"/>
+  <text x="44" y="248" class="h">Course settings</text>
+  <text x="44" y="266" class="s">weights, e.g. Quiz 1=25, End-sem=50</text>
+  <text x="44" y="282" class="s">rule: IITM relative (B at mean, top 10% S)</text>
+  <text x="44" y="296" class="s">or absolute thresholds</text>
+
+  <!-- Front ends -->
+  <rect x="30" y="316" width="210" height="150" rx="8" class="soft"/>
+  <text x="44" y="338" class="h">Three ways in (eh-app)</text>
+  <text x="44" y="360" class="m">● Browser page</text><text x="58" y="375" class="s">even-hand.cmd → LocalServer</text>
+  <text x="44" y="397" class="m">● Simulation Lab  /lab</text><text x="58" y="412" class="s">SimulationLab + lab.html</text>
+  <text x="44" y="434" class="m">● Command line</text><text x="58" y="449" class="s">Main: run · simulate · benchmark</text>
+
+  <path d="M240 200 C 262 200, 262 300, 282 300" class="edge" marker-end="url(#a)"/>
+  <path d="M240 262 L282 300" class="edge" marker-end="url(#a)"/>
+  <path d="M240 390 C 262 390, 262 312, 282 312" class="edge" marker-end="url(#a)"/>
+
+  <!-- Pipeline.run label -->
+  <text x="290" y="128" class="h">Pipeline.run: five stages, one module each, dependencies flow one way →</text>
+
+  <!-- Stage boxes: x positions -->
+  <!-- 1 ingest -->
+  <rect x="286" y="146" width="196" height="248" rx="10" class="stage"/>
+  <circle cx="310" cy="170" r="13" class="num"/><text x="310" y="175" text-anchor="middle" class="numt">1</text>
+  <text x="330" y="175" class="t">INGEST</text>
+  <text x="300" y="196" class="code">eh-ingest</text><text x="300" y="210" class="code">CsvIngest</text>
+  <text x="300" y="222" class="m">Finds columns by name.</text>
+  <text x="300" y="239" class="m">Roll numbers and TA names</text>
+  <text x="300" y="256" class="m">become keyed pseudonyms</text>
+  <text x="300" y="273" class="m">(HMAC-SHA-256) before any</text>
+  <text x="300" y="290" class="m">record exists.</text>
+  <text x="300" y="314" class="m">Bad rows reported by line;</text>
+  <text x="300" y="331" class="m">key sealed with AES-256-GCM.</text>
+  <text x="300" y="360" class="s">tests: no identifier</text>
+  <text x="300" y="375" class="s">survives ingest</text>
+
+  <!-- 2 audit -->
+  <rect x="522" y="146" width="196" height="248" rx="10" class="stage"/>
+  <circle cx="546" cy="170" r="13" class="num"/><text x="546" y="175" text-anchor="middle" class="numt">2</text>
+  <text x="566" y="175" class="t">AUDIT</text>
+  <text x="536" y="196" class="code">eh-design</text><text x="536" y="210" class="code">IdentifiabilityAudit</text>
+  <text x="536" y="222" class="m">Reads only who marked</text>
+  <text x="536" y="239" class="m">what, never a mark:</text>
+  <text x="536" y="260" class="m">• can TA severity be</text>
+  <text x="536" y="276" class="m">  measured? (exact rank)</text>
+  <text x="536" y="296" class="m">• could it have moved</text>
+  <text x="536" y="312" class="m">  anyone? (exposure)</text>
+  <text x="536" y="336" class="s">ESTIMABLE · UNDER-EXCH. ·</text>
+  <text x="536" y="351" class="s">PARTIAL · NOT-ESTIMABLE</text>
+  <text x="536" y="375" class="s">runs before marks are shared</text>
+
+  <!-- 3 estimate -->
+  <rect x="758" y="146" width="196" height="248" rx="10" class="stage"/>
+  <circle cx="782" cy="170" r="13" class="num"/><text x="782" y="175" text-anchor="middle" class="numt">3</text>
+  <text x="802" y="175" class="t">ESTIMATE</text>
+  <text x="772" y="196" class="code">eh-estimate</text><text x="772" y="210" class="code">SeverityEstimator</text>
+  <text x="772" y="222" class="m">mark% = mean + ability</text>
+  <text x="772" y="239" class="m">  + easiness − severity</text>
+  <text x="772" y="260" class="m">fitted by backfitting</text>
+  <text x="772" y="276" class="m">(repeated weighted averages)</text>
+  <text x="772" y="298" class="m">• 95% intervals: resample</text>
+  <text x="772" y="314" class="m">  students, 200×</text>
+  <text x="772" y="334" class="m">• no-effect test: re-simulate</text>
+  <text x="772" y="350" class="m">  with identical TAs, 99×</text>
+  <text x="772" y="375" class="s">in marks, not logits</text>
+
+  <!-- 4 outcome -->
+  <rect x="994" y="146" width="196" height="248" rx="10" class="stage"/>
+  <circle cx="1018" cy="170" r="13" class="num"/><text x="1018" y="175" text-anchor="middle" class="numt">4</text>
+  <text x="1038" y="175" class="t">OUTCOME</text>
+  <text x="1008" y="196" class="code">eh-outcome</text><text x="1008" y="210" class="code">Outcome · GradingRule</text>
+  <text x="1008" y="222" class="m">Grade the course twice under</text>
+  <text x="1008" y="239" class="m">its own rule: as marked, and</text>
+  <text x="1008" y="256" class="m">as an average TA would have.</text>
+  <text x="1008" y="278" class="m">• letters that change, with</text>
+  <text x="1008" y="294" class="m">  a 90% range</text>
+  <text x="1008" y="314" class="m">• re-check list ≤ 20, behind</text>
+  <text x="1008" y="330" class="m">  a pre-registered gate</text>
+  <text x="1008" y="354" class="s">R.21.1 points: S10 A9 B8 C7</text>
+  <text x="1008" y="369" class="s">D6 E4 U0 (no 5)</text>
+
+  <!-- 5 report -->
+  <rect x="1230" y="146" width="146" height="248" rx="10" class="stage"/>
+  <circle cx="1254" cy="170" r="13" class="num"/><text x="1254" y="175" text-anchor="middle" class="numt">5</text>
+  <text x="1274" y="175" class="t">REPORT</text>
+  <text x="1244" y="198" class="code">eh-report</text>
+  <text x="1244" y="213" class="code">HtmlReport</text>
+  <text x="1244" y="238" class="m">report.html</text>
+  <text x="1244" y="254" class="s">instructor only:</text>
+  <text x="1244" y="268" class="s">per-TA, intervals,</text>
+  <text x="1244" y="282" class="s">re-check list</text>
+  <text x="1244" y="308" class="m">committee.html</text>
+  <text x="1244" y="324" class="s">Class Committee:</text>
+  <text x="1244" y="338" class="s">aggregates only</text>
+  <text x="1244" y="364" class="s">no grade is changed</text>
+  <text x="1244" y="378" class="s">by the tool</text>
+
+  <!-- stage edges with data types -->
+  <path d="M482 260 L520 260" class="edge" marker-end="url(#a)"/>
+  <text x="484" y="250" class="lbl">design</text>
+  <path d="M718 260 L756 260" class="edge" marker-end="url(#a)"/>
+  <text x="720" y="250" class="lbl">verdict</text>
+  <path d="M954 260 L992 260" class="edge" marker-end="url(#a)"/>
+  <text x="956" y="250" class="lbl">model</text>
+  <path d="M1190 260 L1228 260" class="edge" marker-end="url(#a)"/>
+  <text x="1192" y="250" class="lbl">result</text>
+
+  <!-- the seam -->
+  <rect x="890" y="410" width="168" height="66" rx="8" class="seam"/>
+  <text x="904" y="432" class="h">FittedModel: the seam</text>
+  <text x="904" y="449" class="s">severities, bootstrap draws,</text>
+  <text x="904" y="463" class="s">groups, p-value (eh-core)</text>
+  <path d="M954 340 C 970 380, 972 395, 972 408" class="edge" marker-end="url(#a)"/>
+  <path d="M1040 410 L1040 398" class="edge" marker-end="url(#a)"/>
+
+  <!-- refusal branches -->
+  <path d="M620 394 L620 492" class="refuse" marker-end="url(#r)"/>
+  <rect x="470" y="496" width="300" height="70" rx="8" fill="#fff" stroke="#8a1c1c" stroke-width="1.3"/>
+  <text x="484" y="517" class="rl">NOT-ESTIMABLE → stop, and say why</text>
+  <text x="484" y="535" class="s">no exposure: "safe by design" (one TA per question)</text>
+  <text x="484" y="550" class="s">otherwise: names the repair ("double-mark ten Q1 scripts")</text>
+
+  <path d="M1092 394 L1092 492" class="refuse" marker-end="url(#r)"/>
+  <rect x="1078" y="496" width="298" height="86" rx="8" fill="#fff" stroke="#8a1c1c" stroke-width="1.3"/>
+  <text x="1092" y="517" class="rl">Refused(reason): no list when…</text>
+  <text x="1092" y="535" class="s">• differences are within chance (p ≥ 0.05)</text>
+  <text x="1092" y="550" class="s">• exposure cannot be measured</text>
+  <text x="1092" y="565" class="s">• piles follow the department code</text>
+
+  <!-- terminal note -->
+  <rect x="286" y="410" width="196" height="66" rx="8" class="soft"/>
+  <text x="300" y="432" class="h">Real names appear once</text>
+  <text x="300" y="449" class="s">in the instructor's terminal; never</text>
+  <text x="300" y="463" class="s">written to disk except the sealed key</text>
+
+  <!-- shared modules -->
+  <rect x="30" y="486" width="420" height="80" rx="8" class="soft"/>
+  <text x="44" y="508" class="h">Shared foundations</text>
+  <text x="44" y="526" class="m"><tspan class="code">eh-core</tspan>  types every stage speaks: MarkingDesign (no marks),</text>
+  <text x="44" y="542" class="m">sealed AuditVerdict, AnchoredDesign (no estimate without an audit)</text>
+  <text x="44" y="558" class="m"><tspan class="code">eh-numerics</tspan>  exact integer rank, so the verdict is not a tolerance</text>
+
+  <!-- invariants -->
+  <rect x="30" y="582" width="1346" height="88" rx="8" class="soft"/>
+  <text x="44" y="604" class="h">Invariants, each enforced by a type or a test</text>
+  <text x="44" y="624" class="m">① No estimate without an audit of this design (AnchoredDesign) · ② No corrected mark becomes a grade · ③ Refusal is a value with a reason · ④ No identifier on disk</text>
+  <text x="44" y="642" class="m">⑤ Only the loopback page server touches the network (ArchUnit) · ⑥ Per-TA figures reach only the instructor · ⑦ Every random draw seeded: reports reproduce exactly</text>
+  <text x="44" y="660" class="s">152 tests across 8 modules · line coverage 73% overall, 94–98% in the estimator and grading code · PIT mutation score 80% on grading code · CI on every push</text>
+
+  <!-- Dataset & benchmark -->
+  <rect x="12" y="700" width="1376" height="250" rx="14" class="bench"/>
+  <text x="28" y="726" style="font-size:16px;font-weight:800;fill:#148a5f">The dataset: synthetic IITM courses whose right answers are known (real marks are private)</text>
+
+  <rect x="30" y="742" width="300" height="190" rx="8" fill="#fff" stroke="#1baf7a"/>
+  <text x="44" y="764" class="h">CourseSimulator (eh-design)</text>
+  <text x="44" y="784" class="m">7 shapes: CE core (stakeholder-like), first-year</text>
+  <text x="44" y="800" class="m">core (420 students, 8 TAs), small elective, PG</text>
+  <text x="44" y="816" class="m">rotated, tutorial groups, two slot sections,</text>
+  <text x="44" y="832" class="m">lab batches by department (the trap)</text>
+  <text x="44" y="854" class="s">IITM roll numbers (CE23B092), quiz/end-sem weights,</text>
+  <text x="44" y="869" class="s">half marks, absentees, double-marked samples;</text>
+  <text x="44" y="884" class="s">marks from a logistic curve + reading noise,</text>
+  <text x="44" y="899" class="s">deliberately not the estimator's own model</text>
+  <text x="44" y="920" class="lbl">every script marked twice, same luck: real TA vs average TA</text>
+
+  <path d="M330 836 L376 836" class="benchedge" marker-end="url(#g)"/>
+  <rect x="378" y="742" width="250" height="190" rx="8" fill="#fff" stroke="#1baf7a"/>
+  <text x="392" y="764" class="h">Train (168 courses)</text>
+  <text x="392" y="786" class="m">grid search over the two</text>
+  <text x="392" y="802" class="m">shrinkage constants for the</text>
+  <text x="392" y="818" class="m">lowest severity error</text>
+  <text x="392" y="844" class="code">kStudent = 5, kTA = 50</text>
+  <text x="392" y="866" class="s">kStudent applies only where the</text>
+  <text x="392" y="881" class="s">audit says "piles alike": it is</text>
+  <text x="392" y="896" class="s">that assumption, made explicit</text>
+  <text x="392" y="920" class="s">gate fixed in advance, not trained</text>
+
+  <path d="M628 836 L674 836" class="benchedge" marker-end="url(#g)"/>
+  <rect x="676" y="742" width="700" height="190" rx="8" fill="#fff" stroke="#1baf7a"/>
+  <text x="690" y="764" class="h">Test once on 112 held-out courses (16,810 students), settings frozen</text>
+  <text x="690" y="790" class="m">• 15% of letter grades truly depended on which TA marked the script</text>
+  <text x="690" y="812" class="m">• TA severity within ~0.5 percentage points where the marking links the TAs; 88–95% interval coverage</text>
+  <text x="690" y="834" class="m">• Re-check list: <tspan style="font-weight:700;fill:#8a1c1c">80%</tspan> of flagged scripts truly had their grade moved, vs <tspan style="font-weight:700">46%</tspan> for re-checking</text>
+  <text x="690" y="850" class="m">   the same number of scripts nearest a grade boundary (today's moderation)</text>
+  <text x="690" y="872" class="m">• No-effect test: 4 false alarms in 24 identical-TA courses (3 in the department trap, whose list is refused)</text>
+  <text x="690" y="896" class="s">Found and fixed by the benchmark: absentees made courses "unmeasurable"; lucky tutorial groups read as harsh TAs;</text>
+  <text x="690" y="911" class="s">department-aligned piles mislead the estimator (now refused). Each is a regression test. Deterministic: rerun to reproduce.</text>
+</svg>
+</body></html>

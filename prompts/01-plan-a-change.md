@@ -21,7 +21,8 @@ realistic input, in an order where every step leaves `./mvnw verify` green.</tas
 <constraints>
 - Java 21, Maven, no new third-party runtime dependencies (the arithmetic must be ours).
 - Every number the instructor sees is in marks, with an interval.
-- Prefer what can be explained at a whiteboard over what is statistically fashionable.
+- The stack, modules and estimator may all change; prefer what can be explained at a whiteboard
+  over what is statistically fashionable.
 - Do not change the stakeholder, the problem statement, or the privacy invariants.
 - If something in the design should be cut, name the design-document cut line that allows it.
 </constraints>
@@ -32,8 +33,10 @@ three biggest risks, each with a fallback. No code yet.</output>
 Restating the task: a plan, not code; the smallest change set; a green build after every step.
 
 ## Changelog
-- v2 (10 Oct): added "explained at a whiteboard" and the cut-line requirement, so the plan cannot
-  quietly swap in a more complex estimator than the design allows.
-- v1 (10 Oct): first version. Our original one-line request ("re-design the project to impress
-  the professors") needed three clarifying questions back (scope, data, deadline). Each answer is
-  now a line in `<context>` or `<constraints>`.
+- v2 (10 Oct): one constraint changed (a minimal pair with v1). v1 asked us to keep the design's
+  stack; our follow-up was "do not hesitate to change the tech stack, architecture and pipeline",
+  so v2 lets them change, on condition that every change can be explained at a whiteboard and that
+  any cut names the design document's cut line.
+- v1 (10 Oct): first version. Our original request (one paragraph: "re-design this entire project
+  ... to impress the professors") needed three clarifying questions back (scope, data, deadline).
+  Each answer is now a line in `<context>` or `<constraints>`; v1 also said "keep the stack".

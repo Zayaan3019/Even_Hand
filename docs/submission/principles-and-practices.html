@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Even Hand: Principles and Practices</title>
+<style>
+@page { size: A4; margin: 11mm 12mm 10mm 12mm; }
+html, body { margin: 0; background: #fff; }
+body { font-family: "Segoe UI", Calibri, system-ui, sans-serif; font-size: 8.9pt; line-height: 1.34; color: #16181d; }
+h1 { font-size: 15pt; margin: 0; letter-spacing: -.01em; }
+h1 span { color: #8a1c1c; }
+.meta { color: #4a5160; font-size: 8.4pt; margin: 2px 0 6px; }
+h2 { font-size: 10.6pt; margin: 9px 0 3px; padding-bottom: 2px; border-bottom: 1.4px solid #8a1c1c; color: #16181d; }
+h2 .n { color: #8a1c1c; margin-right: 4px; }
+h3 { font-size: 9.2pt; margin: 6px 0 2px; }
+p { margin: 2px 0 4px; }
+ul, ol { margin: 2px 0 4px; padding-left: 15px; }
+li { margin: 1px 0; }
+.box { border: 1px solid #d6d2c6; background: #f8f6f1; border-radius: 4px; padding: 5px 8px; margin: 4px 0; }
+.lead { border-left: 3px solid #8a1c1c; }
+table { border-collapse: collapse; width: 100%; margin: 3px 0 5px; font-size: 8.3pt; }
+th, td { border: 1px solid #d6d2c6; padding: 2.5px 5px; vertical-align: top; text-align: left; }
+th { background: #f1eee6; font-weight: 600; }
+code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8pt; }
+code { background: #f1eee6; padding: 0 2px; border-radius: 2px; }
+b.k { color: #8a1c1c; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.cols2 { column-count: 2; column-gap: 12px; }
+pre { font-family: Consolas, "Cascadia Mono", monospace; font-size: 7.3pt; line-height: 1.3; white-space: pre-wrap; margin: 2px 0 5px;
+      background: #fbfaf7; border: 1px solid #d6d2c6; border-left: 3px solid #8a1c1c; border-radius: 3px; padding: 4px 6px; break-inside: avoid; }
+.pb { break-before: page; }
+.small { font-size: 8pt; color: #4a5160; }
+.ok { color: #1a7f37; font-weight: 600; }
+</style></head><body>
+
+<h1>Even Hand <span>· Principles &amp; Practices across the project lifecycle</span></h1>
+<div class="meta">CS5013 Programming with AI · Pre-evaluation deliverable · Team <i>God's Eye</i>: Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104) ·
+Stakeholder: Prof. Aslam Kunhi Mohamed, Dept. of Civil Engineering · <span class="mono">github.com/Zayaan3019/Even_Hand</span> · 10 October 2026</div>
+
+<div class="box lead"><b>The project in four lines.</b> Large IITM courses are marked by teams of TAs who split the scripts, so part of a
+relatively graded letter depends on whose pile a script landed in. Even Hand takes the instructor's marks CSV through five stages,
+<b>ingest → audit → estimate → outcome → report</b>, each one Maven module. It says whether the marking arrangement can be checked at all,
+how many marks each TA added or took away (with 95% intervals), how many letter grades those differences moved, and which ≤20 scripts deserve a second look.
+It runs as one Java 21 jar on the instructor's laptop (browser page on 127.0.0.1, CLI, and a Simulation Lab). <b>152 tests</b>; a benchmark of
+280 synthetic IITM courses with known answers. We used Claude Code throughout, and every practice below exists so that we can explain and
+defend every line it helped write.</div>
+
+<h2><span class="n">1</span>Prompt engineering: prompts are engineered, versioned artefacts</h2>
+<p>Every prompt that shaped code lives in <code>prompts/</code>, one file each, with a version, what it was used for, and an
+<b>acceptance check</b> that must pass before its output is committed (Appendix A). The principles we apply:</p>
+<table>
+<tr><th style="width:28%">Principle (course module)</th><th>How we apply it in Even Hand</th></tr>
+<tr><td><b>Structure</b>: role, task, context, constraints, examples, output format; tags past one screen; restate the task at the end (M2)</td>
+<td>Every library prompt uses <code>&lt;role&gt;&lt;context&gt;&lt;task&gt;&lt;constraints&gt;&lt;output&gt;</code> and ends by restating the task, because attention is weakest in the middle of a long prompt.</td></tr>
+<tr><td><b>Curated context, not the repo</b> (M2)</td>
+<td>We paste the failing method and what it calls, or <code>git diff --staged</code>, never whole modules. The debugging prompt for the no-effect test carried two methods and the benchmark numbers, nothing else.</td></tr>
+<tr><td><b>Specific and negative constraints</b> (M2)</td>
+<td>"Java 21; no new runtime dependency"; "keep the signature"; "show only the diff"; "do not propose a patch yet"; "every number in marks, with an interval". These live at the top, where they are obeyed best.</td></tr>
+<tr><td><b>Tests first, and the oracle is ours</b> (M2)</td>
+<td>Two prompts, never one: tests, then the smallest implementation. Expected values are worked by hand, e.g. totals {90,70,50×6,30,10} have mean 50 and SD 20, so the grades are S,A,B×6,C,D. The model never grades its own work.</td></tr>
+<tr><td><b>Chain: plan → generate → critique → patch</b> (M2)</td>
+<td><code>01-plan-a-change</code> (no code), <code>02-test-first-module</code>, then <code>05-review-a-diff</code> against our six invariants (no identifier on disk, no network client, every figure with an interval…), then the patch.</td></tr>
+<tr><td><b>Iterate by naming the gap</b> (minimal pair, M2)</td>
+<td>Our first request for the rework was a vague paragraph ("re-design this entire project… to impress the professors"). It needed three clarifying questions back (scope, data, deadline), and the answers became lines of <code>01-plan-a-change</code> v1. v2 changes exactly one constraint, "keep the stack" → "the stack may change if every change can be explained at a whiteboard", so the difference in the plan it produced is attributable.</td></tr>
+<tr><td><b>Data leakage is a prompt risk</b> (M1)</td>
+<td>No real mark or roll number ever goes into a prompt: the data-sharing note forbids it, and our examples use the synthetic <code>samples/</code> only.</td></tr>
+<tr><td><b>Verify before you trust</b> (M2)</td>
+<td>Output is compiled, tested and run on a simulated course before it is committed. The benchmark then checks it against ground truth, which is how two of the defects in §2 were found.</td></tr>
+</table>
+
+<h2><span class="n">2</span>Debugging: reproduce, rank, confirm, then the smallest patch</h2>
+<p><b>Workflow.</b> (1) Reproduce on the smallest input: one simulated course, fixed seed. (2) Ask the assistant to <i>explain and rank</i> the
+likely causes, each with one experiment, and no patch yet (<code>03-explain-then-fix</code>). (3) Check the diagnosis ourselves: "a confident
+wrong diagnosis leads to a confident wrong patch" (M4). (4) Ask for the smallest patch, as a diff. (5) Add a regression test that fails before
+and passes after. (6) Commit with the <i>why</i>. When a failure is silent we make it visible first (log-driven, M4). Real cases from this project:</p>
+<table>
+<tr><th style="width:25%">Symptom</th><th style="width:31%">Root cause, and how we found it</th><th style="width:26%">Fix</th><th>Guard</th></tr>
+<tr><td>No re-check list on <i>any</i> realistic course</td><td>One absentee's empty exposure row differed from everyone's, so the audit called every course unmeasurable. Minimal repro: delete one student from a question-wise design.</td><td>Impute the class's TA mix only for <i>whole-assessment</i> absence; two existing tests (structural gaps) still hold</td><td><code>anAbsenteeIsNotDifferentlyExposed</code></td></tr>
+<tr><td>No-effect test raised 4/4 false alarms on tutorial-group courses with identical TAs</td><td>Found by the benchmark's ground truth. Ranked hypotheses: the null worlds kept every student in their real pile, so the "luck of the deal" was never simulated.</td><td>Re-deal abilities in each null world (0/4 after)</td><td><code>noEffectTestAllowsForTheLuckOfTheDeal</code></td></tr>
+<tr><td>End-to-end test: "no list" although TAs differed</td><td>Not a code bug. With 19 null simulations the smallest possible p is 1/20 = 0.05, which is never <i>below</i> 0.05: the test's own arithmetic.</td><td>39 simulations, with the reason as a comment</td><td><code>PipelineTest</code></td></tr>
+<tr><td>Browser upload silently dropped ("header parser received no bytes")</td><td>The JDK server swallows handler exceptions. A catch-all that logs the trace revealed an NPE: <code>getOrDefault(..).isBlank() ? d : get(..)</code> returns null for an absent field.</td><td><code>param()</code> helper; every request now gets an answer (400/500)</td><td><code>LocalServerTest</code></td></tr>
+<tr><td>Mutation testing crashed: "Unsupported class file major version 69"</td><td>The tool, not our code: PIT 1.17.4 predates JDK 25 class files.</td><td>PIT 1.21.0</td><td><code>-Pmutation</code> profile</td></tr>
+<tr><td>A commit contained deletions its message did not mention</td><td><code>git show --stat</code> before pushing: <code>git commit</code> takes the whole index, including deletions staged hours earlier.</td><td><code>reset --mixed</code> to the base (unpushed), recommit path by path</td><td>stat-check before every push</td></tr>
+</table>
+
+<h2><span class="n">3</span>Version control: Git for the code <i>and</i> the prompts</h2>
+<div class="two"><div>
+<ul>
+<li><b>A branch per unit of work</b>, each opened as a pull request for review: <code>ci/bump-deprecated-actions</code> (#1),
+<code>feature/design-profiler</code> (#2), <code>review/harden-before-submission</code> (#3), and now <code>rework/simple-end-to-end</code>.</li>
+<li><b>One logical change per commit, each green.</b> Subject in the imperative, ≤72 characters; the body says <i>why</i>. The assistant drafts
+<i>what</i> changed; <code>06-commit-message</code> leaves <code>WHY:</code> blank for us, because the model sees the diff, never the intent (M3).
+Example: <i>"Count an absent student's paper at the class's own mix of TAs"</i>, whose body gives the symptom, the cause and why the fix is narrow.</li>
+<li><b>Prompts are versioned like source.</b> <code>prompts/NN-name.md</code> carries a version and changelog, changes only through a commit,
+and names its acceptance check. A prompt change that could alter output gets its own commit (M2).</li>
+</ul></div><div>
+<ul>
+<li><b>Generated results are versioned and reproducible.</b> <code>docs/BENCHMARK.md</code> and per-course CSVs come from one deterministic
+command; every random draw is seeded, so a diff in those files means behaviour changed.</li>
+<li><b>Guardrails in the repo.</b> <code>.gitignore</code> blocks <code>data/</code>, <code>keys/</code> and every <code>*.csv</code> except
+<code>samples/</code>, so real marks cannot be committed by accident. <code>CODEOWNERS</code> names one owner per module. GitHub Actions runs
+<code>mvnw verify</code> and the audit's scenario matrix on every push.</li>
+<li><b>Honest gap.</b> The history is single-author so far, which the rubric penalises. Pruthviraj owns <code>eh-outcome</code>,
+<code>eh-report</code> and <code>eh-app</code> and will review and commit to them under his own account before the evaluation.</li>
+</ul></div></div>
+
+<h2><span class="n">4</span>Testing, refactoring and documentation</h2>
+<table>
+<tr><th style="width:21%">Layer</th><th>What it proves in Even Hand</th></tr>
+<tr><td>Unit, with hand-worked oracles</td><td>Grading rules on a cohort worked on paper (mean 50, SD 20); top-10% S with ties at the cut; composites with clamping at 0 and full marks; the share of variance due to TAs = 100·25/385.94 = 6.48%.</td></tr>
+<tr><td>Property-based (jqwik)</td><td>One marker of record per question exposes nobody differently, checked on 150 random allocations.</td></tr>
+<tr><td>Integration &amp; HTTP</td><td>simulate → run → reports, with no roll number in either report; the page server listens on loopback only; bad input gets an explanation, not a crash.</td></tr>
+<tr><td>Architecture (ArchUnit)</td><td>Only the loopback page server touches <code>java.net</code> and nothing is a network client; the estimator never depends on grading, reporting or the app.</td></tr>
+<tr><td>Statistical (benchmark)</td><td>Train on 168 synthetic courses, test once on 112: TA severity within ~0.5 points where the marking links the TAs, 88–95% interval coverage, 4/24 false alarms. <b>80%</b> of flagged scripts truly moved vs <b>46%</b> for the nearest-boundary practice.</td></tr>
+<tr><td>Coverage &amp; mutation</td><td>JaCoCo: 73% of lines overall; estimator 98%, grading 94%, numerics 97%, ingest 88%, report 88%. PIT on the grading code: <b>80% of 168 mutants killed</b> (test strength 86%), after two new tests targeted the survivors.</td></tr>
+</table>
+<div class="two"><div>
+<p><b>Refactoring, mostly by subtraction.</b> We removed Spring Boot, JPA, SQLite and the <code>eh-linking</code> module, and replaced the planned
+marginal-ML Rasch estimator with a 160-line backfitting class. We extracted <code>Pipeline.run</code>, which the CLI, the browser page, the lab
+and the benchmark all call (DRY). Refusal became a sealed type (<code>Emitted | Refused(reason)</code>) instead of exceptions. The suite stayed
+green across every step, and each departure from the submitted design is recorded with its reason in <code>docs/ARCHITECTURE.md</code>.</p>
+</div><div>
+<p><b>Documentation for named readers.</b> README: three runnable commands. <code>ARCHITECTURE.md</code>: stages, the seam, invariants each
+with its test, defects found. <code>CODE_MAP.md</code>: where to make a change and which test proves it. <code>ASSUMPTIONS.md</code>: A1–A15,
+each with its override. <code>BENCHMARK.md</code>, weekly logs, and Javadoc that explains <i>why</i>, not the signature (<code>07-document-for-a-reader</code>).</p>
+</div></div>
+
+<h2 class="pb"><span class="n">A</span>Appendix: sample prompts from <span class="mono">prompts/</span> (abridged; full text in the repository)</h2>
+<div class="cols2">
+<pre><b>01-plan-a-change.md  · v2 · acceptance: one module + one test per step</b>
+&lt;role&gt;You are a senior Java engineer reviewing a student project for IIT Madras before a live viva.&lt;/role&gt;
+&lt;context&gt;Even Hand audits TA marking in IITM courses: ingest -&gt; audit -&gt; estimate -&gt; outcome -&gt; report. The approved proposal and design must stay recognisable; the stakeholder is a Civil Engineering professor. Modules: {{table}}. Current state: {{what passes, what is empty}}.&lt;/context&gt;
+&lt;task&gt;Propose the smallest set of changes that makes the core workflow run end to end on a realistic input, in an order where every step leaves ./mvnw verify green.&lt;/task&gt;
+&lt;constraints&gt;
+- Java 21, Maven, no new third-party runtime dependencies.
+- Every number the instructor sees is in marks, with an interval.
+- The stack may change; prefer what can be explained at a whiteboard.          &lt;- the one change from v1
+- Do not change the stakeholder, problem or privacy invariants.
+- If something should be cut, name the design's cut line.
+&lt;/constraints&gt;
+&lt;output&gt;Numbered plan: step, module, files, the test that proves it. Then three risks with fallbacks. No code yet.&lt;/output&gt;
+Restating: a plan, not code; smallest change; green after each step.</pre>
+
+<pre><b>02-test-first-module.md · v1 · acceptance: module tests pass; oracle is ours</b>
+&lt;task&gt;Step 1 only: write five JUnit 5 + AssertJ tests for GradingRule.grade(CutoffPolicy, double[]): three happy paths, two edge cases. Do not write the implementation yet.&lt;/task&gt;
+&lt;context&gt;R.21.1 points S10 A9 B8 C7 D6 E4 U0 (no 5). Relative rule: B at the mean; A +1 SD; S +2; C -1; D -2; E -3. Top 10% (rounded up) get S; ties at the cut all get it. Worked example, use verbatim: {90,70,50,50,50,50,50,50,30,10}
+-&gt; mean 50, population SD 20 -&gt; S,A,B,B,B,B,B,B,C,D.&lt;/context&gt;
+&lt;constraints&gt;Population SD (say so in a comment). No mocks, no new dependencies. Name tests after behaviour.&lt;/constraints&gt;
+&lt;output&gt;One test file. Then list assumptions you made.&lt;/output&gt;
+(Step 2, separately: "Now the smallest GradingRule that passes these tests. Keep the signature. Show only the class.")</pre>
+
+<pre><b>03-explain-then-fix.md · v1 · acceptance: regression test fails, then passes</b>
+Prompt 1  (diagnose, no patch)
+&lt;context&gt;Benchmark, held-out courses: the no-effect test rejects in 4 of 4 TUTORIAL_GROUPS courses generated with identical TAs; expected ~5%. Correct on CE_CORE and FIRST_YEAR_CORE (0/4 each). Code: noEffectTest, Backfit.fit (pasted). Nothing else.&lt;/context&gt;
+&lt;task&gt;Explain what most plausibly produces rejections when no effect exists. Rank the three likeliest root causes; for each, the one experiment that confirms or eliminates it. Do not propose a patch.&lt;/task&gt;
+Prompt 2  (after we have checked the diagnosis ourselves)
+&lt;task&gt;Given cause #1 (null worlds keep every student in their real pile), write the smallest patch to noEffectTest. Keep the signature and the seeding. Show only the diff, then one sentence on why it works.&lt;/task&gt;</pre>
+
+<pre><b>05-review-a-diff.md · v1 · acceptance: every BLOCKER fixed or answered</b>
+&lt;task&gt;Review the diff as the module's owner would. Findings as BLOCKER / SHOULD / NIT, each with its line and a one- sentence reason. Do not rewrite the code.&lt;/task&gt;
+&lt;invariants&gt;
+1 No roll number or TA name written except in the sealed key.
+2 No class uses the network beyond the loopback page server.
+3 Every figure shown to an instructor carries an interval.
+4 Refusal is a value with a reason, never an empty list.
+5 Dependencies flow ingest-&gt;design-&gt;estimate-&gt;outcome-&gt;report.
+6 Every random draw is seeded.
+&lt;/invariants&gt;
+&lt;diff&gt;{{git diff --staged}}&lt;/diff&gt;
+Restating: findings only, ranked, invariants first.</pre>
+
+<pre><b>06-commit-message.md · v1 · acceptance: imperative subject ≤72; body says why</b>
+&lt;task&gt;Draft a subject (imperative, ≤72 characters) for the staged diff, then two or three sentences stating what changed. Leave a line "WHY:" empty for us to fill in.&lt;/task&gt;
+&lt;constraints&gt;Do not guess the motivation. Do not mention files that did not change.&lt;/constraints&gt;</pre>
+
+<pre><b>04-edge-cases.md · v1 · acceptance: each accepted case becomes a test or an ASSUMPTIONS line</b>
+&lt;role&gt;A test engineer who has marked exams at an Indian university.&lt;/role&gt;
+&lt;task&gt;List edge cases for {{class}} that a real IITM marks export would contain: input, expected behaviour, and whether it is an error, a warning or normal.&lt;/task&gt;
+&lt;constraints&gt;Real cases first: absentees, half marks, "answer any four of five", trailing spaces in TA names, a running-total column mistaken for a maximum, two marks for one answer, ties at a grade cut, a 400-student class. At most 15.&lt;/constraints&gt;</pre>
+</div>
+<p class="small">Every prompt file also records the model and settings used and a changelog; the library's conventions are in
+<code>prompts/README.md</code>. Architecture diagram: <code>docs/Even_Hand_Architecture.pdf</code>. Evidence for every number in
+this document can be regenerated with <code>./mvnw verify</code> and <code>java -jar eh-app/target/even-hand.jar benchmark</code>.</p>
+</body></html>

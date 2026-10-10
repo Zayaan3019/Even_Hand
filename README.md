@@ -138,7 +138,11 @@ marks never enter the repository: `data/` and `*.csv` are git-ignored except the
 | Path | What |
 | --- | --- |
 | [`docs/DESIGN.md`](docs/DESIGN.md) | The design document as submitted (11 Sep), with a revision note |
+| [`docs/Even_Hand_Architecture.pdf`](docs/Even_Hand_Architecture.pdf) | One-page architecture and data-flow diagram (source: `docs/diagrams/architecture.html`) |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The system as built: stages, data flow, the seam, the decisions |
+| [`docs/CODE_MAP.md`](docs/CODE_MAP.md) | Where to make a change, and the test that proves it |
+| [`docs/PRESENTATION.md`](docs/PRESENTATION.md) | The 2-minute overview and likely questions |
+| [`docs/submission/`](docs/submission/) | Pre-evaluation *Principles & Practices* document (PDF and its HTML source) |
 | [`docs/BENCHMARK.md`](docs/BENCHMARK.md) | Dataset, training and held-out test results |
 | [`docs/ASSUMPTIONS.md`](docs/ASSUMPTIONS.md) | Every assumption about a course, and the override for each |
 | [`prompts/`](prompts/) | The prompts we engineer with, versioned like code |
