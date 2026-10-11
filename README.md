@@ -22,9 +22,28 @@ already have:
 
 ## Run it (Java 21+, nothing else to install)
 
-**For the instructor:** double-click `even-hand.cmd` (Windows) or run `./even-hand.sh`. Your browser
-opens a page on this computer only (`http://127.0.0.1:8642`). Pick the marks file, type the weights,
-and press *Analyse*.
+**For the professor or a TA: three steps, no training needed.**
+
+1. **Open it.** Double-click `even-hand.cmd` (Windows) or run `./even-hand.sh`. A page opens in your
+   browser. It is served by this computer only (`http://127.0.0.1:8642`), and the marks never leave it.
+   If Java is missing, the window says where to get it.
+2. **Drop in your marks sheet.** The one you already keep, saved as CSV, with a column saying which
+   TA marked each script. Write each question's maximum in its header, like `Q1 (10)`. The page shows
+   what it read (students, TAs, questions) and anything to fix, in plain words. It also asks how much
+   each exam counts, with one box per exam it found.
+3. **Press *Check the marking*.** The report opens with a one-paragraph bottom line. On your screen it
+   shows real roll numbers and TA names. *Save report* and *Save Class Committee sheet* save copies
+   with pseudonyms only, safe to file or forward.
+
+No marks sheet to hand? Press **Try a sample course**, or **Download a blank template** to fill in.
+
+| Your sheet looks like | Example header | When |
+| --- | --- | --- |
+| One row per student | `roll_no, name, ta, Q1 (10), Q2 (10), Q3 (15), Total` | Each TA marked whole scripts (most courses). Name/Total are ignored; blank or `AB` = not answered. Several exams: add an `assessment` column. |
+| One row per answer | `roll_no, assessment, question, max_marks, marks, ta[, role]` | TAs split the paper by question, or some scripts were marked twice. |
+
+Column names are matched loosely (`Roll No`, `roll-no`, `TA`, `marker`, `evaluator`, `out_of` ...),
+and Excel's "CSV UTF-8" files are read as they are.
 
 **The Simulation Lab** (`http://127.0.0.1:8642/lab`): pick a course shape, set how differently the
 TAs mark, and run. The real pipeline analyses a simulated course and shows the hidden truth beside
@@ -57,9 +76,8 @@ Pseudonyms such as "Assistant 1" change from run to run, because the key is draw
 `report.html` is for the instructor only. `committee.html` is for the Class Committee and carries
 aggregates only. Roll numbers appear once, in the terminal, and are never written to disk.
 
-**Input:** one row per marked answer, columns found by header name:
-`roll_no, assessment, question, max_marks, marks, ta[, role]`. Half marks are fine. A `role` of
-`second` marks a checking mark that did not count towards the grade. See `samples/`.
+**Input:** either sheet shape above (see `samples/` for one-row-per-answer files). Half marks are
+fine. A `role` of `second` marks a checking mark that did not count towards the grade.
 
 **Options:** `--rule relative` (default: B at the mean, ±1/2/3 SD, top 10% S), `relative-sigma`
 (no fixed S share) or `absolute:S=90,A=80,B=70,C=60,D=50,E=40`; `--name`, `--out`, and
@@ -120,7 +138,7 @@ benchmark). The re-check gate was fixed in the design document before any data e
 ## Build and test
 
 ```
-./mvnw verify               # all modules: 152 tests, JaCoCo coverage in */target/site/jacoco
+./mvnw verify               # all modules: 162 tests, JaCoCo coverage in */target/site/jacoco
 ./mvnw -Pmutation verify -pl eh-outcome   # PIT mutation testing of the grading arithmetic
 java -jar eh-app/target/even-hand.jar scenarios        # the audit's verdict on twelve arrangements
 ```

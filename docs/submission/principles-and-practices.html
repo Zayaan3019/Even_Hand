@@ -33,13 +33,13 @@ pre { font-family: Consolas, "Cascadia Mono", monospace; font-size: 7.3pt; line-
 
 <h1>Even Hand <span>· Principles &amp; Practices across the project lifecycle</span></h1>
 <div class="meta">CS5013 Programming with AI · Pre-evaluation deliverable · Team <i>God's Eye</i>: Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104) ·
-Stakeholder: Prof. Aslam Kunhi Mohamed, Dept. of Civil Engineering · <span class="mono">github.com/Zayaan3019/Even_Hand</span> · 10 October 2026</div>
+Stakeholder: Prof. Aslam Kunhi Mohamed, Dept. of Civil Engineering · <span class="mono">github.com/Zayaan3019/Even_Hand</span> · 11 October 2026</div>
 
 <div class="box lead"><b>The project in four lines.</b> Large IITM courses are marked by teams of TAs who split the scripts, so part of a
 relatively graded letter depends on whose pile a script landed in. Even Hand takes the instructor's marks CSV through five stages,
 <b>ingest → audit → estimate → outcome → report</b>, each one Maven module. It says whether the marking arrangement can be checked at all,
 how many marks each TA added or took away (with 95% intervals), how many letter grades those differences moved, and which ≤20 scripts deserve a second look.
-It runs as one Java 21 jar on the instructor's laptop (browser page on 127.0.0.1, CLI, and a Simulation Lab). <b>152 tests</b>; a benchmark of
+It runs as one Java 21 jar on the instructor's laptop: a double-click opens a three-step browser page (on 127.0.0.1) that reads the mark sheet instructors already keep, plus a CLI and a Simulation Lab. <b>162 tests</b>; a benchmark of
 280 synthetic IITM courses with known answers. We used Claude Code throughout, and every practice below exists so that we can explain and
 defend every line it helped write.</div>
 
@@ -77,7 +77,7 @@ and passes after. (6) Commit with the <i>why</i>. When a failure is silent we ma
 <tr><td>No-effect test raised 4/4 false alarms on tutorial-group courses with identical TAs</td><td>Found by the benchmark's ground truth. Ranked hypotheses: the null worlds kept every student in their real pile, so the "luck of the deal" was never simulated.</td><td>Re-deal abilities in each null world (0/4 after)</td><td><code>noEffectTestAllowsForTheLuckOfTheDeal</code></td></tr>
 <tr><td>End-to-end test: "no list" although TAs differed</td><td>Not a code bug. With 19 null simulations the smallest possible p is 1/20 = 0.05, which is never <i>below</i> 0.05: the test's own arithmetic.</td><td>39 simulations, with the reason as a comment</td><td><code>PipelineTest</code></td></tr>
 <tr><td>Browser upload silently dropped ("header parser received no bytes")</td><td>The JDK server swallows handler exceptions. A catch-all that logs the trace revealed an NPE: <code>getOrDefault(..).isBlank() ? d : get(..)</code> returns null for an absent field.</td><td><code>param()</code> helper; every request now gets an answer (400/500)</td><td><code>LocalServerTest</code></td></tr>
-<tr><td>Mutation testing crashed: "Unsupported class file major version 69"</td><td>The tool, not our code: PIT 1.17.4 predates JDK 25 class files.</td><td>PIT 1.21.0</td><td><code>-Pmutation</code> profile</td></tr>
+<tr><td>Page said "not responding" while the server was running</td><td><code>curl -v</code>: empty reply. Calling the handler directly showed <i>"Unresolved compilation problem"</i>: the IDE's background compiler had written a half-edited class into <code>target/</code>, and the incremental build packaged it.</td><td><code>clean package</code>; the server now answers even on an <code>Error</code></td><td>scan the jar for that string before a demo</td></tr>
 <tr><td>A commit contained deletions its message did not mention</td><td><code>git show --stat</code> before pushing: <code>git commit</code> takes the whole index, including deletions staged hours earlier.</td><td><code>reset --mixed</code> to the base (unpushed), recommit path by path</td><td>stat-check before every push</td></tr>
 </table>
 
@@ -107,10 +107,10 @@ command; every random draw is seeded, so a diff in those files means behaviour c
 <tr><th style="width:21%">Layer</th><th>What it proves in Even Hand</th></tr>
 <tr><td>Unit, with hand-worked oracles</td><td>Grading rules on a cohort worked on paper (mean 50, SD 20); top-10% S with ties at the cut; composites with clamping at 0 and full marks; the share of variance due to TAs = 100·25/385.94 = 6.48%.</td></tr>
 <tr><td>Property-based (jqwik)</td><td>One marker of record per question exposes nobody differently, checked on 150 random allocations.</td></tr>
-<tr><td>Integration &amp; HTTP</td><td>simulate → run → reports, with no roll number in either report; the page server listens on loopback only; bad input gets an explanation, not a crash.</td></tr>
+<tr><td>Integration &amp; HTTP</td><td>simulate → run → reports, with no roll number in either report (roll numbers reach only the screen); the page server listens on loopback only; bad input gets a sentence saying how to fix it, not a crash.</td></tr>
 <tr><td>Architecture (ArchUnit)</td><td>Only the loopback page server touches <code>java.net</code> and nothing is a network client; the estimator never depends on grading, reporting or the app.</td></tr>
 <tr><td>Statistical (benchmark)</td><td>Train on 168 synthetic courses, test once on 112: TA severity within ~0.5 points where the marking links the TAs, 88–95% interval coverage, 4/24 false alarms. <b>80%</b> of flagged scripts truly moved vs <b>46%</b> for the nearest-boundary practice.</td></tr>
-<tr><td>Coverage &amp; mutation</td><td>JaCoCo: 73% of lines overall; estimator 98%, grading 94%, numerics 97%, ingest 88%, report 88%. PIT on the grading code: <b>80% of 168 mutants killed</b> (test strength 86%), after two new tests targeted the survivors.</td></tr>
+<tr><td>Coverage &amp; mutation</td><td>JaCoCo: 76% of lines overall; estimator 98%, grading 94%, numerics 97%, ingest 91%, report 95%. PIT on the grading code: <b>80% of 168 mutants killed</b> (test strength 86%), after two new tests targeted the survivors.</td></tr>
 </table>
 <div class="two"><div>
 <p><b>Refactoring, mostly by subtraction.</b> We removed Spring Boot, JPA, SQLite and the <code>eh-linking</code> module, and replaced the planned
@@ -118,8 +118,8 @@ marginal-ML Rasch estimator with a 160-line backfitting class. We extracted <cod
 and the benchmark all call (DRY). Refusal became a sealed type (<code>Emitted | Refused(reason)</code>) instead of exceptions. The suite stayed
 green across every step, and each departure from the submitted design is recorded with its reason in <code>docs/ARCHITECTURE.md</code>.</p>
 </div><div>
-<p><b>Documentation for named readers.</b> README: three runnable commands. <code>ARCHITECTURE.md</code>: stages, the seam, invariants each
-with its test, defects found. <code>CODE_MAP.md</code>: where to make a change and which test proves it. <code>ASSUMPTIONS.md</code>: A1–A15,
+<p><b>Documentation for named readers.</b> README: three steps for a professor, three commands for a developer. <code>ARCHITECTURE.md</code>: stages, the seam, invariants each
+with its test, defects found. <code>CODE_MAP.md</code>: where to make a change and which test proves it. <code>ASSUMPTIONS.md</code>: A1–A16,
 each with its override. <code>BENCHMARK.md</code>, weekly logs, and Javadoc that explains <i>why</i>, not the signature (<code>07-document-for-a-reader</code>).</p>
 </div></div>
 

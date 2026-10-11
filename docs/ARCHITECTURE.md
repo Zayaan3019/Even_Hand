@@ -27,7 +27,7 @@ is one Maven module and one entry point. The audit can stop the pipeline after s
 
 | Front end | Class | For |
 | --- | --- | --- |
-| Browser page, `even-hand.cmd` | `LocalServer` (JDK `HttpServer` on 127.0.0.1) | The instructor: pick the file, read the report. Nothing is written to disk. |
+| Browser page, `even-hand.cmd` | `LocalServer` + `upload.html` (JDK `HttpServer` on 127.0.0.1) | The instructor, in three steps: drop the marks sheet (`/inspect` says what was read and what to fix), set the weights, read the report (`/analyse`). Real names are shown on screen only; saved copies carry pseudonyms. Nothing is written to disk. |
 | Simulation Lab, `/lab` | `SimulationLab` + `lab.html` | Demonstration: a simulated course through the real pipeline, with the truth shown beside the estimates |
 | Command line, `run` / `benchmark` | `Main`, `Benchmark` | Scripting, CI and the benchmark |
 
@@ -35,7 +35,7 @@ is one Maven module and one entry point. The audit can stop the pipeline after s
 
 | # | Module · class | Input → output | The idea, in one line |
 | --- | --- | --- | --- |
-| 1 | `eh-ingest` · `CsvIngest.read` | CSV → `IngestResult` | Columns found by header name; roll numbers and TA names become keyed pseudonyms before any `Response` exists; every bad row is reported with its line number. |
+| 1 | `eh-ingest` · `CsvIngest.read` | CSV → `IngestResult` | Either one row per answer, or the usual one row per student with `Q1 (10)` headers (`WideSheet` unpacks it, keeping line numbers); columns found by header name; roll numbers and TA names become keyed pseudonyms before any `Response` exists; every bad row is reported with its line number. |
 | 2 | `eh-design` · `IdentifiabilityAudit.audit` | `MarkingDesign` (no marks) → `AuditVerdict` | From *who marked what* only: which TAs can be compared (exact integer rank of the design matrix), and whether any student met a different mix of TAs than another (**exposure**). |
 | 3 | `eh-estimate` · `SeverityEstimator.fit` | `AnchoredDesign` + responses → `FittedModel` | `mark% = mean + ability + easiness − severity`, fitted by backfitting; 95% intervals by resampling students; p-value by re-simulating the course with identical TAs on the same allocation. |
 | 4 | `eh-outcome` · `Outcome.assess` | `FittedModel` + course rule → `Outcome.Result` | Grade the course twice under its own rule: as marked, and with each mark given back its TA's severity. Repeat over bootstrap draws to get the chance each grade changes. |

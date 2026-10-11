@@ -27,6 +27,25 @@ refused. Found while testing the browser page: an absent form field crashed the 
 
 **Cut, with reasons** (`docs/ARCHITECTURE.md`): `eh-linking`, Spring/SQLite, the logit-scale estimator.
 
+**Usability pass (11 Oct).** Goal: a professor or TA uses it with no tutorial. Walking through the
+browser page as a first-time user found four blockers, now fixed and tested:
+
+- The re-check list named students only by pseudonym, with no way back to a roll number in the
+  browser. Now the screen shows roll numbers and TA names, and saved reports keep pseudonyms only
+  (`LocalServerTest.analyseKeepsNamesOutOfTheReports`).
+- Only one-row-per-answer files were read; most mark sheets are one row per student. `WideSheet`
+  reads those when each header states its maximum (`Q1 (10)`), and Excel's byte-order mark no
+  longer hides the first column.
+- Weights had to be typed with the file's exact assessment names. The page now reads the file
+  first, shows what it found and any problems in plain words, and gives one box per assessment.
+- The report began with the audit's technical verdict. It now opens with a three-sentence bottom
+  line naming the one thing to do next.
+
+Also: a sample course and a blank template one click away, launchers that say when Java is missing,
+and a second double-click reopens the running page. Found while testing it in Chrome: the page
+reported "not responding" while the server ran, because the IDE had compiled a half-edited class
+into the jar. The fix was a clean build, and the server now answers even on an `Error`.
+
 ## Pruthviraj Milind Chougale (CE23B104)
 
 *To be completed by Pruthviraj.* Ownership of `eh-outcome`, `eh-report` and `eh-app` stands in

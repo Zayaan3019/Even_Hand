@@ -29,7 +29,7 @@ constants on 168 courses and tested once on 112 unseen ones. 80% of the scripts 
 their grade changed by who marked them, against 46% for today's practice of re-checking scripts near
 a boundary. And when the design can't support an answer, the tool refuses instead of guessing.
 
-**Close (10 s).** One jar, runs on the professor's laptop, nothing leaves it, 152 tests.
+**Close (10 s).** One jar, runs on the professor's laptop, nothing leaves it, 162 tests.
 
 ---
 

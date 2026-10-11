@@ -40,7 +40,10 @@ java -jar eh-app/target/even-hand.jar run samples/ce-core-7.csv --weights "Quiz 
 | A new course shape in the dataset | `eh-design/.../sim/CourseSimulator.java`, enum `Archetype` | add a constant with its size, TAs, departments and `AssessmentPlan`s | `java -jar ... simulate <name> 1 samples/` |
 | A new kind of TA allocation | `CourseSimulator.Allocation`, then `piles(...)` and `marker(...)` | a new enum value and its case in both switches | simulate and run it |
 | A new control on the Simulation Lab (e.g. class size) | `eh-app/src/main/resources/lab.html` (the `controls` div and `run()`), `LocalServer` (`/lab/run` parameters), `SimulationLab.run` | read the new parameter and pass it to the simulator | `LocalServerTest.labRun` |
-| A new field on the upload page | `LocalServer.PAGE` (the form and the `URLSearchParams`), `LocalServer.report` (`param(q, ...)`) | | `LocalServerTest.report` |
+| A new field on the upload page | `eh-app/src/main/resources/upload.html` (step 2 and the `URLSearchParams` in the *Check the marking* handler), `LocalServer.run` (`param(q, ...)`) | | `LocalServerTest.analyseKeepsNamesOutOfTheReports` |
+| Accept another way of writing a question's maximum, e.g. `Q1 - 10` | `eh-ingest/.../WideSheet.java`, the `QUESTION` pattern | one more alternative in the regex | a header case in `CsvIngestTest.readsOneRowPerStudent` |
+| Treat another cell value as "not answered", e.g. `MP` | `WideSheet.NOT_ANSWERED` | add `"mp"` | `CsvIngestTest.readsOneRowPerStudent` |
+| Change the report's opening summary | `eh-report/.../HtmlReport.java`, `bottomLine` | | `HtmlReportTest.bottomLineNamesTheHarshestAssistant` |
 | Weights given as fractions (0.25) | nothing: `Composite` normalises any weights to sum to 1 | | `CompositeTest.weighted` |
 
 ## Things to be able to say about any line
