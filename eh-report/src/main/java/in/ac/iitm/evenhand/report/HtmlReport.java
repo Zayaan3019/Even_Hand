@@ -33,6 +33,7 @@ public final class HtmlReport {
          .append(in.design().studentCount()).append(" students &middot; ")
          .append(in.design().graderCount()).append(" assistants &middot; ")
          .append(in.design().questionCount()).append(" questions &middot; for the instructor only</p>\n");
+        bottomLine(b, in);
 
         section(b, "1. Can this marking arrangement be checked?");
         b.append("<p class=verdict>").append(esc(in.verdict().headline())).append("</p>\n");
@@ -101,6 +102,53 @@ public final class HtmlReport {
                 + "after re-marking a script, within the revision window (R.24.1).</p>\n");
         b.append("</main></body></html>\n");
         return b.toString();
+    }
+
+    /** The whole report in three sentences, with the one thing to do next. */
+    static void bottomLine(StringBuilder b, ReportInput in) {
+        b.append("<div class=bottom><b>Bottom line.</b> ");
+        if (in.model().isEmpty()) {
+            b.append("This way of dividing the marking cannot tell a harsh TA from a weaker group of students, "
+                    + "so no TA is rated and no grade is questioned. Section 1 says why, and what would make "
+                    + "it checkable next time.</div>\n");
+            return;
+        }
+        FittedModel m = in.model().get();
+        Outcome.Result o = in.outcome().orElseThrow();
+        if (!m.noEffect().rejectsAt(0.05)) {
+            b.append(String.format(Locale.ROOT, "The TAs marked consistently: their differences are within what "
+                    + "chance alone produces (p = %.2f). No script needs a second look on these grounds.</div>%n",
+                    m.noEffect().pValue()));
+            return;
+        }
+        FacetEstimates g = m.graders();
+        int harsh = 0, lenient = 0;
+        for (int j = 1; j < g.size(); j++) {
+            if (g.estimates()[j] > g.estimates()[harsh]) harsh = j;
+            if (g.estimates()[j] < g.estimates()[lenient]) lenient = j;
+        }
+        if (m.groups().size() == 1) {
+            b.append(String.format(Locale.ROOT, "The TAs did not mark alike. %s was the harshest (%s on a 10-mark "
+                    + "question than the average TA) and %s the most lenient (%s). ",
+                    esc(g.labels().get(harsh)), inMarks(g.estimates()[harsh]),
+                    esc(g.labels().get(lenient)), inMarks(g.estimates()[lenient])));
+        } else {
+            int far = Math.abs(g.estimates()[harsh]) >= Math.abs(g.estimates()[lenient]) ? harsh : lenient;
+            b.append(String.format(Locale.ROOT, "The TAs did not mark alike. The largest difference is %s "
+                    + "(%s on a 10-mark question than the average TA in their group). ",
+                    esc(g.labels().get(far)), inMarks(g.estimates()[far])));
+        }
+        b.append(String.format(Locale.ROOT, "It changes <b>%d</b> letter grade%s. ", o.changed(),
+                o.changed() == 1 ? "" : "s"));
+        switch (o.shortlist()) {
+            case Outcome.Refused r -> b.append("No re-check list: ").append(esc(r.reason()));
+            case Outcome.Emitted e when e.rows().isEmpty() ->
+                    b.append("No student's grade is likely to depend on it, so nothing needs re-checking.");
+            case Outcome.Emitted e -> b.append("<b>Next step:</b> take a second look at the ").append(e.rows().size())
+                    .append(e.rows().size() == 1 ? " script" : " scripts")
+                    .append(" in section 4, most consequential first.");
+        }
+        b.append("</div>\n");
     }
 
     private static void severityChart(StringBuilder b, FittedModel m) {
@@ -180,8 +228,8 @@ public final class HtmlReport {
             return;
         }
         b.append("<p>Ranked by expected change in grade points (R.21.1 points are uneven: D&rarr;E costs two). "
-                + "Labels are pseudonyms; the terminal showed the roll numbers once, and the sealed key file "
-                + "maps them back.</p>\n");
+                + "Saved copies name students by pseudonym; roll numbers appear only on your screen, and the "
+                + "sealed key file maps them back.</p>\n");
         b.append("<table><tr><th>Student</th><th>Total as marked</th><th>Corrected</th><th>Grade</th>"
                 + "<th>If it changes</th><th>Chance of change</th><th>Direction</th></tr>\n");
         for (Outcome.Row r : e.rows()) {
@@ -245,6 +293,7 @@ public final class HtmlReport {
             h1{font-size:26px;margin:0 0 4px}h1 .sub{font-weight:400;color:var(--muted);font-size:17px}
             h2{font-size:18px;margin:28px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
             .meta{color:var(--muted);margin:0 0 12px}.verdict{font-weight:600;color:var(--accent)}
+            .bottom{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:12px 14px;margin:14px 0 4px}
             .note{color:var(--muted)}table{border-collapse:collapse;width:100%;margin:8px 0;background:var(--card)}
             th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;font-variant-numeric:tabular-nums}
             th{background:transparent;color:var(--muted);font-weight:600}
