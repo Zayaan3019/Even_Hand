@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The marking arrangement: which grader marked which question for which student,
@@ -13,6 +14,10 @@ import java.util.Objects;
  * structure. The fingerprint is what binds an {@link AuditVerdict} to the design it
  * was computed for, so a verdict obtained on one course cannot be presented as
  * evidence about another. See {@link AnchoredDesign}.
+ *
+ * <p>It may also carry {@link AllocationEvidence}: what the real roll numbers said
+ * about how piles were dealt, reduced at ingest to counts that cannot be traced back
+ * to a student.
  */
 public final class MarkingDesign {
 
@@ -22,11 +27,13 @@ public final class MarkingDesign {
     private final List<String> graderLabels;
     private final int assessmentCount;
     private final long fingerprint;
+    private final Optional<AllocationEvidence> allocationEvidence;
 
     private MarkingDesign(List<DesignCell> cells,
                           List<String> studentLabels,
                           List<String> questionLabels,
-                          List<String> graderLabels) {
+                          List<String> graderLabels,
+                          Optional<AllocationEvidence> allocationEvidence) {
         this.cells = List.copyOf(cells);
         this.studentLabels = List.copyOf(studentLabels);
         this.questionLabels = List.copyOf(questionLabels);
@@ -34,6 +41,7 @@ public final class MarkingDesign {
         this.assessmentCount = 1 + this.cells.stream().mapToInt(DesignCell::assessment).max().orElse(0);
         this.fingerprint = computeFingerprint(this.cells,
                 this.studentLabels.size(), this.questionLabels.size(), this.graderLabels.size());
+        this.allocationEvidence = Objects.requireNonNull(allocationEvidence);
         validateIndices();
     }
 
@@ -41,7 +49,7 @@ public final class MarkingDesign {
                                    List<String> studentLabels,
                                    List<String> questionLabels,
                                    List<String> graderLabels) {
-        return new MarkingDesign(cells, studentLabels, questionLabels, graderLabels);
+        return new MarkingDesign(cells, studentLabels, questionLabels, graderLabels, Optional.empty());
     }
 
     /**
@@ -59,7 +67,17 @@ public final class MarkingDesign {
         for (Response r : responses) {
             cells.add(r.cell());
         }
-        return new MarkingDesign(cells, studentLabels, questionLabels, graderLabels);
+        return new MarkingDesign(cells, studentLabels, questionLabels, graderLabels, Optional.empty());
+    }
+
+    /**
+     * The same design, carrying what the roll numbers said about how the piles were
+     * dealt. The evidence is not part of the fingerprint: it is a reading of the
+     * design, not a change to it.
+     */
+    public MarkingDesign withAllocationEvidence(AllocationEvidence evidence) {
+        return new MarkingDesign(cells, studentLabels, questionLabels, graderLabels,
+                Optional.of(Objects.requireNonNull(evidence)));
     }
 
     private void validateIndices() {
@@ -86,10 +104,13 @@ public final class MarkingDesign {
     public int assessmentCount()             { return assessmentCount; }
     public int size()                        { return cells.size(); }
     public boolean anyPositionRecorded()     { return cells.stream().anyMatch(DesignCell::hasPosition); }
+    public Optional<AllocationEvidence> allocationEvidence() { return allocationEvidence; }
 
     /**
      * A stable hash of the incidence structure. Order-independent, so two designs
      * that assign the same marking are the same design however the rows were sorted.
+     * It covers the marking order and which marks count, because the drift and
+     * exposure analyses read both.
      */
     public long fingerprint() {
         return fingerprint;
@@ -97,7 +118,8 @@ public final class MarkingDesign {
 
     private static long computeFingerprint(List<DesignCell> cells, int nS, int nQ, int nG) {
         // Order-independent: sum of per-cell mixes. Cheap, and collisions do not
-        // matter for anything but the accidental-mismatch check it exists for.
+        // matter for anything but the accidental-mismatch check it exists for; the
+        // certificate's content is verified separately.
         long acc = 0x9E3779B97F4A7C15L * (1L + nS) + 0xBF58476D1CE4E5B9L * (1L + nQ)
                  + 0x94D049BB133111EBL * (1L + nG) + cells.size();
         for (DesignCell c : cells) {
@@ -105,6 +127,8 @@ public final class MarkingDesign {
             h = h * 1_000_003L + c.question();
             h = h * 1_000_003L + c.grader();
             h = h * 1_000_003L + c.assessment();
+            h = h * 1_000_003L + (c.position() + 1L);
+            h = h * 2L + (c.ofRecord() ? 1L : 0L);
             h ^= (h >>> 31);
             h *= 0xFF51AFD7ED558CCDL;
             h ^= (h >>> 33);

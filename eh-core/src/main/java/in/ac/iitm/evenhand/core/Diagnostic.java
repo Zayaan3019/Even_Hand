@@ -49,10 +49,29 @@ public record Diagnostic(Code code,
         /** The same (student, question) was marked more than once: a double-mark,
          *  which is good news and is treated as a linking observation. */
         EH008_DOUBLE_MARK_FOUND,
+        /** No column declares what each question was marked out of, and the marks are
+         *  not all 0/1, so the maximum cannot be established. It is not inferred from
+         *  the highest mark observed, because nobody may have scored full marks and the
+         *  guess would be biased downward on exactly the hardest questions. */
+        EH010_MAXIMUM_NOT_DECLARED,
+        /** A question's declared maximum is not the same on every row. Usually means
+         *  the column holds something else - a running total, or a weighted mark. */
+        EH011_MAXIMUM_INCONSISTENT,
         /** Severities are estimable only if the piles handed to each assistant are
          *  taken to have been alike in ability. The estimate is real; the assumption
          *  is real too, and is reported rather than absorbed silently. */
-        EH009_RESTS_ON_EXCHANGEABILITY
+        EH009_RESTS_ON_EXCHANGEABILITY,
+        /** Some responses carry more than one mark and nothing says which one counts, so
+         *  the first in the file is taken as the mark of record. Which mark counts decides
+         *  who could have been harmed, so it is never left implicit. */
+        EH012_MARK_OF_RECORD_UNDECLARED,
+        /** A script's place in the marking order moves with the student, so drift is
+         *  separable from ability only if that order is unrelated to ability. */
+        EH013_DRIFT_RESTS_ON_STACK_ORDER,
+        /** Marking position cannot be separated from the other effects at all. */
+        EH014_DRIFT_NOT_IDENTIFIED,
+        /** A question's marks are recorded in unusually fine steps. */
+        EH015_FINE_MARK_STEPS
     }
 
     public Diagnostic {
@@ -69,6 +88,11 @@ public record Diagnostic(Code code,
 
     public static Diagnostic note(Code code, String message, List<String> elements) {
         return new Diagnostic(code, Severity.NOTE, message, elements, Optional.empty());
+    }
+
+    /** A note that still has something worth suggesting, such as how to get feedback. */
+    public static Diagnostic note(Code code, String message, List<String> elements, String fixIt) {
+        return new Diagnostic(code, Severity.NOTE, message, elements, Optional.ofNullable(fixIt));
     }
 
     /** Renders as a compiler would: {@code EH003 error: ... | fix: ...} */

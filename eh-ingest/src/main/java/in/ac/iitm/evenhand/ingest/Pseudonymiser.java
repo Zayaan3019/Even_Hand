@@ -6,42 +6,54 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Replaces real identifiers with pseudonyms, in memory, before anything is written.
  *
- * <p>Roll numbers and assistants' names never reach disk. Each run generates a fresh
- * 256-bit salt; an identifier becomes the HMAC-SHA-256 digest of its bytes under that
- * salt, truncated to 128 bits, and is shown as a sequential label. Only the digest and
- * the label leave this object. The salt is handed to the caller once, to write into the
- * instructor's key file, and the application never reads that file back.
+ * <p>Each identifier becomes the HMAC-SHA-256 digest of its bytes under a secret
+ * 256-bit salt, truncated to 128 bits, and is shown as a numbered label. Only the
+ * digest and the label leave this object; the mapping back to the real identifier is
+ * the instructor's key file, which is sealed before it is written (see {@link KeyFile}).
+ *
+ * <p><strong>Labels are numbered in digest order, not in order of appearance.</strong>
+ * Numbering by first appearance would make "Student 1" the first row of the export,
+ * which in a roll-sorted file is the lowest roll number: anyone with the class list
+ * could undo every pseudonym by counting. Digest order is a keyed shuffle, so a label
+ * says nothing about where a student sits in any list without the salt.
  *
  * <p>Why HMAC and not a plain hash: the identifier space is small and structured. There
  * are perhaps ten thousand live roll numbers at this institute and they follow an
  * obvious pattern, so an unsalted digest of one could be reversed by generating every
- * candidate and comparing. A per-run secret salt makes that infeasible for anyone who
- * does not hold the key file, which is the instructor alone.
+ * candidate and comparing. A secret salt makes that infeasible for anyone who does not
+ * hold the key file.
  *
- * <p>A fresh salt per run also means two runs of the same course produce unrelated
- * pseudonyms. That is deliberate: it stops anyone linking an assistant across reports
- * without the key, at the cost of the instructor needing the key file to compare two
- * runs, which is the trade we want.
+ * <p>The salt belongs to a course. A fresh one is drawn for its first run and kept in the
+ * key file, and restoring it with {@link #fromKeyFile} makes later runs of the same course
+ * &mdash; the quizzes, then the end-semester exam &mdash; produce the same digests. A new
+ * offering draws a new salt, so nobody can follow an assistant or a student from one
+ * offering's reports to the next without both keys.
  */
 public final class Pseudonymiser {
 
     private static final String ALGORITHM = "HmacSHA256";
     private static final int DIGEST_BYTES = 16; // 128 bits, ample against collision here
+    private static final String SALT_LINE = "salt,";
 
     private final byte[] salt;
     private final Mac mac;
-    /** raw identifier -> assigned label, in order of first appearance. */
+    /** raw identifier -> assigned label, in label order. */
     private final Map<String, String> labels = new LinkedHashMap<>();
-    /** raw identifier -> digest. This is the key the instructor keeps. */
+    /** raw identifier -> digest. Together with the labels, the key the instructor keeps. */
     private final Map<String, String> digests = new LinkedHashMap<>();
-    private final Map<String, Integer> nextIndex = new LinkedHashMap<>();
+    private final Set<String> prefixesIssued = new HashSet<>();
 
     private Pseudonymiser(byte[] salt) {
         this.salt = salt.clone();
@@ -53,7 +65,7 @@ public final class Pseudonymiser {
         }
     }
 
-    /** A pseudonymiser under a fresh random salt. The usual entry point. */
+    /** A pseudonymiser under a fresh random salt, for a course's first run. */
     public static Pseudonymiser withRandomSalt() {
         byte[] salt = new byte[32];
         new SecureRandom().nextBytes(salt);
@@ -61,10 +73,8 @@ public final class Pseudonymiser {
     }
 
     /**
-     * A pseudonymiser under a caller-supplied salt.
-     *
-     * <p>For tests, and for the instructor re-running a previous analysis from his key
-     * file. Never call this with a constant in production code.
+     * A pseudonymiser under a caller-supplied salt. For tests; in production the salt
+     * comes from {@link #withRandomSalt()} or from the course's key file.
      */
     public static Pseudonymiser withSalt(byte[] salt) {
         if (salt.length < 16) {
@@ -74,28 +84,64 @@ public final class Pseudonymiser {
     }
 
     /**
-     * The display label for an identifier, assigning one on first sight.
-     *
-     * @param raw    the real identifier, which does not escape this object
-     * @param prefix how the facet is named in reports, e.g. {@code "Assistant "}
+     * Restores the course's salt from its key file (already opened with {@link KeyFile#open}),
+     * so this run's digests match the earlier runs of the same course.
      */
-    public String labelFor(String raw, String prefix) {
-        String trimmed = raw.strip();
-        if (trimmed.isEmpty()) {
-            throw new IllegalArgumentException("identifier is blank");
+    public static Pseudonymiser fromKeyFile(String keyFileContents) {
+        for (String line : keyFileContents.split("\n")) {
+            String trimmed = line.strip();
+            if (trimmed.startsWith(SALT_LINE)) {
+                return withSalt(HexFormat.of().parseHex(trimmed.substring(SALT_LINE.length())));
+            }
         }
-        return labels.computeIfAbsent(trimmed, key -> {
-            digests.put(key, digest(key));
-            int index = nextIndex.merge(prefix, 1, Integer::sum);
-            return prefix + index;
-        });
+        throw new IllegalArgumentException("the key file has no salt line, so earlier runs cannot be linked");
     }
 
-    /** The digest that is safe to persist. */
+    /**
+     * Assigns labels to a set of identifiers, numbered in the order of their keyed digests.
+     *
+     * <p>All identifiers sharing a prefix must be labelled in one call: labelling more
+     * later would renumber the earlier ones, so a second call for the same prefix is an
+     * error rather than a silent change.
+     *
+     * @param rawIdentifiers the real identifiers; duplicates are fine, blanks are not
+     * @param prefix         how the facet is named in reports, e.g. {@code "Student "}
+     * @return raw identifier to label, in label order; the map never leaves ingest
+     */
+    public Map<String, String> assignLabels(Collection<String> rawIdentifiers, String prefix) {
+        if (!prefixesIssued.add(prefix)) {
+            throw new IllegalStateException("labels with prefix '" + prefix
+                    + "' were already issued in this run; issuing more would renumber them");
+        }
+        TreeMap<String, String> byDigest = new TreeMap<>();
+        for (String raw : rawIdentifiers) {
+            String trimmed = raw.strip();
+            if (trimmed.isEmpty()) {
+                throw new IllegalArgumentException("identifier is blank");
+            }
+            if (labels.containsKey(trimmed)) {
+                throw new IllegalArgumentException(
+                        "the same identifier is used for two kinds of participant; they must be distinct");
+            }
+            String previous = byDigest.put(digest(trimmed), trimmed);
+            if (previous != null && !previous.equals(trimmed)) {
+                throw new IllegalStateException("two identifiers share a 128-bit digest; refusing to merge them");
+            }
+        }
+        Map<String, String> out = new LinkedHashMap<>();
+        int index = 1;
+        for (Map.Entry<String, String> e : byDigest.entrySet()) {
+            String label = prefix + index++;
+            labels.put(e.getValue(), label);
+            digests.put(e.getValue(), e.getKey());
+            out.put(e.getValue(), label);
+        }
+        return Collections.unmodifiableMap(out);
+    }
+
+    /** The digest that is safe to persist. Computing it does not assign a label. */
     public String digestFor(String raw) {
-        String trimmed = raw.strip();
-        labelFor(trimmed, "");
-        return digests.get(trimmed);
+        return digest(raw.strip());
     }
 
     private String digest(String raw) {
@@ -109,17 +155,18 @@ public final class Pseudonymiser {
     }
 
     /**
-     * The contents of the instructor's key file: real identifier, its label, its digest.
+     * The contents of the instructor's key file: the course salt, then each real
+     * identifier with its label and digest.
      *
-     * <p>This is the only place a real identifier appears in any output of this
-     * package, and the caller is expected to write it somewhere the application does not
-     * read. Nothing downstream of ingest ever asks for it.
+     * <p>This is the only place a real identifier appears in any output of this package.
+     * It is plain text in memory only; {@link KeyFile#seal} encrypts it before it is
+     * written, and nothing downstream of ingest ever asks for it.
      */
     public String keyFileContents() {
         StringBuilder sb = new StringBuilder();
-        sb.append("# Even Hand pseudonymisation key. The instructor holds this file.\n");
-        sb.append("# The application never reads it back. Without it, no output of this\n");
-        sb.append("# tool can be traced to a person.\n");
+        sb.append("# Even Hand pseudonymisation key. The instructor holds this file, sealed.\n");
+        sb.append("# Without it, no output of this tool can be traced to a person.\n");
+        sb.append(SALT_LINE).append(HexFormat.of().formatHex(salt)).append('\n');
         sb.append("identifier,label,digest\n");
         for (Map.Entry<String, String> e : labels.entrySet()) {
             sb.append(escape(e.getKey())).append(',')

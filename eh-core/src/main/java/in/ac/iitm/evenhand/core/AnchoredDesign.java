@@ -5,9 +5,11 @@ package in.ac.iitm.evenhand.core;
  * fix its scale. This is the only way to obtain the input the estimator accepts.
  *
  * <p>It cannot be constructed without a verdict, the verdict must certify that the
- * design is identified, and the certificate must be <em>for this design</em> &mdash;
- * the fingerprint is re-checked here rather than trusted. So an unaudited fit is not
- * something we remember not to do; it is something that cannot be written.
+ * design is identified, and the certificate must be <em>for this design</em> and
+ * <em>true of it</em> &mdash; the fingerprint is re-checked, and the certificate's rank
+ * and null basis are verified against the marking in hand rather than trusted. So an
+ * unaudited fit is not something we remember not to do; it is something that cannot be
+ * written.
  *
  * <p>The check is deliberately here and not inside the audit, because the two do not
  * run together. The audit reads no marks and runs as soon as the allocation table
@@ -44,6 +46,11 @@ public final class AnchoredDesign {
         if (verdict instanceof AuditVerdict.NotEstimable ne) {
             throw new NotEstimableException(ne);
         }
+        // The fingerprint says the certificate was issued for this design; this says it is
+        // true of it. Both directions of error are caught, and cheaply: see the method.
+        cert.contradictionWith(design).ifPresent(problem -> {
+            throw new IllegalArgumentException("certificate does not hold for the design in hand: " + problem);
+        });
         if (verdict instanceof AuditVerdict.Estimable && !cert.isFullyIdentified()) {
             throw new IllegalArgumentException(
                     "verdict claims full identification but certificate reports excess nullity "

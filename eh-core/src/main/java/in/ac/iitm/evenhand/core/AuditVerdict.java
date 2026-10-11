@@ -1,6 +1,11 @@
 package in.ac.iitm.evenhand.core;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * What the data can and cannot tell you. The platform's first output is not an
@@ -9,6 +14,12 @@ import java.util.List;
  * <p>The interface is sealed, so every consumer must handle every case, including the
  * refusals. That is the point: "where nothing is estimable, the platform says so and
  * stops" is a property the compiler checks, not a convention someone might forget.
+ *
+ * <p>Every verdict carries its {@link Exposure}: whether severity could have moved
+ * anyone at all. The two are separate questions and both are reported, because a
+ * severity that cannot be estimated may also be unable to do harm &mdash; pure
+ * question-wise marking is exactly that case &mdash; and a severity that can be
+ * estimated may be doing harm the instructor should correct.
  *
  * <h2>Why there are four cases and not two</h2>
  *
@@ -33,8 +44,7 @@ import java.util.List;
  * worse, quietly report severities that rest on an assumption nobody was told about.
  * The distinction is also why the audit alone cannot tell a random split from a fixed
  * roll-number split: the two produce <em>identical</em> designs, of identical rank.
- * Only the profiler's test of whether allocation looks random speaks to that, and it
- * is a claim about ability, not about identifiability.
+ * Only the roll numbers speak to that, through {@link AllocationEvidence}.
  */
 public sealed interface AuditVerdict
         permits AuditVerdict.Estimable,
@@ -46,8 +56,16 @@ public sealed interface AuditVerdict
 
     List<Diagnostic> diagnostics();
 
-    /** A one-line summary in the instructor's terms, for the top of the report. */
+    /** Whether severity could have moved anyone, and whether that is measurable. */
+    Exposure exposure();
+
+    /** A one-line summary of what can be estimated, in the instructor's terms. */
     String headline();
+
+    /** The headline together with what the allocation says about harm. */
+    default String summary() {
+        return headline() + " " + exposure().headline();
+    }
 
     /** Whether the estimator may run at all on this design. */
     default boolean permitsEstimation() {
@@ -61,11 +79,11 @@ public sealed interface AuditVerdict
      * <p>Reached when some unit was marked by more than one assistant, or when the
      * arrangement crosses assistants against both students and questions &mdash; for
      * instance question-wise marking in which the assistant assigned to each question
-     * rotates across blocks of students, which costs nothing and identifies
-     * everything.
+     * rotates across blocks of students.
      */
     record Estimable(IdentifiabilityCertificate certificate,
-                     List<Diagnostic> diagnostics) implements AuditVerdict {
+                     List<Diagnostic> diagnostics,
+                     Exposure exposure) implements AuditVerdict {
 
         public Estimable {
             if (!certificate.isFullyIdentified()) {
@@ -73,6 +91,7 @@ public sealed interface AuditVerdict
                         "Estimable requires excessNullity == 0, got " + certificate.excessNullity());
             }
             diagnostics = List.copyOf(diagnostics);
+            Objects.requireNonNull(exposure, "exposure");
         }
 
         @Override
@@ -91,15 +110,17 @@ public sealed interface AuditVerdict
      * report what the allocation looks like so the reader can judge.
      *
      * @param assumption the assumption in the instructor's words
-     * @param allocationEvidence what the profiler saw about how piles were formed
+     * @param allocationEvidence what the roll numbers said about how piles were formed
      */
     record EstimableUnderExchangeability(IdentifiabilityCertificate certificate,
                                          List<Diagnostic> diagnostics,
+                                         Exposure exposure,
                                          String assumption,
                                          String allocationEvidence) implements AuditVerdict {
 
         public EstimableUnderExchangeability {
             diagnostics = List.copyOf(diagnostics);
+            Objects.requireNonNull(exposure, "exposure");
         }
 
         @Override
@@ -110,44 +131,72 @@ public sealed interface AuditVerdict
     }
 
     /**
-     * Some assistants are comparable and some are not. Estimation proceeds for the
-     * comparable set only, and the report names the others and why.
+     * The assistants fall into groups: comparable within a group, never across groups.
+     * Estimation proceeds within groups, and the report names every group.
      *
-     * @param estimableGraders indices of graders whose severity is estimable
-     * @param blockedGraders   indices of graders whose severity is not
+     * <p>The groups are reported as a partition rather than as one "reachable" set and a
+     * "blocked" remainder, because when two groups are the same size neither is the
+     * main one: each is a scale of its own.
+     *
+     * @param groups indices of the graders in each group, every grader in exactly one
      */
     record PartiallyEstimable(IdentifiabilityCertificate certificate,
                               List<Diagnostic> diagnostics,
-                              List<Integer> estimableGraders,
-                              List<Integer> blockedGraders) implements AuditVerdict {
+                              Exposure exposure,
+                              List<List<Integer>> groups) implements AuditVerdict {
 
         public PartiallyEstimable {
             diagnostics = List.copyOf(diagnostics);
-            estimableGraders = List.copyOf(estimableGraders);
-            blockedGraders = List.copyOf(blockedGraders);
-            if (estimableGraders.size() < 2) {
-                throw new IllegalArgumentException(
-                        "use NotEstimable when fewer than two graders are mutually comparable");
+            Objects.requireNonNull(exposure, "exposure");
+            List<List<Integer>> copy = new ArrayList<>();
+            Set<Integer> seen = new HashSet<>();
+            for (List<Integer> group : groups) {
+                if (group.isEmpty()) throw new IllegalArgumentException("a group cannot be empty");
+                for (int g : group) {
+                    if (!seen.add(g)) throw new IllegalArgumentException("grader " + g + " is in two groups");
+                }
+                copy.add(List.copyOf(group));
             }
+            if (copy.size() < 2) {
+                throw new IllegalArgumentException("one group is Estimable or EstimableUnderExchangeability");
+            }
+            if (copy.stream().noneMatch(g -> g.size() >= 2)) {
+                throw new IllegalArgumentException(
+                        "use NotEstimable when no two graders are mutually comparable");
+            }
+            groups = List.copyOf(copy);
+        }
+
+        /** The biggest group, the first of them when several tie. */
+        public List<Integer> largestGroup() {
+            List<Integer> best = groups.get(0);
+            for (List<Integer> g : groups) {
+                if (g.size() > best.size()) best = g;
+            }
+            return best;
         }
 
         @Override
         public String headline() {
-            return estimableGraders.size() + " of " + (estimableGraders.size() + blockedGraders.size())
-                    + " assistants can be placed on one scale; the rest cannot, and the report says why.";
+            String sizes = groups.stream().map(g -> String.valueOf(g.size())).collect(Collectors.joining(", "));
+            return "The assistants fall into " + groups.size() + " groups (of " + sizes + ") that can each "
+                    + "be placed on a scale of their own but not on one another's; the report names them.";
         }
     }
 
     /**
      * Nothing about grader severity is estimable from this arrangement. The audit
-     * reports what would repair it and the pipeline stops.
+     * reports what would repair it and the pipeline stops. Whether that matters is
+     * the exposure's to say: it may be unable to have harmed anyone.
      */
     record NotEstimable(IdentifiabilityCertificate certificate,
                         List<Diagnostic> diagnostics,
+                        Exposure exposure,
                         String reason) implements AuditVerdict {
 
         public NotEstimable {
             diagnostics = List.copyOf(diagnostics);
+            Objects.requireNonNull(exposure, "exposure");
         }
 
         @Override

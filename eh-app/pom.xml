@@ -13,8 +13,9 @@
   <name>eh-app</name>
   <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
   <description>
-    The only module that knows about HTTP, Spring, Hibernate or SQLite. It binds to
-    127.0.0.1 and makes no outbound network call; both facts are asserted by tests.
+    The command-line tool the instructor runs, and the benchmark. It runs entirely on the
+    instructor's machine and makes no network call; a test asserts that no class in the
+    project uses the network.
   </description>
 
   <dependencies>
@@ -36,43 +37,11 @@
     </dependency>
     <dependency>
       <groupId>in.ac.iitm.evenhand</groupId>
-      <artifactId>eh-linking</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>in.ac.iitm.evenhand</groupId>
       <artifactId>eh-outcome</artifactId>
     </dependency>
     <dependency>
       <groupId>in.ac.iitm.evenhand</groupId>
       <artifactId>eh-report</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-community-dialects</artifactId>
-      <version>${hibernate.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xerial</groupId>
-      <artifactId>sqlite-jdbc</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.tngtech.archunit</groupId>
@@ -82,10 +51,26 @@
   </dependencies>
 
   <build>
+    <finalName>even-hand</finalName>
     <plugins>
+      <!-- One runnable jar holding every module: java -jar eh-app/target/even-hand.jar -->
       <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers combine.self="override">
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>in.ac.iitm.evenhand.app.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
