@@ -2,7 +2,10 @@ package in.ac.iitm.evenhand.app;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import in.ac.iitm.evenhand.core.Diagnostic;
+import in.ac.iitm.evenhand.design.sim.CourseSimulator;
 import in.ac.iitm.evenhand.estimate.Settings;
+import in.ac.iitm.evenhand.ingest.CsvIngest;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.report.HtmlReport;
 
@@ -15,7 +18,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -52,7 +59,17 @@ public final class LocalServer {
             }
             String path = ex.getRequestURI().getPath();
             if ("GET".equals(ex.getRequestMethod()) && path.equals("/")) {
-                send(ex, 200, "text/html", PAGE);
+                send(ex, 200, "text/html", resource("/upload.html"));
+            } else if ("GET".equals(ex.getRequestMethod()) && path.equals("/template.csv")) {
+                ex.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"even-hand-template.csv\"");
+                send(ex, 200, "text/csv", TEMPLATE);
+            } else if ("GET".equals(ex.getRequestMethod()) && path.equals("/sample")) {
+                send(ex, 200, "application/json", sample(param(query(ex.getRequestURI().getRawQuery()), "shape",
+                        "first-year-core")));
+            } else if ("POST".equals(ex.getRequestMethod()) && path.equals("/inspect")) {
+                send(ex, 200, "application/json", inspect(readBody(ex.getRequestBody())));
+            } else if ("POST".equals(ex.getRequestMethod()) && path.equals("/analyse")) {
+                send(ex, 200, "application/json", analyse(ex));
             } else if ("GET".equals(ex.getRequestMethod()) && path.equals("/lab")) {
                 send(ex, 200, "text/html", resource("/lab.html"));
             } else if ("GET".equals(ex.getRequestMethod()) && path.equals("/lab/run")) {
@@ -65,11 +82,16 @@ public final class LocalServer {
                 send(ex, 404, "text/plain", "Not found.");
             }
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
+            String path = ex.getRequestURI().getPath();
+            if (path.equals("/inspect") || path.equals("/analyse")) {
+                send(ex, 400, "application/json", new SimulationLab.Json().str("error", plain(e)).toString());
+                return;
+            }
             send(ex, 400, "text/html", "<!doctype html><meta charset=utf-8><title>Even Hand</title>"
                     + "<body style='font:15px system-ui;max-width:760px;margin:40px auto;padding:0 16px'>"
                     + "<h2>The file could not be analysed</h2><pre style='white-space:pre-wrap'>"
                     + escape(e.getMessage()) + "</pre><p><a href='/'>Back</a></p>");
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | Error e) {
             // Every request gets an answer: the JDK server would otherwise drop the connection silently.
             e.printStackTrace();
             send(ex, 500, "text/plain", "Even Hand hit an internal error: " + e);
@@ -81,16 +103,89 @@ public final class LocalServer {
     /** Runs the whole pipeline on the posted CSV and returns the instructor report. */
     static String report(HttpExchange ex) throws IOException {
         Map<String, String> q = query(ex.getRequestURI().getRawQuery());
-        String csv = readBody(ex.getRequestBody());
+        Pipeline.Run run = run(q, readBody(ex.getRequestBody()));
+        String which = param(q, "view", "instructor");
+        return which.equals("committee") ? HtmlReport.committee(run.report()) : HtmlReport.instructor(run.report());
+    }
+
+    /**
+     * Both reports, and the pseudonym-to-name table for this run, for the page to show.
+     *
+     * <p>The table goes only to the browser on this computer, the same place the terminal
+     * would show it; it is never part of a report, so a saved report carries pseudonyms only.
+     */
+    static String analyse(HttpExchange ex) throws IOException {
+        Pipeline.Run run = run(query(ex.getRequestURI().getRawQuery()), readBody(ex.getRequestBody()));
+        SimulationLab.Json names = new SimulationLab.Json();
+        Main.KeyLookup.of(run.ingest().keyFileContents()).realByLabel().forEach(names::str);
+        return new SimulationLab.Json()
+                .str("instructor", HtmlReport.instructor(run.report()))
+                .str("committee", HtmlReport.committee(run.report()))
+                .raw("names", names.toString())
+                .toString();
+    }
+
+    private static Pipeline.Run run(Map<String, String> q, String csv) throws IOException {
         String rule = param(q, "rule", "");
         CourseConfig config = new CourseConfig(param(q, "name", "Course"),
                 CourseConfig.parseWeights(param(q, "weights", "")),
                 CourseConfig.parseRule(rule.isEmpty() ? "relative" : rule),
                 !rule.isEmpty());
-        Pipeline.Run run = Pipeline.run(new BufferedReader(new StringReader(csv)), Pseudonymiser.withRandomSalt(),
+        return Pipeline.run(new BufferedReader(new StringReader(csv)), Pseudonymiser.withRandomSalt(),
                 config, Settings.defaults());
-        String which = param(q, "view", "instructor");
-        return which.equals("committee") ? HtmlReport.committee(run.report()) : HtmlReport.instructor(run.report());
+    }
+
+    /**
+     * What the file holds, before anything is analysed: counts, assessment names (so the page can
+     * ask for their weights), and what reading it found. Nothing identifying is returned.
+     */
+    static String inspect(String csv) throws IOException {
+        CsvIngest.IngestResult in = CsvIngest.read(new BufferedReader(new StringReader(csv)),
+                Pseudonymiser.withRandomSalt());
+        StringBuilder assessments = new StringBuilder("[");
+        for (String a : in.assessmentLabels()) {
+            assessments.append(assessments.length() == 1 ? "" : ",").append(SimulationLab.Json.quote(a));
+        }
+        Map<Diagnostic.Code, List<Diagnostic>> byCode = new LinkedHashMap<>();
+        for (Diagnostic d : in.diagnostics()) byCode.computeIfAbsent(d.code(), k -> new ArrayList<>()).add(d);
+        StringBuilder findings = new StringBuilder("[");
+        for (List<Diagnostic> group : byCode.values()) {
+            Diagnostic first = group.get(0);
+            findings.append(findings.length() == 1 ? "" : ",").append(new SimulationLab.Json()
+                    .str("severity", first.severity().name().toLowerCase(Locale.ROOT))
+                    .str("message", first.message())
+                    .str("fix", first.fixIt().orElse(""))
+                    .num("more", group.size() - 1));
+        }
+        return new SimulationLab.Json()
+                .num("rows", in.responses().size())
+                .num("students", in.design().studentCount())
+                .num("assistants", in.design().graderCount())
+                .num("questions", in.design().questionCount())
+                .raw("assessments", assessments + "]")
+                .raw("findings", findings + "]")
+                .toString();
+    }
+
+    /** A synthetic course to try the tool on, with the weights it was designed with. */
+    static String sample(String shape) {
+        CourseSimulator.Archetype a = CourseSimulator.Archetype.valueOf(
+                shape.toUpperCase(Locale.ROOT).replace('-', '_'));
+        CourseSimulator.SimulatedCourse course = CourseSimulator.simulate(a, 7);
+        StringBuilder weights = new StringBuilder();
+        course.weights().forEach((k, v) -> weights.append(weights.length() == 0 ? "" : ", ").append(k).append('=')
+                .append(v.intValue()));
+        return new SimulationLab.Json()
+                .str("file", course.name() + ".csv")
+                .str("name", "Sample: " + a.description)
+                .str("weights", weights.toString())
+                .str("csv", course.marksCsv())
+                .toString();
+    }
+
+    /** The error message alone, without the exception's class name. */
+    private static String plain(RuntimeException e) {
+        return e.getMessage() == null ? e.toString() : e.getMessage();
     }
 
     private static String resource(String name) throws IOException {
@@ -138,53 +233,10 @@ public final class LocalServer {
         return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
-    private static final String PAGE = """
-            <!doctype html><html lang=en><head><meta charset=utf-8>
-            <meta name=viewport content="width=device-width,initial-scale=1"><title>Even Hand</title>
-            <style>
-            :root{--bg:#fbfaf7;--fg:#1d2433;--muted:#5d6678;--line:#d9dce3;--accent:#8a1c1c;--card:#fff}
-            @media (prefers-color-scheme:dark){:root{--bg:#14171d;--fg:#e6e8ec;--muted:#a3abba;--line:#323844;--accent:#e08a7a;--card:#1b1f27}}
-            body{background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,"Segoe UI",sans-serif;margin:0}
-            main{max-width:720px;margin:0 auto;padding:32px 16px}
-            h1{margin:0}p.sub{color:var(--muted);margin-top:4px}
-            form{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;margin-top:20px}
-            label{display:block;font-weight:600;margin:14px 0 4px}small{color:var(--muted);font-weight:400}
-            input,select{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
-            button{margin-top:18px;padding:10px 18px;border:0;border-radius:6px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}
-            #status{color:var(--muted);margin-top:10px}a{color:var(--accent);font-weight:600}
-            </style></head><body><main>
-            <h1>Even Hand</h1>
-            <p class=sub>Did it matter which TA marked the script? Runs on this computer only; the marks never leave it.
-            New here? Try the <a href="/lab">Simulation Lab</a>: a synthetic course where the truth is visible.</p>
-            <form id=f>
-              <label>Marks file (CSV) <small>one row per marked answer: roll_no, assessment, question, max_marks, marks, ta</small></label>
-              <input type=file id=file accept=".csv,text/csv" required>
-              <label>Course name</label><input id=name placeholder="CE3020 Jul-Nov 2026">
-              <label>Assessment weights <small>names exactly as in the file; blank means equal</small></label>
-              <input id=weights placeholder="Quiz 1=25, Quiz 2=25, End-sem=50">
-              <label>Grading rule</label>
-              <select id=rule>
-                <option value="relative">Relative: B at the mean, A/S at +1/+2 SD, top 10% get S</option>
-                <option value="relative-sigma">Relative, without the fixed top-10% S</option>
-                <option value="absolute:S=90,A=80,B=70,C=60,D=50,E=40">Absolute: S 90, A 80, B 70, C 60, D 50, E 40</option>
-              </select>
-              <label>Report for</label>
-              <select id=view><option value=instructor>Me (instructor): per-TA figures and re-check list</option>
-              <option value=committee>Class Committee: aggregates only</option></select>
-              <button>Analyse</button><div id=status></div>
-            </form></main>
-            <script>
-            document.getElementById('f').addEventListener('submit', async e => {
-              e.preventDefault();
-              const file = document.getElementById('file').files[0];
-              const status = document.getElementById('status');
-              status.textContent = 'Analysing ' + file.name + ' ...';
-              const q = new URLSearchParams({name: document.getElementById('name').value,
-                weights: document.getElementById('weights').value, rule: document.getElementById('rule').value,
-                view: document.getElementById('view').value});
-              const res = await fetch('/report?' + q, {method: 'POST', body: await file.text()});
-              document.open(); document.write(await res.text()); document.close();
-            });
-            </script></body></html>
+    /** A blank mark sheet in the shape most instructors already keep, ready to fill in Excel. */
+    static final String TEMPLATE = """
+            roll_no,name,ta,Q1 (10),Q2 (10),Q3 (15),Q4 (15)
+            CE26B001,Example student,TA name,7,8.5,12,9
+            CE26B002,Another student,Another TA,6,AB,10,11
             """;
 }

@@ -5,7 +5,7 @@
 
 # The wrapper must stay LF and executable wherever it is checked out.
 mvnw text eol=lf
-mvnw.cmd text eol=crlf
+*.cmd text eol=crlf
 
 *.pdf binary
 *.jar binary

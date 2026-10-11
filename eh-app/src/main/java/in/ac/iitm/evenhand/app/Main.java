@@ -71,9 +71,14 @@ public final class Main {
 
     /** Starts the local page and opens it in the instructor's browser. */
     static void serve(int port) throws IOException {
-        LocalServer.start(port);
         String url = "http://127.0.0.1:" + port + "/";
-        System.out.println("Even Hand is open at " + url + "  (this computer only; close this window to stop)");
+        try {
+            LocalServer.start(port);
+            System.out.println("Even Hand is open at " + url + "  (this computer only; close this window to stop)");
+        } catch (java.net.BindException e) {
+            // Usually a second double-click: Even Hand is already running, so just show it again.
+            System.out.println("Even Hand is already running at " + url + "; opening it in your browser.");
+        }
         try {
             if (java.awt.Desktop.isDesktopSupported()) java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
         } catch (Exception e) {
