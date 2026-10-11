@@ -21,6 +21,7 @@ It is short on purpose, and every row names the override.
 | A13 | A student with no marks at all in an assessment was absent: they met no assistant there | none needed | enforced in `ExposureAudit.shares`; a missing *question* in a paper they sat is treated as structural, not absence |
 | A14 | Where the audit says comparison rests on the piles being alike, that assumption is imposed by shrinking each student towards the class average (strength trained on the benchmark: 5 marks) | `Settings.studentShrinkage` | stated, and the re-check list is refused when piles follow the department code |
 | A15 | The marks in a simulated course follow a logistic curve with reading noise, half-mark rounding and 1% absence | `CourseSimulator` | the benchmark's own assumption; it deliberately differs from the estimator's |
+| A16 | In a one-row-per-student sheet, the TA named on a row marked every question on it, and a blank or `AB` cell is a question not answered | use the one-row-per-answer layout when TAs split a paper by question | stated on screen when the sheet is read (`WideSheet`); a second row for the same student and exam is read as a second marking |
 
 ## Three limits worth stating plainly
 

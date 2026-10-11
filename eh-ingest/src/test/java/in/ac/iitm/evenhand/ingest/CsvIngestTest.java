@@ -561,4 +561,61 @@ class CsvIngestTest {
         assertThat(result.design().graderCount()).isEqualTo(1);
         assertThat(result.keyFileContents()).contains("Krishnan, Ananya");
     }
+
+    @Test
+    @DisplayName("an ordinary mark sheet, one row per student, is read without reshaping it first")
+    void readsOneRowPerStudent() throws IOException {
+        String csv = """
+                Roll No,Name,TA,Q1 (10),Q2 [10],Q3 /15,Total (35)
+                CE23B092,Arjun,Ananya Krishnan,7,8.5,12,27.5
+                ME21B145,Divya,Rahul Venkatesh,9,AB,,9
+                """;
+
+        CsvIngest.IngestResult result = ingest(csv);
+
+        // Three questions for the first student; the second answered only Q1. Total is not a question.
+        assertThat(result.responses()).hasSize(4);
+        assertThat(result.design().questionCount()).isEqualTo(3);
+        assertThat(result.design().graderCount()).isEqualTo(2);
+        assertThat(result.responses()).extracting(r -> r.maxMarks()).contains(10.0, 15.0);
+        assertThat(result.keyFileContents()).doesNotContain("Arjun", "Divya");
+        assertThat(result.diagnostics()).noneMatch(d -> d.severity() == Diagnostic.Severity.ERROR);
+    }
+
+    @Test
+    @DisplayName("a mark sheet with no maximum in any header is refused, saying how to fix it")
+    void aMarkSheetMustSayWhatEachQuestionIsOutOf() {
+        String csv = """
+                roll_no,ta,Q1,Q2
+                CE23B092,Ananya Krishnan,7,8
+                """;
+
+        assertThatThrownBy(() -> ingest(csv))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("one row per student")
+                .hasMessageContaining("Q1 (10)");
+    }
+
+    @Test
+    @DisplayName("a bad cell in a mark sheet names the instructor's own row")
+    void aMarkSheetKeepsItsLineNumbers() throws IOException {
+        String csv = """
+                roll_no,ta,Q1 (10),Q2 (10)
+                CE23B092,Ananya Krishnan,7,8
+                ME21B145,Rahul Venkatesh,12,8
+                """;
+
+        CsvIngest.IngestResult result = ingest(csv);
+
+        assertThat(result.responses()).hasSize(3);
+        assertThat(result.diagnostics()).anySatisfy(d -> assertThat(d.render()).contains("line 3"));
+    }
+
+    @Test
+    @DisplayName("Excel's byte-order mark does not hide the first column")
+    void excelByteOrderMarkIsIgnored() throws IOException {
+        CsvIngest.IngestResult result = ingest("﻿" + WELL_FORMED);
+
+        assertThat(result.responses()).hasSize(4);
+    }
 }

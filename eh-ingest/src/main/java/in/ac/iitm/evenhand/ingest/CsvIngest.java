@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -74,7 +75,7 @@ import java.util.stream.Collectors;
 public final class CsvIngest {
 
     /** Header names recognised for each column, lower-cased with spaces and hyphens folded. */
-    private static final Map<String, List<String>> ALIASES = Map.of(
+    static final Map<String, List<String>> ALIASES = Map.of(
             "student",    List.of("student", "student_id", "studentid", "roll", "roll_no", "rollno",
                                   "roll_number", "candidate", "student_roll"),
             "question",   List.of("question", "question_id", "questionid", "item", "q", "part"),
@@ -169,7 +170,15 @@ public final class CsvIngest {
         if (headerLine == null) {
             throw new IllegalArgumentException("the file is empty; expected a header row");
         }
-        Map<String, Integer> columns = locateColumns(splitRow(headerLine), diagnostics);
+        // Excel's "CSV UTF-8" starts the file with a byte-order mark, which would hide the first header.
+        String[] header = splitRow(headerLine.startsWith("﻿") ? headerLine.substring(1) : headerLine);
+        Optional<WideSheet> wide = WideSheet.detect(header, ALIASES);
+        Map<String, Integer> columns = wide.isPresent() ? WideSheet.COLUMNS : locateColumns(header, diagnostics);
+        if (wide.isPresent()) {
+            diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                    "Read as one row per student, with " + wide.get().questionCount() + " question column(s); "
+                    + "each row's TA is taken to have marked that whole script.", List.of()));
+        }
 
         List<RawRow> rows = new ArrayList<>();
         Map<String, Integer> firstLineOfUnit = new HashMap<>();
@@ -180,23 +189,26 @@ public final class CsvIngest {
             if (line.isBlank()) {
                 continue;
             }
-            Optional<RawRow> parsed = parseRow(splitRow(line), columns, lineNumber, diagnostics);
-            if (parsed.isEmpty()) {
-                continue;
-            }
-            RawRow row = parsed.get();
-            rows.add(row);
+            String[] fields = splitRow(line);
+            for (String[] answer : wide.isPresent() ? wide.get().unpack(fields) : Collections.singletonList(fields)) {
+                Optional<RawRow> parsed = parseRow(answer, columns, lineNumber, diagnostics);
+                if (parsed.isEmpty()) {
+                    continue;
+                }
+                RawRow row = parsed.get();
+                rows.add(row);
 
-            // A second mark on the same unit is not an error; it is the observation that
-            // links two assistants, and it is what the audit most wants to find.
-            Integer previousLine = firstLineOfUnit.putIfAbsent(row.unitKey(), row.line());
-            if (previousLine != null) {
-                diagnostics.add(Diagnostic.note(
-                        Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
-                        "line " + row.line() + ": this response was already marked at line "
-                        + previousLine + ". Treated as a second marking, which is what makes the "
-                        + "two assistants comparable.",
-                        List.of()));
+                // A second mark on the same unit is not an error; it is the observation that
+                // links two assistants, and it is what the audit most wants to find.
+                Integer previousLine = firstLineOfUnit.putIfAbsent(row.unitKey(), row.line());
+                if (previousLine != null) {
+                    diagnostics.add(Diagnostic.note(
+                            Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
+                            "line " + row.line() + ": this response was already marked at line "
+                            + previousLine + ". Treated as a second marking, which is what makes the "
+                            + "two assistants comparable.",
+                            List.of()));
+                }
             }
         }
 
@@ -601,7 +613,9 @@ public final class CsvIngest {
             if (!found.containsKey(required)) {
                 throw new IllegalArgumentException(
                         "no column found for '" + required + "'. Recognised names: "
-                        + String.join(", ", ALIASES.get(required)));
+                        + String.join(", ", ALIASES.get(required))
+                        + ". (A sheet with one row per student needs a roll number column, a TA column, "
+                        + "and each question's maximum in its header, like Q1 (10).)");
             }
         }
         if (!found.containsKey("position")) {
