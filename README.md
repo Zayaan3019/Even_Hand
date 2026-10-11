@@ -51,7 +51,8 @@ flowchart TD
 
 1. **Open it.** Double-click `even-hand.cmd` (Windows) or run `./even-hand.sh`. A page opens in your
    browser. It is served by this computer only (`http://127.0.0.1:8642`), and the marks never leave it.
-   If Java is missing, the window says where to get it.
+   If Java is missing, the window says where to get it. It rebuilds itself whenever the code has
+   changed, so it always runs the latest version (the first run takes a minute or two).
 2. **Drop in your marks sheet.** The one you already keep, saved as CSV, with a column saying which
    TA marked each script. Write each question's maximum in its header, like `Q1 (10)`. The page shows
    what it read (students, TAs, questions) and anything to fix, in plain words. It also asks how much
