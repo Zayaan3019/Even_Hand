@@ -20,6 +20,31 @@ already have:
 4. **Which scripts should be looked at again?** At most 20, most consequential first. The tool
    never changes a mark; a grade changes only by a human re-mark.
 
+## The whole project in one picture
+
+```mermaid
+flowchart TD
+    A["📄 <b>Marks sheet</b><br/>the CSV the course already keeps,<br/>plus a column saying which TA marked it"]
+    A --> B["<b>1 · Ingest</b><br/>read either sheet layout, check every row,<br/>replace roll numbers and TA names with pseudonyms"]
+    B --> C{{"<b>2 · Audit</b><br/>from <i>who marked what</i> alone:<br/>can TA severity be measured?"}}
+    C -- "No" --> X["No TA is rated and no grade is questioned.<br/>The report says why, and what would<br/>make the marking checkable next time."]
+    C -- "Yes" --> D["<b>3 · Estimate</b><br/>each TA's severity in marks, with a 95% interval,<br/>and a test: could identical TAs differ this much by chance?"]
+    D --> E["<b>4 · Outcome</b><br/>grade the course twice under its own rule:<br/>as marked, and as if every TA were average"]
+    E --> F{{"Is a re-check list justified?"}}
+    F -- "Yes" --> G["At most 20 scripts,<br/>most consequential first"]
+    F -- "No" --> H["List refused, with the reason:<br/>differences within chance, nobody met a different<br/>mix of TAs, or the piles follow departments"]
+    X --> R
+    G --> R
+    H --> R
+    R["<b>5 · Report</b><br/>instructor: bottom line, TA table, re-check list<br/>Class Committee: aggregates only"]
+    R --> Z["👩‍🏫 The instructor re-marks the listed scripts.<br/>Even Hand never changes a mark."]
+
+    classDef stop fill:#fdecea,stroke:#b42318,color:#1d2433
+    classDef good fill:#e8f5ec,stroke:#1a7f37,color:#1d2433
+    class X,H stop
+    class G,Z good
+```
+
 ## Run it (Java 21+, nothing else to install)
 
 **For the professor or a TA: three steps, no training needed.**
@@ -85,14 +110,39 @@ fine. A `role` of `second` marks a checking mark that did not count towards the 
 
 ## How it works: five stages, one module each
 
+```mermaid
+flowchart TB
+    SIM["CourseSimulator<br/>7 IITM course shapes<br/>with known answers"]
+    subgraph IN["Ways in · eh-app"]
+        direction LR
+        WEB["🌐 Browser page<br/>double-click launcher"]
+        CLI["⌨️ Command line"]
+        LAB["🧪 Simulation Lab"]
+        BEN["📊 Benchmark"]
+        WEB ~~~ CLI ~~~ LAB ~~~ BEN
+    end
+    subgraph PIPE["Pipeline.run: five stages"]
+        direction LR
+        S1["<b>1 · ingest</b><br/>CsvIngest"] --> S2["<b>2 · design</b><br/>Audit"]
+        S2 --> S3["<b>3 · estimate</b><br/>SeverityEstimator"]
+        S3 --> S4["<b>4 · outcome</b><br/>Outcome"]
+        S4 --> S5["<b>5 · report</b><br/>HtmlReport"]
+    end
+    subgraph OUT["What comes out"]
+        direction LR
+        R1["report.html<br/>instructor only"]
+        R2["committee.html<br/>aggregates only"]
+        R1 ~~~ R2
+    end
+    CORE[("eh-core + eh-numerics<br/>shared types · exact arithmetic")]
+    SIM -. "synthetic courses" .-> IN
+    IN --> PIPE --> OUT
+    PIPE -.- CORE
 ```
-marks.csv ─► [1 INGEST] ─► [2 AUDIT] ─┬─► [3 ESTIMATE] ─► [4 OUTCOME] ─► [5 REPORT] ─► report.html
-            pseudonymise   who marked │   TA severity     regrade under    instructor     committee.html
-            validate       what: can  │   in marks,       the course's     + committee
-                           it be      │   bootstrap,      rule; re-check
-                           measured?  │   no-effect test  list
-                                      └─► refused: says why and names the repair
-```
+
+Everything above runs on the instructor's own computer. The page is served on 127.0.0.1 only, an
+architecture test forbids any other network use, and nothing is written to disk unless the
+instructor saves a report.
 
 | Module | Stage | Key class | What it does |
 | --- | --- | --- | --- |
@@ -103,6 +153,26 @@ marks.csv ─► [1 INGEST] ─► [2 AUDIT] ─┬─► [3 ESTIMATE] ─► [4
 | `eh-report` | 5 | `HtmlReport` | Self-contained HTML for the instructor; an aggregate-only sheet for the Class Committee. |
 | `eh-app` | — | `Pipeline`, `Main`, `LocalServer`, `SimulationLab`, `Benchmark` | `Pipeline.run` is the five stages in order; the CLI, the browser page (JDK HTTP server on 127.0.0.1, no framework), the lab and the benchmark all call it. |
 | `eh-core`, `eh-numerics` | — | `FittedModel`, `ExactRowSpace` | Shared types (`FittedModel` is the seam between measuring and grading) and exact arithmetic. |
+
+### What happens when you press *Check the marking*
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Prof as Professor or TA
+    participant Page as Browser page
+    participant EH as Even Hand on 127.0.0.1
+    Prof->>Page: drop the marks sheet (.csv)
+    Page->>EH: POST /inspect (the file's text)
+    EH-->>Page: students, TAs, questions, exams found,<br/>and any problems with how to fix them
+    Prof->>Page: set exam weights and the grading rule
+    Page->>EH: POST /analyse
+    Note over EH: ingest → audit → estimate → outcome → report<br/>a few seconds, nothing written to disk
+    EH-->>Page: both reports (pseudonyms only)<br/>plus the pseudonym → name table
+    Page-->>Prof: the report, with real roll numbers and TA names on screen
+    Prof->>Page: Save report / Save Class Committee sheet
+    Page-->>Prof: files with pseudonyms only, safe to file or forward
+```
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Where to change what:
 [`docs/CODE_MAP.md`](docs/CODE_MAP.md).
@@ -120,6 +190,17 @@ core, a question-wise elective, a rotated PG course, lab batches by department, 
 and two slot sections. It uses IITM roll numbers (`CE23B092`), quiz/end-sem weights, half marks,
 absentees and double-marked samples. Marks come from a logistic curve with reading noise and
 rounding, *not* from the model the estimator fits, so the test is honest.
+
+```mermaid
+flowchart LR
+    G["<b>CourseSimulator</b><br/>a course shape, a seed,<br/>and how differently the TAs mark"] --> T["every script is marked<br/>twice, with the same luck"]
+    T --> A["by its real TA<br/>→ marks.csv"]
+    T --> B["by a perfectly average TA<br/>→ truth.csv"]
+    A --> P["Even Hand<br/>sees only marks.csv"]
+    P --> C{{"compare"}}
+    B --> C
+    C --> M["severity error · interval coverage<br/>false alarms · grades truly moved<br/>re-check precision vs. today's practice"]
+```
 
 ```
 java -jar eh-app/target/even-hand.jar simulate ce-core 7 samples/      # one course + its answers
