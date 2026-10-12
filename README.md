@@ -155,6 +155,104 @@ instructor saves a report.
 | `eh-app` | — | `Pipeline`, `Main`, `LocalServer`, `SimulationLab`, `Benchmark` | `Pipeline.run` is the five stages in order; the CLI, the browser page (JDK HTTP server on 127.0.0.1, no framework), the lab and the benchmark all call it. |
 | `eh-core`, `eh-numerics` | — | `FittedModel`, `ExactRowSpace` | Shared types (`FittedModel` is the seam between measuring and grading) and exact arithmetic. |
 
+### The eight modules, class by class
+
+`eh` stands for *Even Hand*. Think of an exam office with one desk per stage, a shared dictionary
+and a calculator that every desk uses, and a reception that connects them:
+
+```
+Front desk  →  Inspector  →  Analyst  →  Registrar  →  Writer
+ (ingest)       (design)     (estimate)   (outcome)     (report)
+        shared dictionary (core) + exact calculator (numerics)
+              the building and its reception (app)
+```
+
+**1. `eh-core`: the shared dictionary.** No steps, only the words every module uses.
+
+| Class | In plain words |
+| --- | --- |
+| `Response` | One mark: which student, which question, which TA, the score, out of what |
+| `DesignCell`, `MarkingDesign` | Who marked what, without the marks. The audit sees only this |
+| `AllocationEvidence` | Facts about how scripts were split: roll-number blocks? by department? |
+| `AuditVerdict`, `Exposure` | The audit's answer: can TAs be compared, and could anyone have been affected |
+| `IdentifiabilityCertificate` | Proof of the audit's check, tied to this exact course |
+| `Anchoring`, `AnchoredDesign` | The convention that the TAs' severities average to zero |
+| `FittedModel`, `FacetEstimates`, `Facet` | The estimates: each TA's severity, its 95% range and the no-effect p-value; numbers for one facet (students, questions or TAs) |
+| `CutoffPolicy`, `LetterGrade` | The course's grading rule (relative or absolute, top 10% S) and the grades S to U with their points |
+| `Diagnostic` | A message: what is wrong, how serious, how to fix it |
+| `CourseProfile`, `Arrangement` | The marking set-up in words: script-wise, question-wise, and so on |
+| `Provenance`, `Provenanced`, `ScoreType` | Small labels: was a setting given or assumed; what kind of marks these are |
+
+**2. `eh-numerics`: the calculator.**
+
+| Class | In plain words |
+| --- | --- |
+| `ExactRowSpace` | The audit's linear algebra in exact fractions, so a verdict never depends on rounding |
+| `SymmetricEigen` | An independent floating-point method the tests use to cross-check it |
+
+**3. `eh-ingest`: the front desk (stage 1).** Reads the file and hides identities before anyone else sees them.
+
+| Class | In plain words |
+| --- | --- |
+| `CsvIngest` | Reads the CSV, finds columns by name, reports bad rows with line numbers, never guesses a question's maximum |
+| `WideSheet` | Reads one-row-per-student sheets, Google Forms (`31 / 40`) and Moodle (`Q. 1 /10.00`) exports, and unpacks them to one row per answer |
+| `Pseudonymiser` | Replaces identities with keyed pseudonyms: CE24B013 → "Student 12", a TA → "Assistant 3" (HMAC-SHA-256) |
+| `KeyFile` | Optionally keeps that key, encrypted under a passphrase (AES-256-GCM) |
+| `RollNumbers` | Reads department and order from roll numbers, to spot piles split by department or in blocks |
+
+**4. `eh-design`: the inspector (stage 2, the audit).** Looks only at who marked what, and decides whether TAs can be compared at all.
+
+| Class | In plain words |
+| --- | --- |
+| `ExposureAudit` | Could anyone be affected? Did students meet different mixes of TAs? |
+| `IdentifiabilityAudit` | Can each pair of TAs be compared? Verdict: estimable, only if piles were alike, partly, or not at all |
+| `DesignMatrix` | Writes "who marked what" as a 0/1 grid for the calculator |
+| `DesignProfiler` | Names the arrangement in plain words for the report |
+| `AuditReport` | Prints the audit's verdict for a dozen marking arrangements, without any marks |
+| `DriftAudit` | Asks the same question of marking order: could a late script lose, and could we tell? |
+| `CourseSimulator` | The dataset: synthetic IITM courses where each script is also marked by a perfectly average TA, so the right answer is known |
+| `DesignGenerator` | Builds marking arrangements of known shape, to test the audit against answers worked out in advance |
+
+**5. `eh-estimate`: the analyst (stage 3).** Works out how strict each TA was, how sure we are, and whether it could be luck.
+
+| Class | In plain words |
+| --- | --- |
+| `Observations` | Turns every mark into a percentage of its maximum (8/10 → 80) and gives longer questions more weight |
+| `Backfit` | The rounds of guessing: students, then questions, then TAs, until the numbers settle |
+| `SeverityEstimator` | Runs `Backfit` once, then 200 resamples for the ranges and 99 reshuffles for the no-effect test, and returns a `FittedModel` |
+| `Settings` | The dials: shrinkage (5 and 50), 200 resamples, 99 reshuffles, a fixed random seed |
+
+**6. `eh-outcome`: the registrar (stage 4).** Asks whose grade would change.
+
+| Class | In plain words |
+| --- | --- |
+| `Composite` | Each student's weighted total, as marked and as corrected (the severity given back) |
+| `GradingRule` | Letter grades under the course's own rule: B at the class mean with SD bands and top 10% S, or fixed cut-offs |
+| `Outcome` | Compares the two grades over the 200 resamples, keeps students who change in at least 1 in 5, ranks them, caps the list at 20, or refuses and says why (`Gate`) |
+
+**7. `eh-report`: the writer (stage 5).**
+
+| Class | In plain words |
+| --- | --- |
+| `ReportInput` | Everything the report needs, in one place |
+| `HtmlReport` | The instructor report (bottom line, TA table and chart, grade changes, re-check list) and the Class Committee sheet (totals only) |
+
+**8. `eh-app`: the building and its reception.** What you actually run.
+
+| Part | In plain words |
+| --- | --- |
+| `Pipeline` | Walks the file through the five stages in order |
+| `Main` | The commands: `serve` (open the page) and `run file.csv` (terminal) |
+| `LocalServer` | A small web server on 127.0.0.1 only: serves the page and runs the pipeline on each click |
+| `upload.html` | The page: drop a file, check what was read, set weights, read the report |
+| `CourseConfig` | The instructor's choices: course name, exam weights, grading rule |
+| `SimulationLab`, `lab.html` | One synthetic course through the real pipeline, with the true answers shown beside the estimates |
+| `Benchmark` | Picks the shrinkage dials on training courses, then tests everything once on courses it never saw |
+
+In one line: a shared vocabulary (`core`), an exact calculator (`numerics`), one module per stage
+(`ingest`, `design`, `estimate`, `outcome`, `report`), and `app`, which connects them for the
+browser, the terminal, the lab and the benchmark.
+
 ### What happens when you press *Check the marking*
 
 ```mermaid
