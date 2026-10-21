@@ -33,5 +33,15 @@ if errorlevel 1 (
   )
 )
 
+rem The answer-reading model is fetched once (87 MB) and checked against its pinned SHA-256.
+rem Even Hand itself never goes online.
+set "MODEL=%EVEN_HAND_MODEL%"
+if not defined MODEL set "MODEL=%USERPROFILE%\.even-hand\models\all-MiniLM-L6-v2"
+if not exist "%MODEL%\model.safetensors" (
+  echo Fetching the answer-reading model once ^(87 MB^).
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\fetch-model.ps1"
+  if errorlevel 1 echo Could not fetch it now. Answers will be compared by wording only until it is fetched.
+)
+
 java -jar "%JAR%" serve
 pause

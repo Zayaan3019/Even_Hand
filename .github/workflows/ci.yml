@@ -19,6 +19,16 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      # The embedding model is pinned by revision and SHA-256, so the cache key never goes stale.
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.even-hand/models
+          key: minilm-1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+
+      - name: Fetch the embedding model
+        run: sh scripts/fetch-model.sh
+
       - name: Build and test
         run: ./mvnw -B verify
 
@@ -43,4 +53,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.even-hand/models
+          key: minilm-1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+      - run: sh scripts/fetch-model.sh
       - run: ./mvnw -B -Pstats verify

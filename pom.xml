@@ -26,6 +26,7 @@
       eh-core      shared vocabulary: records, sealed verdicts, grades, the FittedModel seam
       eh-numerics  exact integer rank for the audit
       eh-ingest    CSV parsing and pseudonymisation          (stage 1)
+      eh-embed     answer text to vectors: our own transformer forward pass, lexical fallback
       eh-design    who-marked-what audit; IITM course simulator (stage 2)
       eh-estimate  TA severity in marks, bootstrap, no-effect test (stage 3)
       eh-outcome   IITM grading rules, grade changes, re-check list (stage 4)
@@ -40,6 +41,7 @@
     <module>eh-core</module>
     <module>eh-numerics</module>
     <module>eh-ingest</module>
+    <module>eh-embed</module>
     <module>eh-design</module>
     <module>eh-estimate</module>
     <module>eh-outcome</module>
@@ -72,6 +74,11 @@
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-ingest</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-embed</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

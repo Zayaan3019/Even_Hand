@@ -11,4 +11,9 @@ if [ ! -f "$JAR" ] || [ -n "$(find pom.xml eh-*/pom.xml eh-*/src -newer "$JAR" -
   echo "Building the latest version of Even Hand. This takes a minute or two."
   ./mvnw -q clean package -DskipTests || { echo "The build failed. The messages above say why."; exit 1; }
 fi
+MODEL="${EVEN_HAND_MODEL:-$HOME/.even-hand/models/all-MiniLM-L6-v2}"
+if [ ! -f "$MODEL/model.safetensors" ]; then
+  echo "Fetching the answer-reading model once (87 MB). Even Hand itself never goes online."
+  sh scripts/fetch-model.sh || echo "Could not fetch it now; answers will be compared by wording only until it is fetched."
+fi
 exec java -jar "$JAR" serve

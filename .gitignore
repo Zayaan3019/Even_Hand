@@ -24,3 +24,7 @@ even-hand-report/
 
 # jqwik keeps a local database of failing examples; it is per-machine state.
 .jqwik-database
+
+# A local copy of the embedding model (fetched by scripts/fetch-model); never committed.
+models/
+*.part
