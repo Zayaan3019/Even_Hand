@@ -129,6 +129,29 @@ class AnswerIngestTest {
     }
 
     @Test
+    @DisplayName("a KEY row is the instructor's answer key: kept as each question's reference, never a student")
+    void answerKeyRow() throws IOException {
+        String csv = "roll_no,ta,Q1 (10),Q1 answer,Q2 (5),Q2 answer\n"
+                + "KEY,,,\"Moment is maximum where shear is zero.\",,\"Tension, 25 kN.\"\n"
+                + "CE23B092,Ravi,7,Max moment at zero shear.,3,Tension\n"
+                + "ME21B145,Meena,4,At the support.,2,Compression\n";
+        CsvIngest.IngestResult r = ingest(csv);
+        assertThat(r.design().studentCount()).isEqualTo(2);
+        assertThat(r.responses()).hasSize(4);
+        assertThat(r.references()).hasSize(2);
+        int q1 = r.design().questionLabels().indexOf("Q1");
+        assertThat(r.references().get(q1)).isEqualTo("Moment is maximum where shear is zero.");
+        assertThat(r.diagnostics()).anyMatch(d -> d.message().contains("answer key was found for 2"));
+
+        String longForm = "roll_no,question,ta,marks,max_marks,answer\n"
+                + "Answer key,Q1,,10,10,The reference answer.\n"
+                + "CE23B092,Q1,Ravi,7,10,A student answer.\n";
+        CsvIngest.IngestResult l = ingest(longForm);
+        assertThat(l.design().studentCount()).isEqualTo(1);
+        assertThat(l.references()).containsValue("The reference answer.");
+    }
+
+    @Test
     @DisplayName("files without answers read exactly as before: one empty answer per response")
     void noAnswers() throws IOException {
         CsvIngest.IngestResult r = ingest("roll_no,question,ta,marks,max_marks\nCE23B092,Q1,Ravi,7,10\n");

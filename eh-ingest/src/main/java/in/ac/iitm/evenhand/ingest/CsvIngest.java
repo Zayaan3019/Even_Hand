@@ -97,6 +97,15 @@ public final class CsvIngest {
             "answer",     List.of("answer", "answer_text", "response", "response_text", "student_answer",
                                   "written_answer", "text", "answer_script"));
 
+    /** Roll numbers that mark the instructor's answer key rather than a student. */
+    private static final Set<String> KEY_WORDS = Set.of("key", "answer_key", "answerkey", "model_answer", "model",
+            "reference", "reference_answer", "solution", "solutions", "marking_scheme", "scheme");
+
+    /** Whether a roll-number cell names the answer key. */
+    static boolean isKey(String student) {
+        return KEY_WORDS.contains(WideSheet.fold(student.replace("\"", "")));
+    }
+
     private static final Set<String> RECORD_WORDS = Set.of(
             "record", "of_record", "primary", "official", "counts", "final", "yes", "y", "true", "1");
     private static final Set<String> SECOND_WORDS = Set.of(
@@ -127,6 +136,8 @@ public final class CsvIngest {
      * @param answers         what the student wrote, parallel to {@code responses}: the empty
      *                        string where the file carries no text. Roll numbers, e-mail
      *                        addresses and TA names inside an answer are already replaced.
+     * @param references      the instructor's model answer per question index, from a row whose
+     *                        roll number reads KEY (or Answer key, Model answer, Solution); never a student
      */
     public record IngestResult(List<Response> responses,
                                MarkingDesign design,
@@ -134,13 +145,15 @@ public final class CsvIngest {
                                String keyFileContents,
                                String saltFingerprint,
                                List<String> assessmentLabels,
-                               List<String> answers) {
+                               List<String> answers,
+                               Map<Integer, String> references) {
 
         public IngestResult {
             responses = List.copyOf(responses);
             diagnostics = List.copyOf(diagnostics);
             assessmentLabels = List.copyOf(assessmentLabels);
             answers = List.copyOf(answers);
+            references = Map.copyOf(references);
             if (answers.size() != responses.size()) {
                 throw new IllegalArgumentException("one answer (possibly empty) is needed per response");
             }
@@ -207,6 +220,7 @@ public final class CsvIngest {
         }
 
         List<RawRow> rows = new ArrayList<>();
+        Map<String, String> keyAnswers = new LinkedHashMap<>();
         Map<String, Integer> firstLineOfUnit = new HashMap<>();
         CsvRecords.Record record;
         while ((record = records.next()) != null) {
@@ -216,6 +230,14 @@ public final class CsvIngest {
             }
             String[] fields = record.fields();
             for (String[] answer : wide.isPresent() ? wide.get().unpack(fields) : Collections.singletonList(fields)) {
+                if (isKey(field(answer, columns.get("student")))) {
+                    // The instructor's model answer: a reference for what a good answer says, never a student.
+                    String text = columns.containsKey("answer") ? field(answer, columns.get("answer")).strip() : "";
+                    String assessment = columns.containsKey("assessment") ? field(answer, columns.get("assessment")).strip() : "";
+                    String question = field(answer, columns.get("question")).strip();
+                    if (!text.isEmpty() && !question.isEmpty()) keyAnswers.put(assessment + SEPARATOR + question, text);
+                    continue;
+                }
                 Optional<RawRow> parsed = parseRow(answer, columns, lineNumber, diagnostics);
                 if (parsed.isEmpty()) {
                     continue;
@@ -249,7 +271,7 @@ public final class CsvIngest {
         if (maxima == null) {
             return new IngestResult(List.of(), MarkingDesign.of(List.of(), List.of(), List.of(), List.of()),
                     diagnostics, pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(), List.of(),
-                    List.of());
+                    List.of(), Map.of());
         }
 
         List<RawRow> valid = new ArrayList<>();
@@ -322,9 +344,19 @@ public final class CsvIngest {
                     scrubber.replacements() + " roll number(s), e-mail address(es) or TA name(s) written inside "
                     + "answers were replaced by placeholders before the answers were read.", List.of()));
         }
+        Map<Integer, String> references = new LinkedHashMap<>();
+        for (Map.Entry<String, String> k : keyAnswers.entrySet()) {
+            Integer q = questionIndex.get(k.getKey());
+            if (q != null) references.put(q, k.getValue());
+        }
+        if (!keyAnswers.isEmpty()) {
+            diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                    "An answer key was found for " + references.size() + " question(s). It is used as a reference "
+                    + "for what a good answer says, and is not counted as a student.", List.of()));
+        }
         return new IngestResult(responses, design, diagnostics,
                 pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(),
-                List.copyOf(assessmentIndex.keySet()), answers);
+                List.copyOf(assessmentIndex.keySet()), answers, references);
     }
 
     /**

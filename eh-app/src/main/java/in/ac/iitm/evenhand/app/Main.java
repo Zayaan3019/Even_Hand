@@ -6,6 +6,7 @@ import in.ac.iitm.evenhand.core.FittedModel;
 import in.ac.iitm.evenhand.embed.Embedders;
 import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
+import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.outcome.Outcome;
 import in.ac.iitm.evenhand.report.HtmlReport;
 
@@ -33,7 +34,7 @@ public final class Main {
 
               serve [--port 8642]                 opens the tool in your browser (this computer only)
 
-              run <marks.csv> [--name "CE3020 Jul-Nov 2026"] [--weights "Quiz 1=25,Quiz 2=25,End-sem=50"]
+              run <marks.csv|.xlsx> [--name "CE3020 Jul-Nov 2026"] [--weights "Quiz 1=25,Quiz 2=25,End-sem=50"]
                   [--rule relative | relative-sigma | absolute:S=90,A=80,B=70,C=60,D=50,E=40]
                   [--out <dir>] [--seal-key-with-env <VAR>]
                   Audits the marking, reads the written answers if the file has them, estimates each TA's
@@ -54,7 +55,9 @@ public final class Main {
         Map<String, String> flags = flags(args);
         switch (args[0]) {
             case "run" -> {
-                if (args.length < 2 || args[1].startsWith("--")) throw new IllegalArgumentException("run needs a CSV file");
+                if (args.length < 2 || args[1].startsWith("--")) {
+                    throw new IllegalArgumentException("run needs a marks file (.csv or .xlsx)");
+                }
                 run(Path.of(args[1]), flags);
             }
             case "serve" -> serve(Integer.parseInt(flags.getOrDefault("port", String.valueOf(LocalServer.DEFAULT_PORT))));
@@ -91,14 +94,15 @@ public final class Main {
     }
 
     static void run(Path csv, Map<String, String> flags) throws IOException {
-        String name = flags.getOrDefault("name", csv.getFileName().toString().replaceFirst("(?i)\\.csv$", ""));
+        String name = flags.getOrDefault("name", csv.getFileName().toString().replaceFirst("(?i)\\.(csv|xlsx)$", ""));
         CourseConfig config = new CourseConfig(name,
                 flags.containsKey("weights") ? CourseConfig.parseWeights(flags.get("weights")) : Map.of(),
                 CourseConfig.parseRule(flags.getOrDefault("rule", "relative")),
                 flags.containsKey("rule"));
         Path out = Path.of(flags.getOrDefault("out", "even-hand-report"));
 
-        String text = Files.readString(csv, StandardCharsets.UTF_8);
+        byte[] bytes = Files.readAllBytes(csv);
+        String text = XlsxReader.looksLikeXlsx(bytes) ? XlsxReader.toCsv(bytes) : new String(bytes, StandardCharsets.UTF_8);
         Pipeline.Run result = Pipeline.run(text, Pseudonymiser.withRandomSalt(), config, Pipeline.Options.defaults(),
                 (stage, fraction) -> System.err.printf(Locale.ROOT, "\r%3.0f%%  %-70s", 100 * fraction, stage));
         System.err.println();

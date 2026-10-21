@@ -201,12 +201,14 @@ final class WideSheet {
         String who = cell(fields, student);
         if (who.isEmpty()) return out;    // an export's footer, such as an LMS's "Overall average" row
         Matcher email = ROLL_EMAIL.matcher(who);
+        // (an answer-key row keeps every question, marked or not; ingest reads it as the reference)
         if (email.matches()) who = email.group(1).toUpperCase(Locale.ROOT);
-        String ta = cell(fields, grader);
+        boolean key = CsvIngest.isKey(who);
+        String ta = key ? "" : cell(fields, grader);
         String exam = assessment < 0 ? "" : cell(fields, assessment);
         for (int k = 0; k < questions.size(); k++) {
             String mark = cell(fields, questionColumns.get(k));
-            if (NOT_ANSWERED.contains(mark.toLowerCase(Locale.ROOT))) continue;
+            if (!key && NOT_ANSWERED.contains(mark.toLowerCase(Locale.ROOT))) continue;
             String max = maxima.get(k);
             if (scoreOutOf) {
                 Matcher m = SCORE_OUT_OF.matcher(mark);

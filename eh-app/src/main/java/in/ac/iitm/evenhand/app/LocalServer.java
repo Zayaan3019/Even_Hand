@@ -7,6 +7,7 @@ import in.ac.iitm.evenhand.embed.Embedders;
 import in.ac.iitm.evenhand.ingest.CsvIngest;
 import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
+import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.report.HtmlReport;
 
 import java.io.BufferedReader;
@@ -221,8 +222,8 @@ public final class LocalServer {
                 Pseudonymiser.withRandomSalt());
         List<String> assessments = new ArrayList<>();
         for (String a : in.assessmentLabels()) assessments.add(Json.quote(a));
-        Map<Diagnostic.Code, List<Diagnostic>> byCode = new LinkedHashMap<>();
-        for (Diagnostic d : in.diagnostics()) byCode.computeIfAbsent(d.code(), k -> new ArrayList<>()).add(d);
+        Map<String, List<Diagnostic>> byCode = new LinkedHashMap<>();
+        for (Diagnostic d : in.diagnostics()) byCode.computeIfAbsent(HtmlReport.kindOf(d), k -> new ArrayList<>()).add(d);
         List<String> findings = new ArrayList<>();
         for (List<Diagnostic> group : byCode.values()) {
             Diagnostic first = group.get(0);
@@ -238,6 +239,7 @@ public final class LocalServer {
                 .num("assistants", in.design().graderCount())
                 .num("questions", in.design().questionCount())
                 .num("answers", in.answerCount())
+                .num("keys", in.references().size())
                 .raw("assessments", Json.array(assessments))
                 .raw("findings", Json.array(findings))
                 .toString();
@@ -255,9 +257,11 @@ public final class LocalServer {
         }
     }
 
+    /** The uploaded file as CSV text: a CSV as sent, an Excel workbook's first sheet converted. */
     private static String readBody(InputStream in) throws IOException {
         byte[] bytes = in.readNBytes(MAX_UPLOAD_BYTES + 1);
         if (bytes.length > MAX_UPLOAD_BYTES) throw new IllegalArgumentException("The file is larger than 50 MB.");
+        if (XlsxReader.looksLikeXlsx(bytes)) return XlsxReader.toCsv(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 

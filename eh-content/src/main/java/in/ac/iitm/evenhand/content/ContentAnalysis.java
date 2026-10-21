@@ -49,13 +49,20 @@ public final class ContentAnalysis {
      * @param vectors   unit embedding per response (null where no answer)
      * @param embedder  what produced the vectors
      * @param semantic  a language model (true) or the lexical fallback
+     * @param references the instructor's answer key, embedded, by question index (may be empty)
      */
     public record Input(List<Response> responses, List<String> answers, float[][] vectors,
-                        MarkingDesign design, String embedder, boolean semantic) {
+                        MarkingDesign design, String embedder, boolean semantic, Map<Integer, float[]> references) {
         public Input {
             if (answers.size() != responses.size() || vectors.length != responses.size()) {
                 throw new IllegalArgumentException("one answer and one vector (or null) per response");
             }
+            references = Map.copyOf(references);
+        }
+
+        public Input(List<Response> responses, List<String> answers, float[][] vectors, MarkingDesign design,
+                     String embedder, boolean semantic) {
+            this(responses, answers, vectors, design, embedder, semantic, Map.of());
         }
     }
 
@@ -111,9 +118,11 @@ public final class ContentAnalysis {
             for (int k = 0; k < students; k++) xi[k] = -Math.log(1 - rng.nextDouble());   // Exp(1)
             draws[b] = SeverityGraph.solve(pairs, groups, graders, s.severityShrinkage(), xi);
         });
-        double[] se = standardErrors(draws, graders);
         double observed = SeverityGraph.spread(severity, groups);
-        double pValue = recentredP(draws, severity, groups, observed);
+        double pValue = recentredP(draws, severity, groups, observed, s.margin());
+        double[] sampling = standardErrors(draws, graders);
+        biasAware(draws, severity, s.margin());
+        double[] se = standardErrors(draws, graders);
 
         int[] pairCount = new int[graders];
         for (Matching.Pair p : pairs) {
@@ -121,7 +130,7 @@ public final class ContentAnalysis {
             pairCount[p.gb()]++;
         }
         List<ContentResult.QuestionSummary> summaries = new ArrayList<>();
-        double signalNum = 0, signalDen = 0;
+        double sse = 0, withinSs = 0;
         int answered = 0, matched = 0;
         for (Matching q : questions) {
             int qPairs = 0;
@@ -134,13 +143,14 @@ public final class ContentAnalysis {
             int assistants = (int) Arrays.stream(q.grader).distinct().count();
             summaries.add(new ContentResult.QuestionSummary(q.label, q.size(), q.model.signal, qPairs, assistants));
             if (qPairs > 0) {
-                signalNum += q.size() * q.model.signal;
-                signalDen += q.size();
+                sse += q.model.sse;
+                withinSs += q.model.withinSs;
             }
             answered += q.size();
             for (boolean h : has) if (h) matched++;
         }
-        double signal = signalDen == 0 ? 0 : signalNum / signalDen;
+        // Pooled over questions: small questions' noisy R^2 values are not averaged, their sums are added.
+        double signal = withinSs <= 0 ? 0 : 1 - sse / withinSs;
         double matchedShare = answered == 0 ? 0 : matched / (double) answered;
 
         ContentResult.Status status;
@@ -167,13 +177,13 @@ public final class ContentAnalysis {
         List<ContentResult.PairEvidence> sameDifferent = sameAnswerDifferentMarks(pairs, in, s);
         List<ContentResult.PairEvidence> inconsistent = sameAssistantInconsistent(questions, in, s);
         List<ContentResult.OutOfLine> outOfLine = status == ContentResult.Status.NO_TEXT ? List.of()
-                : outOfLine(questions, severity, in, s);
+                : signal < s.minSignal() ? List.<ContentResult.OutOfLine>of() : outOfLine(questions, severity, in, s);
 
         Optional<CausalFindings> causal = pairs.isEmpty() ? Optional.empty()
                 : Optional.of(causal(questions, pairs, groups, severity, se, draws, observed, outOfLine, in, s));
 
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, summaries, labels, severity, se,
-                pairCount, groups, draws, pValue, observed, signal, matchedShare, sameDifferent, inconsistent,
+                sampling, pairCount, groups, draws, pValue, observed, signal, matchedShare, sameDifferent, inconsistent,
                 outOfLine, causal, notes);
     }
 
@@ -209,10 +219,19 @@ public final class ContentAnalysis {
                 text[k] = in.answers().get(idx.get(k));
             }
             Response first = in.responses().get(idx.get(0));
-            Matching m = new Matching(e.getKey(), label, first.maxMarks(), resp, x, y, g, st, text);
-            m.model = ContentModel.fit(x, y, g, st, in.design().graderCount(), s.folds(), s.seed());
+            out.add(new Matching(e.getKey(), label, first.maxMarks(), resp, x, y, g, st, text));
+        }
+        // What every question shares first (key, consensus, length), then what each one's embedding adds.
+        Map<Matching, double[]> offsets = out.isEmpty() ? Map.of()
+                : PooledQuality.offsets(out, in.references(), s.folds(), s.seed());
+        for (Matching m : out) {
+            m.model = ContentModel.fit(m.x, m.y, m.grader, m.student, in.design().graderCount(), s.folds(), s.seed(),
+                    offsets.get(m));
             m.findNeighbours(caliper);
-            out.add(m);
+        }
+        if (!in.references().isEmpty()) {
+            notes.add("The answer key was used for " + in.references().size() + " question(s): closeness to it is one "
+                    + "of the signs of quality the comparison allows for.");
         }
         if (!skipped.isEmpty()) {
             notes.add("Not compared, too few written answers (fewer than " + MIN_ANSWERS_PER_QUESTION + "): "
@@ -237,14 +256,37 @@ public final class ContentAnalysis {
         return se;
     }
 
-    /** Share of draws, recentred on the estimate (a no-effect world), at least as spread as the estimate. */
-    private static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed) {
+    /**
+     * Widens each assistant's draws about the estimate so that their 95% interval grows by {@code allowance}
+     * on each side: a bias-aware interval. Every interval, standard error and re-check probability
+     * downstream then carries the allowance for what the answers' embedding cannot see.
+     */
+    static void biasAware(double[][] draws, double[] estimate, double allowance) {
+        if (draws.length < 2 || allowance <= 0) return;
+        for (int j = 0; j < estimate.length; j++) {
+            double[] c = new double[draws.length];
+            for (int b = 0; b < c.length; b++) c[b] = draws[b][j];
+            Arrays.sort(c);
+            double lo = c[(int) Math.floor(0.025 * (c.length - 1))], hi = c[(int) Math.ceil(0.975 * (c.length - 1))];
+            double half = Math.max(1e-6, (hi - lo) / 2);
+            double factor = (half + allowance) / half;
+            for (double[] d : draws) d[j] = estimate[j] + (d[j] - estimate[j]) * factor;
+        }
+    }
+
+    /**
+     * Share of draws, recentred on the estimate (a world where the assistants do not differ), whose spread
+     * comes within {@code margin} of the estimate's: the test that the assistants differ by more than the
+     * smallest difference worth reporting.
+     */
+    private static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed,
+                                     double margin) {
         if (draws.length == 0) return Double.NaN;
         int count = 0;
         for (double[] d : draws) {
             double[] c = new double[d.length];
             for (int j = 0; j < d.length; j++) c[j] = d[j] - est[j];
-            if (SeverityGraph.spread(c, groups) >= observed) count++;
+            if (SeverityGraph.spread(c, groups) >= observed - margin) count++;
         }
         return (1.0 + count) / (1.0 + draws.length);
     }
@@ -304,7 +346,7 @@ public final class ContentAnalysis {
                                                            ContentSettings s) {
         List<ContentResult.OutOfLine> all = new ArrayList<>();
         for (Matching q : questions) {
-            if (q.model.signal < s.minSignal()) continue;
+            if (q.model.signal <= 0) continue;
             int n = q.size();
             double[] e = new double[n];
             for (int i = 0; i < n; i++) e[i] = q.y[i] - q.model.predicted[i];
@@ -447,9 +489,10 @@ public final class ContentAnalysis {
                 if (p.ga() != g && p.gb() != g) continue;
                 int me = p.ga() == g ? p.i() : p.j();
                 if (!seen.add(p.q().question + ":" + me)) continue;
-                // evidence that g is harsh: the other answer got more than g's, beyond content
-                // the pair's estimate of g's severity, read against the average assistant as the estimate is
-                double harsh = p.ga() == g ? -p.difference() + severity[p.gb()] : p.difference() + severity[p.ga()];
+                // Equal marks are ties, dropped as in any sign test; otherwise the pair says g marked the
+                // same content lower (harsher) or higher than the other TA did.
+                if (Math.abs(p.raw()) < 1e-9) continue;
+                double harsh = p.ga() == g ? -p.difference() : p.difference();
                 if (Math.abs(harsh) < 1e-9) continue;
                 nonzero++;
                 if (harsh > 0) positive++;
@@ -530,7 +573,7 @@ public final class ContentAnalysis {
             double spread = SeverityGraph.spread(SeverityGraph.solve(fake, groups, graders, s.severityShrinkage(), null),
                     groups);
             spreads[k] = spread;
-            atLeast[k] = spread >= observed ? 1 : 0;
+            atLeast[k] = spread >= observed - s.margin() ? 1 : 0;
         });
         int count = Arrays.stream(atLeast).sum();
         return new CausalFindings.Placebo((1.0 + count) / (1.0 + PLACEBO_SHUFFLES), PLACEBO_SHUFFLES,
@@ -687,7 +730,7 @@ public final class ContentAnalysis {
                                        List<String> notes) {
         int g = labels.size();
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, List.of(), labels, new double[g],
-                new double[g], new int[g], List.of(), new double[0][], Double.NaN, 0, 0, 0, List.of(), List.of(),
+                new double[g], new double[g], new int[g], List.of(), new double[0][], Double.NaN, 0, 0, 0, List.of(), List.of(),
                 List.of(), Optional.empty(), notes);
     }
 

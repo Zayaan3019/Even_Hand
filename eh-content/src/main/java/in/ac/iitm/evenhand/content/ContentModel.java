@@ -23,31 +23,44 @@ import in.ac.iitm.evenhand.numerics.Cholesky;
  */
 final class ContentModel {
 
-    private static final double[] PENALTY_GRID = {0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0};
+    /** Penalties relative to the data's scale; the last two let cross-validation say "the embedding adds nothing". */
+    private static final double[] PENALTY_GRID = {0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 10.0, 1e6};
 
     /** Per answer, from the fold that held it out: prediction, content score, and that fold's beta. */
     final double[] predicted;
     final double[] contentScore;
     final double[][] beta;      // [fold][dim]
     final int[] foldOf;
+    /** The pooled quality model's part of each prediction ({@link PooledQuality}); zeros without it. */
+    final double[] offset;
     /** Cross-validated share of within-assistant variation the content explains (may be negative). */
     final double signal;
+    /** The two sums {@link #signal} is made of, so questions can be pooled: residual and within-pile. */
+    final double sse, withinSs;
     final double penalty;
 
-    private ContentModel(double[] predicted, double[] contentScore, double[][] beta, int[] foldOf,
-                         double signal, double penalty) {
+    private ContentModel(double[] predicted, double[] contentScore, double[][] beta, int[] foldOf, double[] offset,
+                         double sse, double withinSs, double penalty) {
+        this.sse = sse;
+        this.withinSs = withinSs;
+        double signal = withinSs <= 0 ? 0 : 1 - sse / withinSs;
         this.predicted = predicted;
         this.contentScore = contentScore;
         this.beta = beta;
         this.foldOf = foldOf;
+        this.offset = offset;
         this.signal = signal;
         this.penalty = penalty;
     }
 
-    /** {@code beta . (x_i - x_j)} with the fold that held {@code i} out: the content difference in points. */
+    /**
+     * How much more answer {@code i} is expected to earn than answer {@code j} from what the two say, in
+     * points: the pooled quality model's difference plus {@code beta . (x_i - x_j)}, with the fold that
+     * held {@code i} out.
+     */
     double contentDifference(float[][] x, int i, int j) {
         double[] b = beta[foldOf[i]];
-        double s = 0;
+        double s = offset[i] - offset[j];
         float[] xi = x[i], xj = x[j];
         for (int c = 0; c < b.length; c++) s += b[c] * (xi[c] - xj[c]);
         return s;
@@ -60,12 +73,23 @@ final class ContentModel {
      * @param student student of each answer; folds are formed from students
      */
     static ContentModel fit(float[][] x, double[] y, int[] grader, int[] student, int graders, int folds, long seed) {
-        int n = y.length;
+        return fit(x, y, grader, student, graders, folds, seed, new double[y.length]);
+    }
+
+    /**
+     * As above, on top of a cross-fitted {@code offset} from the pooled quality model: the ridge then
+     * learns only what the embedding adds to it, and every prediction includes it.
+     */
+    static ContentModel fit(float[][] x, double[] yTotal, int[] grader, int[] student, int graders, int folds,
+                            long seed, double[] offset) {
+        int n = yTotal.length;
         int d = n == 0 ? 0 : x[0].length;
         int[] foldOf = new int[n];
-        for (int i = 0; i < n; i++) foldOf[i] = Math.floorMod(mix(student[i] * 0x9E3779B97F4A7C15L + seed), folds);
+        for (int i = 0; i < n; i++) foldOf[i] = fold(student[i], folds, seed);
+        double[] y = new double[n];
+        for (int i = 0; i < n; i++) y[i] = yTotal[i] - offset[i];
 
-        double withinSs = withinSumOfSquares(y, grader, graders, null);
+        double withinSs = withinSumOfSquares(yTotal, grader, graders, null);
         double[][] predByPenalty = new double[PENALTY_GRID.length][n];
         double[][][] betaByPenalty = new double[PENALTY_GRID.length][folds][];
         for (int f = 0; f < folds; f++) {
@@ -88,8 +112,9 @@ final class ContentModel {
         int best = 0;
         double bestSse = Double.POSITIVE_INFINITY;
         for (int p = 0; p < PENALTY_GRID.length; p++) {
+            for (int i = 0; i < n; i++) predByPenalty[p][i] += offset[i];
             double sse = 0;
-            for (int i = 0; i < n; i++) sse += sq(y[i] - predByPenalty[p][i]);
+            for (int i = 0; i < n; i++) sse += sq(yTotal[i] - predByPenalty[p][i]);
             if (sse < bestSse - 1e-12) {
                 bestSse = sse;
                 best = p;
@@ -97,9 +122,14 @@ final class ContentModel {
         }
         double[][] beta = betaByPenalty[best];
         double[] score = new double[n];
-        for (int i = 0; i < n; i++) score[i] = dot(beta[foldOf[i]], x[i]);
-        double signal = withinSs <= 0 ? 0 : 1 - bestSse / withinSs;
-        return new ContentModel(predByPenalty[best], score, beta, foldOf, signal, PENALTY_GRID[best]);
+        for (int i = 0; i < n; i++) score[i] = offset[i] + dot(beta[foldOf[i]], x[i]);
+        return new ContentModel(predByPenalty[best], score, beta, foldOf, offset.clone(), bestSse, withinSs,
+                PENALTY_GRID[best]);
+    }
+
+    /** The cross-fitting fold of a student: the same in every question and in the pooled model. */
+    static int fold(int student, int folds, long seed) {
+        return Math.floorMod(mix(student * 0x9E3779B97F4A7C15L + seed), folds);
     }
 
     /** One training fold, centred within each assistant, ready to be solved for any penalty. */

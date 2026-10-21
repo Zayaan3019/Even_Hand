@@ -26,11 +26,17 @@ record UntDataset(List<Question> questions) {
         }
     }
 
-    /** Assignments 1-10 were graded 0..5, the two exams (11, 12) 0..10. */
-    record Question(String id, double maxMarks, List<Answer> answers) {}
+    /** Assignments 1-10 were graded 0..5, the two exams (11, 12) 0..10; {@code key} is the instructor's answer. */
+    record Question(String id, double maxMarks, String key, List<Answer> answers) {}
 
     static UntDataset load(Path root) throws IOException {
         Path data = Files.isDirectory(root.resolve("data")) ? root.resolve("data") : root;
+        java.util.Map<String, String> keys = new java.util.HashMap<>();
+        for (String line : Files.readAllLines(data.resolve("raw").resolve("answers"), StandardCharsets.ISO_8859_1)) {
+            String t = line.strip();
+            int sp = t.indexOf(' ');
+            if (sp > 0) keys.put(t.substring(0, sp), t.substring(sp + 1).replace("<br>", "\n").strip());
+        }
         List<Question> out = new ArrayList<>();
         for (String line : Files.readAllLines(data.resolve("docs").resolve("files"), StandardCharsets.UTF_8)) {
             String id = line.strip();
@@ -54,7 +60,7 @@ record UntDataset(List<Question> questions) {
                 double a = Double.parseDouble(ta.get(i).strip()), b = Double.parseDouble(second.get(i).strip());
                 answers.add(new Answer(text, Math.min(max, a), Math.min(max, b)));
             }
-            out.add(new Question(id, max, answers));
+            out.add(new Question(id, max, keys.getOrDefault(id, ""), answers));
         }
         return new UntDataset(out);
     }

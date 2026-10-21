@@ -127,20 +127,37 @@ public final class Pipeline {
             Embedders.Choice choice = options.embedder().get();
             embedderNote = choice.note();
             embedderId = choice.embedder().id();
-            float[][] vectors = embed(choice.embedder(), ingest.answers(), progress, 0.27, 0.80);
+            List<String> texts = new ArrayList<>(ingest.answers());
+            List<Integer> keyQuestions = new ArrayList<>(ingest.references().keySet());
+            for (int q : keyQuestions) texts.add(ingest.references().get(q));
+            float[][] all = embed(choice.embedder(), texts, progress, 0.27, 0.80);
+            float[][] vectors = java.util.Arrays.copyOf(all, ingest.answers().size());
+            Map<Integer, float[]> references = new LinkedHashMap<>();
+            for (int k = 0; k < keyQuestions.size(); k++) {
+                float[] v = all[ingest.answers().size() + k];
+                if (v != null) references.put(keyQuestions.get(k), v);
+            }
             progress.at("Comparing answers across TAs, and the causal checks", 0.82);
             content = Optional.of(ContentAnalysis.analyse(new ContentAnalysis.Input(ingest.responses(),
-                    ingest.answers(), vectors, design, choice.embedder().id(), choice.embedder().semantic()),
+                    ingest.answers(), vectors, design, choice.embedder().id(), choice.embedder().semantic(),
+                    references),
                     options.content()));
         }
 
         // Which estimate corrects the grades.
         AuditVerdict verdict = markingVerdict;
         Optional<FittedModel> model = marksModel;
-        Optional<AuditVerdict.EstimableFromContent> licence = content.flatMap(c -> ContentFit.licence(markingVerdict, c));
+        Optional<FittedModel> marksFit = marksModel;
+        Optional<ContentFit.Choice> choice = content.map(c -> ContentFit.choose(markingVerdict, marksFit, c));
+        Optional<AuditVerdict.EstimableFromContent> licence =
+                content.flatMap(c -> ContentFit.licence(markingVerdict, marksFit, c));
         if (licence.isPresent()) {
             verdict = licence.get();
             model = Optional.of(ContentFit.toFittedModel(content.get(), verdict, design, ingest.responses()));
+        } else if (choice.isPresent() && Double.isFinite(choice.get().pValue()) && marksModel.isPresent()) {
+            // The answers confirmed the equal-piles assumption, so the marks estimate is kept, with the
+            // same allowance for model error the answers' estimate carries.
+            model = Optional.of(ContentFit.withAllowance(marksModel.get(), options.content().margin()));
         }
 
         // 4. Grades as marked and corrected.
@@ -178,7 +195,8 @@ public final class Pipeline {
                 + manifest.get("version") + ", Java " + manifest.get("java"));
         footnotes.add("key fingerprint: " + ingest.saltFingerprint());
         ReportInput report = new ReportInput(config.name(), design, verdict, model, outcome, diagnostics, footnotes,
-                content, licence.isPresent() ? marksModel : Optional.empty());
+                content, licence.isPresent() ? marksModel : Optional.empty(),
+                choice.map(ContentFit.Choice::explanation).orElse(""));
         progress.at("Done", 1.0);
         return new Run(ingest, markingVerdict, verdict, model, marksModel, content, outcome, weights, report, manifest);
     }

@@ -100,9 +100,9 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
   <h2><span class="num">1</span>Your marks file</h2>
   <p class="lede">The sheet you already keep, or your exam platform's export, with a column saying which TA marked each script.</p>
   <label class="drop" id="drop">
-    <input type="file" id="file" accept=".csv,text/csv" aria-label="Choose your marks file">
+    <input type="file" id="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Choose your marks file">
     <b>Drop your marks file here, or click to choose it</b>
-    <span>A .csv file. From Excel: File &rarr; Save As &rarr; CSV UTF-8.</span>
+    <span>An Excel workbook (.xlsx, first sheet) or a .csv file, as your exam platform exports it.</span>
   </label>
   <div class="alt">
     <span><a href="/template.csv" download>Download a blank template</a> (headers only)</span>
@@ -226,21 +226,22 @@ drop.addEventListener('drop', ev => { if (ev.dataTransfer.files[0]) load(ev.data
 $('file').addEventListener('change', () => { if ($('file').files[0]) load($('file').files[0]); });
 
 async function load(file) {
-  if (/\.(xlsx?|ods)$/i.test(file.name)) {
-    problem('readProblem', 'That is a spreadsheet, not a CSV file.',
-      'Open it in Excel and use File → Save As → CSV UTF-8 (Comma delimited), then choose the saved file here.');
+  if (/\.(xls|ods|numbers)$/i.test(file.name)) {
+    problem('readProblem', 'That spreadsheet format cannot be read directly.',
+      'Open it in Excel and save it as an Excel Workbook (.xlsx) or as CSV UTF-8, then choose the saved file here.');
     return;
   }
-  if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
-    problem('readProblem', 'That is not a CSV file.',
-      'Open it in Excel and use File → Save As → CSV UTF-8, then choose the saved file here.');
+  const xlsx = /\.xlsx$/i.test(file.name);
+  if (!xlsx && !/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
+    problem('readProblem', 'That is not a marks file Even Hand can read.',
+      'Choose an Excel workbook (.xlsx) or a CSV file.');
     return;
   }
   if (file.size > 50 * 1024 * 1024) {
     problem('readProblem', 'That file is larger than 50 MB.', 'Split it by assessment and check each part.');
     return;
   }
-  await inspect(await file.text(), file.name, file.name.replace(/\.csv$/i, ''));
+  await inspect(xlsx ? file : await file.text(), file.name, file.name.replace(/\.(csv|xlsx)$/i, ''));
 }
 
 async function inspect(text, name, course) {
@@ -262,11 +263,14 @@ async function inspect(text, name, course) {
   const named = info.assessments.filter(a => a !== '');
   $('tiles').innerHTML = tile(info.students, 'students') + tile(info.assistants, 'TAs') +
       tile(info.questions, 'questions') + tile(Math.max(1, named.length), named.length > 1 ? 'assessments' : 'assessment') +
-      tile(info.rows, 'marks read') + tile(info.answers, 'written answers', info.answers > 0);
+      tile(info.rows, 'marks read') + tile(info.answers, 'written answers', info.answers > 0) +
+      (info.keys > 0 ? tile(info.keys, 'answer-key questions', true) : '');
   $('answers').innerHTML = info.answers > 0
       ? '&#10003; <b>' + info.answers + ' written answers</b> will be read' +
         (semantic ? ' by ' + esc(embedder.split(' (')[0]) + ', on this computer' : ' by their wording (no language model is installed)') +
-        ', to check whether what students wrote explains the differences between TAs.'
+        ', to check whether what students wrote explains the differences between TAs.' +
+        (info.keys > 0 ? ' Your answer key is used as a reference for what a good answer says.'
+                       : ' Tip: add a row with roll number <b>KEY</b> holding your model answers to sharpen the comparison.')
       : 'No written answers in this file: the report will say how differently the TAs marked, but not whether the ' +
         'answers explain it. Add an answer column (such as <b>Q1 answer</b>) to get that.';
   $('findings').innerHTML = info.findings.map(f => '<li class="' + f.severity + '"><span class="tag">' +

@@ -25,6 +25,7 @@ import java.util.Optional;
  * @param content      what the written answers said, when the file carried any
  * @param marksOnly    the estimate from the marks alone, when the answers supplied the main one,
  *                     so the two can be set side by side
+ * @param choiceNote   which estimate corrects the grades and why (the Hausman test), or empty
  */
 public record ReportInput(String courseLabel,
                           MarkingDesign design,
@@ -34,7 +35,8 @@ public record ReportInput(String courseLabel,
                           List<Diagnostic> diagnostics,
                           List<String> footnotes,
                           Optional<ContentResult> content,
-                          Optional<FittedModel> marksOnly) {
+                          Optional<FittedModel> marksOnly,
+                          String choiceNote) {
 
     public ReportInput {
         diagnostics = List.copyOf(diagnostics);
@@ -44,7 +46,7 @@ public record ReportInput(String courseLabel,
     /** A report on the marks alone, for a file without written answers. */
     public ReportInput(String courseLabel, MarkingDesign design, AuditVerdict verdict, Optional<FittedModel> model,
                        Optional<Outcome.Result> outcome, List<Diagnostic> diagnostics, List<String> footnotes) {
-        this(courseLabel, design, verdict, model, outcome, diagnostics, footnotes, Optional.empty(), Optional.empty());
+        this(courseLabel, design, verdict, model, outcome, diagnostics, footnotes, Optional.empty(), Optional.empty(), "");
     }
 
     /** Whether the grades were corrected with severities the answers anchored. */

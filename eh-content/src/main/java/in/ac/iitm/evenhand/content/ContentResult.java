@@ -17,7 +17,8 @@ import java.util.List;
  *                       how many matched pairs
  * @param graderLabels   pseudonymised assistant labels, parallel to the arrays below
  * @param severity       content-anchored severity per assistant (0 when not linked)
- * @param standardError  bootstrap standard error per assistant
+ * @param standardError  standard error per assistant, including the bias allowance
+ * @param samplingError  the bootstrap standard error alone, before the allowance: what tests use
  * @param pairCount      matched cross-assistant pairs involving each assistant
  * @param groups         assistants the answers link, each group on its own scale
  * @param draws          bootstrap replicates of the severities, {@code [draw][grader]}
@@ -40,6 +41,7 @@ public record ContentResult(Status status,
                             List<String> graderLabels,
                             double[] severity,
                             double[] standardError,
+                            double[] samplingError,
                             int[] pairCount,
                             List<List<Integer>> groups,
                             double[][] draws,

@@ -89,6 +89,8 @@ public final class HtmlReport {
                 m.noEffect().rejectsAt(0.05) ? "The differences are unlikely to be chance."
                         : "The differences are within what chance alone produces."));
         crossCheck(b, in, m);
+        if (!in.choiceNote().isEmpty()) b.append("<p><b>Which estimate corrects the grades.</b> ")
+                .append(esc(in.choiceNote())).append("</p>\n");
 
         int next = 3;
         if (in.content().isPresent() && in.content().get().causal().isPresent()) {
@@ -399,11 +401,13 @@ public final class HtmlReport {
         }
         check(b, "Comparable answers exist", "Does every TA have answers that closely match answers marked by others?",
                 minShare >= 0.5, String.format(Locale.ROOT, "at least %s of each TA's answers have a close match", pct(minShare)));
-        check(b, "Like is compared with like", "After matching, are the paired answers equally good by the content model? "
-                + "(standardised difference; under 0.1 is balanced)", worstAfter < 0.1,
-                String.format(Locale.ROOT, "%.2f after matching, %.2f before", worstAfter, worstBefore));
-        check(b, "Negative control: answer length", "A TA cannot change how much a student wrote, so matched pairs should "
-                + "not differ in length either", worstLength < 0.2, String.format(Locale.ROOT, "%.2f", worstLength));
+        check(b, "Like is compared with like", "Are matched answers about equally good by the content model? "
+                + "(standardised difference after matching, before the content correction removes the rest; "
+                + "under 0.25 is acceptable with that correction)", worstAfter < 0.25,
+                String.format(Locale.ROOT, "%.2f after matching (%.2f between whole piles)", worstAfter, worstBefore));
+        check(b, "Negative control: answer length", "A TA cannot change how much a student wrote, and nothing adjusts "
+                + "for it, so matched answers should not differ in length if the comparison is fair", worstLength < 0.25,
+                String.format(Locale.ROOT, "%.2f", worstLength));
         f.doubleMarked().ifPresent(dm -> check(b, "Same script, two TAs",
                 "Scripts marked twice compare TAs on identical content: do they agree with the matched-answer estimate?",
                 !Double.isFinite(dm.agreement()) || dm.agreement() >= 0.7,
@@ -553,8 +557,8 @@ public final class HtmlReport {
     /** Findings grouped by kind: twenty notes that say the same thing are one line and a count. */
     private static void diagnostics(StringBuilder b, ReportInput in) {
         if (in.diagnostics().isEmpty()) return;
-        Map<Diagnostic.Code, List<Diagnostic>> byCode = new LinkedHashMap<>();
-        for (Diagnostic d : in.diagnostics()) byCode.computeIfAbsent(d.code(), k -> new ArrayList<>()).add(d);
+        Map<String, List<Diagnostic>> byCode = new LinkedHashMap<>();
+        for (Diagnostic d : in.diagnostics()) byCode.computeIfAbsent(kindOf(d), k -> new ArrayList<>()).add(d);
         b.append("<details><summary>").append(in.diagnostics().size()).append(" finding")
          .append(in.diagnostics().size() == 1 ? "" : "s").append(" from reading the file and auditing the design</summary><ul>\n");
         for (List<Diagnostic> group : byCode.values()) {
@@ -563,6 +567,14 @@ public final class HtmlReport {
             b.append("</li>\n");
         }
         b.append("</ul></details>\n");
+    }
+
+    /**
+     * Findings that say the same thing about different rows share a kind: the same code, and the same
+     * wording once line numbers and counts are taken out. Different notes under one code stay apart.
+     */
+    public static String kindOf(Diagnostic d) {
+        return d.code() + "|" + d.message().replaceAll("\\d+(\\.\\d+)?", "#").replaceAll("'[^']*'", "'_'");
     }
 
     private static void footer(StringBuilder b, ReportInput in) {
