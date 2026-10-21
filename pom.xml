@@ -32,7 +32,8 @@
       eh-content   were mark differences explained by the answers? matched-answer severity (stage 3b)
       eh-outcome   IITM grading rules, grade changes, re-check list (stage 4)
       eh-report    HTML report and Class Committee sheet       (stage 5)
-      eh-app       command-line tool and the benchmark
+      eh-app       the product: browser page and command line
+      eh-validation  not shipped: benchmark, simulator-based calibration, real-data validation
 
     Dependencies flow strictly downward. No module has a third-party runtime
     dependency: the arithmetic is ours and examinable. Review responsibility per
@@ -49,6 +50,7 @@
     <module>eh-outcome</module>
     <module>eh-report</module>
     <module>eh-app</module>
+    <module>eh-validation</module>
   </modules>
 
   <properties>
@@ -87,6 +89,12 @@
         <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-design</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-design</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
       </dependency>
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>

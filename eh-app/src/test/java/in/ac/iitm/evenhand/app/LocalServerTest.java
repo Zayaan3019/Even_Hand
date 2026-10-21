@@ -8,12 +8,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,9 +41,35 @@ class LocalServerTest {
         return CLIENT.send(HttpRequest.newBuilder(uri(path)).build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    private static HttpResponse<String> post(String path, String body) throws Exception {
+        return CLIENT.send(HttpRequest.newBuilder(uri(path)).POST(HttpRequest.BodyPublishers.ofString(body)).build(),
+                HttpResponse.BodyHandlers.ofString());
+    }
+
     private static URI uri(String path) {
         return URI.create("http://127.0.0.1:" + server.getAddress().getPort() + path);
     }
+
+    /** Runs an analysis the way the page does: start it, then poll until it finishes. */
+    private static String analyse(String query, String csv) throws Exception {
+        HttpResponse<String> started = post("/analyse" + query, csv);
+        assertThat(started.statusCode()).isEqualTo(200);
+        Matcher m = Pattern.compile("\"job\":\"([0-9a-f]+)\"").matcher(started.body());
+        assertThat(m.find()).isTrue();
+        for (int i = 0; i < 600; i++) {
+            String body = get("/job?id=" + m.group(1)).body();
+            if (!body.contains("\"state\":\"running\"")) return body;
+            Thread.sleep(100);
+        }
+        throw new AssertionError("analysis did not finish");
+    }
+
+    private static String csv() {
+        return CourseSimulator.simulate(CourseSimulator.Archetype.CE_CORE, 3, 0.4).marksCsv();
+    }
+
+    private static final String WEIGHTS =
+            "?weights=" + URLEncoder.encode("Quiz 1=25,Quiz 2=25,End-sem=50", StandardCharsets.UTF_8);
 
     @Test
     @DisplayName("listens on this computer only")
@@ -47,72 +78,58 @@ class LocalServerTest {
     }
 
     @Test
-    @DisplayName("the upload page and the lab page are served")
+    @DisplayName("the page is served, and nothing that is not part of the product")
     void pages() throws Exception {
-        assertThat(get("/").body()).contains("Drop your marks file");
-        assertThat(get("/lab").body()).contains("Simulation Lab");
+        assertThat(get("/").body()).contains("Even Hand");
+        assertThat(get("/lab").statusCode()).isEqualTo(404);
+        assertThat(get("/sample").statusCode()).isEqualTo(404);
         assertThat(get("/nowhere").statusCode()).isEqualTo(404);
+        assertThat(get("/").headers().firstValue("X-Frame-Options")).hasValue("DENY");
     }
 
     @Test
-    @DisplayName("the lab runs the real pipeline and returns truth beside the estimates")
-    void labRun() throws Exception {
-        HttpResponse<String> r = get("/lab/run?shape=ce-core&spread=0.4&seed=3");
+    @DisplayName("an analysis runs as a job: the page polls it and collects both reports")
+    void analysisJob() throws Exception {
+        String body = analyse(WEIGHTS, csv());
 
-        assertThat(r.statusCode()).isEqualTo(200);
-        assertThat(r.body()).startsWith("{").contains("\"verdict\":\"ESTIMABLE\"", "\"truth\":", "\"estimate\":",
-                "\"recheck\":", "\"allocation\":");
+        assertThat(body).contains("\"state\":\"done\"", "\"instructor\":", "\"committee\":", "Bottom line");
     }
 
     @Test
-    @DisplayName("a refused design comes back with its reason, not an error")
-    void labRefusal() throws Exception {
-        HttpResponse<String> r = get("/lab/run?shape=small-elective&spread=0.4&seed=3");
+    @DisplayName("names reach the screen beside the reports, but never inside a report")
+    void analyseKeepsNamesOutOfTheReports() throws Exception {
+        String body = analyse(WEIGHTS, csv());
+        String reports = body.substring(0, body.indexOf("\"names\":"));
+        String names = body.substring(body.indexOf("\"names\":"));
 
-        assertThat(r.statusCode()).isEqualTo(200);
-        assertThat(r.body()).contains("\"estimated\":false", "\"refusal\":");
+        assertThat(reports).contains("Bottom line").doesNotContainPattern("[A-Z]{2}\\d{2}B\\d{3}");
+        assertThat(names).containsPattern("\"Student \\d+\":\"[A-Z]{2}\\d{2}B\\d{3}\"");
     }
 
     @Test
-    @DisplayName("a marks file posted from the page comes back as the instructor's report")
-    void report() throws Exception {
-        String csv = CourseSimulator.simulate(CourseSimulator.Archetype.CE_CORE, 3, 0.4).marksCsv();
-        String q = "?weights=" + URLEncoder.encode("Quiz 1=25,Quiz 2=25,End-sem=50", StandardCharsets.UTF_8);
+    @DisplayName("a weight for an assessment that is not in the file fails the job with a plain reason")
+    void badWeightsAreExplained() throws Exception {
+        String body = analyse("?weights=Nope%3D1", csv());
 
-        HttpResponse<String> r = CLIENT.send(HttpRequest.newBuilder(uri("/report" + q))
-                .POST(HttpRequest.BodyPublishers.ofString(csv)).build(), HttpResponse.BodyHandlers.ofString());
-
-        assertThat(r.statusCode()).isEqualTo(200);
-        assertThat(r.body()).contains("Scripts worth a second look").doesNotContainPattern("CE23B\\d{3}");
+        assertThat(body).contains("\"state\":\"failed\"", "no weight given for assessment");
     }
 
     @Test
-    @DisplayName("bad input is explained to the instructor, not thrown at them")
-    void badInput() throws Exception {
-        assertThat(get("/lab/run?shape=no-such-course").statusCode()).isEqualTo(400);
-        HttpResponse<String> r = CLIENT.send(HttpRequest.newBuilder(uri("/report?weights=Nope%3D1"))
-                .POST(HttpRequest.BodyPublishers.ofString(
-                        CourseSimulator.simulate(CourseSimulator.Archetype.CE_CORE, 3).marksCsv())).build(),
-                HttpResponse.BodyHandlers.ofString());
+    @DisplayName("an unknown job is a plain 400, not a crash")
+    void unknownJob() throws Exception {
+        HttpResponse<String> r = get("/job?id=deadbeef");
         assertThat(r.statusCode()).isEqualTo(400);
-        assertThat(r.body()).contains("could not be analysed");
-    }
-
-    private static HttpResponse<String> post(String path, String body) throws Exception {
-        return CLIENT.send(HttpRequest.newBuilder(uri(path)).POST(HttpRequest.BodyPublishers.ofString(body)).build(),
-                HttpResponse.BodyHandlers.ofString());
+        assertThat(r.body()).contains("run it again");
     }
 
     @Test
-    @DisplayName("a file is described before it is analysed: counts and the assessments to weight")
+    @DisplayName("a file is described before it is analysed: counts, answers and the assessments to weight")
     void inspect() throws Exception {
-        String csv = CourseSimulator.simulate(CourseSimulator.Archetype.CE_CORE, 3, 0.4).marksCsv();
-
-        HttpResponse<String> r = post("/inspect", csv);
+        HttpResponse<String> r = post("/inspect", csv());
 
         assertThat(r.statusCode()).isEqualTo(200);
         assertThat(r.body()).contains("\"assessments\":[\"Quiz 1\",\"Quiz 2\",\"End-sem\"]", "\"students\":",
-                "\"findings\":").doesNotContainPattern("[A-Z]{2}\\d{2}B\\d{3}");
+                "\"answers\":0", "\"findings\":").doesNotContainPattern("[A-Z]{2}\\d{2}B\\d{3}");
     }
 
     @Test
@@ -125,31 +142,46 @@ class LocalServerTest {
     }
 
     @Test
-    @DisplayName("names reach the screen beside the reports, but never inside a report")
-    void analyseKeepsNamesOutOfTheReports() throws Exception {
-        String csv = CourseSimulator.simulate(CourseSimulator.Archetype.CE_CORE, 3, 0.4).marksCsv();
-        String q = "?weights=" + URLEncoder.encode("Quiz 1=25,Quiz 2=25,End-sem=50", StandardCharsets.UTF_8);
-
-        HttpResponse<String> r = post("/analyse" + q, csv);
-
-        assertThat(r.statusCode()).isEqualTo(200);
-        String body = r.body();
-        String reports = body.substring(0, body.indexOf("\"names\":"));
-        String names = body.substring(body.indexOf("\"names\":"));
-        assertThat(reports).contains("Bottom line").doesNotContainPattern("[A-Z]{2}\\d{2}B\\d{3}");
-        assertThat(names).containsPattern("\"Student \\d+\":\"[A-Z]{2}\\d{2}B\\d{3}\"");
-    }
-
-    @Test
-    @DisplayName("a template and a sample course are one click away")
-    void templateAndSample() throws Exception {
+    @DisplayName("the template is a header only, so nothing in it can pass for a student's marks")
+    void template() throws Exception {
         HttpResponse<String> template = get("/template.csv");
         assertThat(template.statusCode()).isEqualTo(200);
         assertThat(template.headers().firstValue("Content-Disposition")).hasValueSatisfying(v -> assertThat(v).contains("attachment"));
-        assertThat(post("/inspect", template.body()).statusCode()).isEqualTo(200);
+        assertThat(template.body().strip().lines().count()).isEqualTo(1);
+        assertThat(template.body()).contains("Q1 (10)", "Q1 answer");
+    }
 
-        HttpResponse<String> sample = get("/sample");
-        assertThat(sample.statusCode()).isEqualTo(200);
-        assertThat(sample.body()).contains("\"csv\":\"roll_no,", "\"weights\":\"");
+    @Test
+    @DisplayName("the status says which answer-reading model is installed")
+    void status() throws Exception {
+        assertThat(get("/status").body()).contains("\"embedder\":", "\"semantic\":");
+    }
+
+    @Test
+    @DisplayName("another website cannot post a file here or read a report back (Origin check)")
+    void otherOriginsAreRefused() throws Exception {
+        HttpResponse<String> r = CLIENT.send(HttpRequest.newBuilder(uri("/inspect"))
+                .header("Origin", "https://evil.example").POST(HttpRequest.BodyPublishers.ofString(csv())).build(),
+                HttpResponse.BodyHandlers.ofString());
+        assertThat(r.statusCode()).isEqualTo(403);
+
+        HttpResponse<String> own = CLIENT.send(HttpRequest.newBuilder(uri("/inspect"))
+                .header("Origin", "http://127.0.0.1:" + server.getAddress().getPort())
+                .POST(HttpRequest.BodyPublishers.ofString(csv())).build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(own.statusCode()).isEqualTo(200);
+    }
+
+    @Test
+    @DisplayName("a request addressed to another host name is refused (DNS rebinding)")
+    void otherHostsAreRefused() throws Exception {
+        try (Socket s = new Socket("127.0.0.1", server.getAddress().getPort())) {
+            OutputStream out = s.getOutputStream();
+            out.write(("GET / HTTP/1.1\r\nHost: attacker.example:" + server.getAddress().getPort()
+                    + "\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
+            out.flush();
+            InputStream in = s.getInputStream();
+            String response = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            assertThat(response).startsWith("HTTP/1.1 403");
+        }
     }
 }

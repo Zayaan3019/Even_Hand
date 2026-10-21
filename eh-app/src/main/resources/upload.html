@@ -6,44 +6,52 @@
 <title>Even Hand</title>
 <style>
 :root{color-scheme:light;
-  --bg:#f7f6f2;--surface:#fcfcfb;--fg:#0b0b0b;--fg2:#52514e;--muted:#7a7974;--line:#e2e0da;
-  --accent:#8a1c1c;--on-accent:#fff;--accent-soft:#f6e9e7;--good:#1a7f37;--warn:#9a5b00;--bad:#b42318}
+  --bg:#f5f4ef;--surface:#fdfdfb;--fg:#14161a;--fg2:#4f5560;--muted:#7b808a;--line:#e1dfd8;
+  --accent:#7a1f2b;--on-accent:#fff;--accent-soft:#f5e8e7;--good:#1a7f37;--good-soft:#e7f3ea;--warn:#9a5b00;--bad:#b42318}
 @media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){color-scheme:dark;
-  --bg:#121211;--surface:#1a1a19;--fg:#f0efec;--fg2:#c3c2b7;--muted:#8f8e86;--line:#2e2d2a;
-  --accent:#e08a7a;--on-accent:#1a1a19;--accent-soft:#2a1d1b;--good:#4ac26b;--warn:#e0a84a;--bad:#f47067}}
+  --bg:#111214;--surface:#191b1f;--fg:#eef0f3;--fg2:#c2c7d0;--muted:#8d939e;--line:#2c3038;
+  --accent:#e08a7a;--on-accent:#191b1f;--accent-soft:#2b1e1d;--good:#4ac26b;--good-soft:#16261b;--warn:#e0a84a;--bad:#f47067}}
 :root[data-theme="dark"]{color-scheme:dark;
-  --bg:#121211;--surface:#1a1a19;--fg:#f0efec;--fg2:#c3c2b7;--muted:#8f8e86;--line:#2e2d2a;
-  --accent:#e08a7a;--on-accent:#1a1a19;--accent-soft:#2a1d1b;--good:#4ac26b;--warn:#e0a84a;--bad:#f47067}
+  --bg:#111214;--surface:#191b1f;--fg:#eef0f3;--fg2:#c2c7d0;--muted:#8d939e;--line:#2c3038;
+  --accent:#e08a7a;--on-accent:#191b1f;--accent-soft:#2b1e1d;--good:#4ac26b;--good-soft:#16261b;--warn:#e0a84a;--bad:#f47067}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:860px;margin:0 auto;padding:28px 16px 56px}
-header h1{margin:0;font-size:28px;letter-spacing:-.01em}
-header p{margin:4px 0 0;color:var(--fg2)}
-.privacy{display:inline-flex;gap:6px;align-items:center;margin-top:10px;font-size:13px;color:var(--good);font-weight:600}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:22px 16px 56px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:var(--on-accent);font-weight:800}
+.logo h1{margin:0;font-size:24px;letter-spacing:-.01em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg2)}
+.chip.ok{color:var(--good);border-color:transparent;background:var(--good-soft)}
+.chip.warn{color:var(--warn)}
+.intro{margin:14px 0 0;color:var(--fg2);max-width:70ch}
 a{color:var(--accent);font-weight:600}
-.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:18px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px}
 .step h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:10px}
 .num{flex:none;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:14px;font-weight:700}
 .step.done h2 .num{background:var(--good);color:var(--on-accent)}
 .lede{margin:0 0 12px;color:var(--fg2)}
-.drop{position:relative;display:block;border:2px dashed var(--line);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .1s,background .1s}
+.drop{position:relative;display:block;border:2px dashed var(--line);border-radius:12px;padding:30px 16px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s}
 .drop:hover,.drop.over,.drop:focus-within{border-color:var(--accent);background:var(--accent-soft)}
 .drop b{display:block;font-size:17px}.drop span{color:var(--fg2);font-size:14px}
 .drop input{position:absolute;width:1px;height:1px;opacity:0}
 .alt{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:14px;color:var(--fg2)}
-button{font:inherit;font-weight:600;padding:9px 16px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
-button.link{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline}
-button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-size:16px;padding:11px 20px}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--fg2)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-size:16px;padding:11px 22px}
 button:disabled{opacity:.6;cursor:progress}
 details{margin-top:14px}summary{cursor:pointer;color:var(--fg2);font-weight:600;font-size:14px}
-.formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:10px}
+.formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:10px}
 .formats h3{font-size:14px;margin:0 0 4px}.formats p{margin:6px 0 0;font-size:13px;color:var(--fg2)}
 .ex{overflow-x:auto}
 .ex table{border-collapse:collapse;font:12.5px ui-monospace,Consolas,monospace;white-space:nowrap}
 .ex td,.ex th{border:1px solid var(--line);padding:3px 7px;text-align:left}.ex th{background:var(--bg);font-weight:600}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:4px 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:4px 0 12px}
 .tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
 .tile .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}.tile .k{font-size:13px;color:var(--fg2)}
+.tile.hl{border-color:var(--good);background:var(--good-soft)}
+.answers{font-size:14px;padding:9px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);margin:0 0 10px}
 ul.findings{list-style:none;padding:0;margin:0 0 6px}
 ul.findings li{padding:7px 10px;border-left:3px solid var(--muted);background:var(--bg);border-radius:4px;margin-bottom:6px;font-size:14px}
 ul.findings li.error{border-color:var(--bad)}ul.findings li.warning{border-color:var(--warn)}
@@ -51,47 +59,53 @@ ul.findings .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-
 li.error .tag{color:var(--bad)}li.warning .tag{color:var(--warn)}li.note .tag{color:var(--muted)}
 ul.findings .fix{display:block;color:var(--fg2);font-size:13px;margin-top:2px}
 label.field{display:block;font-weight:600;margin:14px 0 4px}label.field small{font-weight:400;color:var(--fg2)}
-input[type=text],input[type=number],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg);width:100%}
+input[type=text],input[type=number],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);width:100%}
 .weights{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 12px}
 .weights label{display:flex;flex-direction:column;font-size:13px;color:var(--fg2);gap:3px}
 .weights .w{display:flex;align-items:center;gap:6px}.weights .w input{width:100%}
 .sum{font-size:13px;color:var(--fg2);margin-top:6px}.sum.off{color:var(--warn);font-weight:600}
 .go{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
-.status{color:var(--fg2);font-size:14px}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.progress{margin-top:16px}
+.track{height:10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:width .35s ease}
+.pstage{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--fg2);margin-top:6px}
 .problem{border-left:4px solid var(--bad);background:var(--bg);padding:10px 14px;border-radius:6px;margin-top:12px;white-space:pre-wrap}
 .problem b{display:block;margin-bottom:4px}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:4px 0 12px}
 .toolbar .toggle{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;flex-basis:100%}
 .toolbar .toggle input{width:18px;height:18px;accent-color:var(--accent)}
-iframe{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-height:400px}
+iframe{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg);min-height:500px}
 .hint{font-size:13px;color:var(--muted);margin:8px 0 0}
 [hidden]{display:none!important}
 footer{margin-top:28px;color:var(--muted);font-size:13px}
+@media (max-width:520px){.step{padding:14px}.logo h1{font-size:21px}}
 </style>
 </head>
 <body>
 <main>
 <header>
-  <h1>Even Hand</h1>
-  <p>Did it matter which TA marked the script? Give it your marks sheet and it tells you, in marks,
-  and lists the scripts worth a second look.</p>
-  <div class="privacy">&#128274; Runs on this computer only. Your marks never leave it.</div>
+  <div class="bar">
+    <div class="logo"><div class="mark" aria-hidden="true">EH</div><h1>Even Hand</h1></div>
+    <div class="chips">
+      <span class="chip ok">&#128274; This computer only</span>
+      <span class="chip" id="model">Checking the answer reader&hellip;</span>
+    </div>
+  </div>
+  <p class="intro">Did it matter which TA marked the script? Give Even Hand your marks file, with the students'
+  written answers if you have them, and it tells you how differently each TA marked, whether what the students
+  wrote explains it, which grades it moved, and which scripts deserve a second look. It never changes a mark.</p>
 </header>
 
 <section class="step" id="s1">
   <h2><span class="num">1</span>Your marks file</h2>
-  <p class="lede">The sheet you already keep, with one more column saying which TA marked each script.</p>
+  <p class="lede">The sheet you already keep, or your exam platform's export, with a column saying which TA marked each script.</p>
   <label class="drop" id="drop">
     <input type="file" id="file" accept=".csv,text/csv" aria-label="Choose your marks file">
     <b>Drop your marks file here, or click to choose it</b>
-    <span>A .csv file. From Excel: File &rarr; Save As &rarr; CSV.</span>
+    <span>A .csv file. From Excel: File &rarr; Save As &rarr; CSV UTF-8.</span>
   </label>
   <div class="alt">
-    <span>No file to hand? <button class="link" id="sample" type="button">Try a sample course</button></span>
-    <span><a href="/template.csv" download>Download a blank template</a></span>
-    <span><a href="/lab">See how it works on a simulated course</a></span>
+    <span><a href="/template.csv" download>Download a blank template</a> (headers only)</span>
   </div>
   <div id="readProblem" class="problem" hidden></div>
   <details>
@@ -100,22 +114,28 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
       <div>
         <h3>One row per student (most mark sheets)</h3>
         <div class="ex"><table>
-          <tr><th>roll_no</th><th>ta</th><th>Q1 (10)</th><th>Q2 (10)</th><th>Q3 (15)</th></tr>
-          <tr><td>CE26B001</td><td>Ravi</td><td>7</td><td>8.5</td><td>12</td></tr>
-          <tr><td>CE26B002</td><td>Meena</td><td>6</td><td>AB</td><td>10</td></tr>
+          <tr><th>roll_no</th><th>ta</th><th>Q1 (10)</th><th>Q1 answer</th><th>Q2 (15)</th><th>Q2 answer</th></tr>
+          <tr><td>CE26B001</td><td>Ravi</td><td>7</td><td>The moment is&hellip;</td><td>12</td><td>By the method&hellip;</td></tr>
         </table></div>
-        <p>Write each question's maximum in brackets in its header. Columns such as Name or Total are
-        ignored. A blank cell or AB means not answered. Several exams? Add an <b>assessment</b> column.</p>
+        <p>Write each question's maximum in brackets in its header. An answer column is optional and named
+        like its question: <b>Q1 answer</b>, <b>Answer Q1</b> or <b>Q1 (response)</b>. Name and Total columns are
+        ignored; a blank cell or AB means not answered. Several exams? Add an <b>assessment</b> column.</p>
       </div>
       <div>
         <h3>One row per answer (when TAs split by question)</h3>
         <div class="ex"><table>
-          <tr><th>roll_no</th><th>assessment</th><th>question</th><th>max_marks</th><th>marks</th><th>ta</th></tr>
-          <tr><td>CE26B001</td><td>Quiz 1</td><td>Q1</td><td>10</td><td>7</td><td>Ravi</td></tr>
-          <tr><td>CE26B001</td><td>Quiz 1</td><td>Q2</td><td>10</td><td>8.5</td><td>Meena</td></tr>
+          <tr><th>roll_no</th><th>assessment</th><th>question</th><th>max_marks</th><th>marks</th><th>ta</th><th>answer</th></tr>
+          <tr><td>CE26B001</td><td>Quiz 1</td><td>Q1</td><td>10</td><td>7</td><td>Ravi</td><td>The moment&hellip;</td></tr>
         </table></div>
-        <p>Column names are matched loosely: Roll No, roll-no and roll_no all work, and so do TA,
-        marker or evaluator. A script marked twice is welcome: it is what links two TAs.</p>
+        <p>Column names are matched loosely: Roll No, roll-no and roll_no all work, and so do TA, marker,
+        evaluator or Graded by. A script marked twice is welcome: it links two TAs directly.</p>
+      </div>
+      <div>
+        <h3>Exam platforms, as exported</h3>
+        <p><b>Moodle and other LMS quizzes</b>: the grades or responses export with <code>Q. 1 /10.00</code> columns
+        (and <code>Response 1</code> for the answers), plus a <b>Graded by</b> column.</p>
+        <p><b>Google Forms quizzes</b>: the responses CSV, with its <code>Score</code> (31 / 40) and answer columns,
+        plus a <b>TA</b> column.</p>
       </div>
     </div>
   </details>
@@ -125,6 +145,7 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
   <h2><span class="num">2</span>Check what was read</h2>
   <p class="lede" id="fileName"></p>
   <div class="tiles" id="tiles"></div>
+  <p class="answers" id="answers"></p>
   <ul class="findings" id="findings"></ul>
 
   <label class="field" for="name">Course name <small>appears on the report</small></label>
@@ -145,7 +166,10 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
 
   <div class="go">
     <button class="primary" id="run" type="button">Check the marking &rarr;</button>
-    <span class="status" id="runStatus"></span>
+  </div>
+  <div class="progress" id="progress" hidden>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="pstage"><span id="stage">Starting</span><span id="elapsed"></span></div>
   </div>
   <div id="runProblem" class="problem" hidden></div>
 </section>
@@ -155,13 +179,13 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
   <div class="toolbar">
     <label class="toggle"><input type="checkbox" id="real" checked> Show roll numbers and TA names</label>
     <button type="button" id="saveReport" title="Saved with pseudonyms, safe to file or forward">Save report</button>
-    <button type="button" id="saveCommittee" title="Totals only: no TA and no student is named">Save Class Committee sheet</button>
+    <button type="button" id="saveCommittee" title="Aggregates only: no TA, no student and no answer appears">Save Class Committee sheet</button>
     <button type="button" id="print">Print</button>
     <button type="button" id="again">Check another file</button>
   </div>
   <iframe id="report" title="Even Hand report"></iframe>
-  <p class="hint">Names are shown on this screen only. Saved and printed reports use pseudonyms
-  (Student 12, Assistant 3) unless the box above is ticked when you print. No grade is changed by this tool.</p>
+  <p class="hint">Names are shown on this screen only. Saved reports use pseudonyms (Student 12, Assistant 3);
+  printed ones follow the box above. No grade is changed by this tool.</p>
 </section>
 
 <footer>Even Hand &middot; CS5013, IIT Madras &middot; works offline &middot; nothing is stored on disk</footer>
@@ -169,7 +193,7 @@ footer{margin-top:28px;color:var(--muted);font-size:13px}
 
 <script>
 const $ = id => document.getElementById(id);
-let csv = '', fileName = '', result = null;
+let csv = '', result = null, timer = null;
 
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -179,6 +203,20 @@ function problem(id, title, text) {
   $(id).innerHTML = '<b>' + esc(title) + '</b>' + esc(text);
   show(id, true);
 }
+function stopped(where) {
+  problem(where, 'Even Hand is not responding.',
+    'Its window may have been closed. Double-click even-hand.cmd again, then reload this page.');
+}
+
+// ---- Which answer reader is installed ----
+let semantic = false, embedder = '';
+fetch('/status').then(r => r.json()).then(s => {
+  semantic = s.semantic; embedder = s.embedder;
+  const chip = $('model');
+  chip.textContent = s.semantic ? 'Answer reader: ' + s.embedder.split(' (')[0] : 'Answers compared by wording only';
+  chip.title = s.note;
+  chip.className = 'chip ' + (s.semantic ? 'ok' : 'warn');
+}).catch(() => { $('model').textContent = 'Not connected'; $('model').className = 'chip warn'; });
 
 // ---- Step 1: choose a file ----
 const drop = $('drop');
@@ -188,28 +226,25 @@ drop.addEventListener('drop', ev => { if (ev.dataTransfer.files[0]) load(ev.data
 $('file').addEventListener('change', () => { if ($('file').files[0]) load($('file').files[0]); });
 
 async function load(file) {
-  if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
-    problem('readProblem', 'That is not a CSV file.',
-      'Open it in Excel and use File → Save As → CSV, then choose the saved file here.');
+  if (/\.(xlsx?|ods)$/i.test(file.name)) {
+    problem('readProblem', 'That is a spreadsheet, not a CSV file.',
+      'Open it in Excel and use File → Save As → CSV UTF-8 (Comma delimited), then choose the saved file here.');
     return;
   }
-  await inspect(await file.text(), file.name, file.name.replace(/\.csv$/i, ''), '');
+  if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
+    problem('readProblem', 'That is not a CSV file.',
+      'Open it in Excel and use File → Save As → CSV UTF-8, then choose the saved file here.');
+    return;
+  }
+  if (file.size > 50 * 1024 * 1024) {
+    problem('readProblem', 'That file is larger than 50 MB.', 'Split it by assessment and check each part.');
+    return;
+  }
+  await inspect(await file.text(), file.name, file.name.replace(/\.csv$/i, ''));
 }
 
-$('sample').addEventListener('click', async () => {
-  try {
-    const s = await (await fetch('/sample')).json();
-    await inspect(s.csv, s.file + ' (a simulated first-year course)', s.name, s.weights);
-  } catch (e) { stopped('readProblem'); }
-});
-
-function stopped(where) {
-  problem(where, 'Even Hand is not responding.',
-    'Its window may have been closed. Double-click even-hand.cmd again, then reload this page.');
-}
-
-async function inspect(text, name, course, weights) {
-  show('readProblem', false); show('s3', false); show('runProblem', false);
+async function inspect(text, name, course) {
+  show('readProblem', false); show('s3', false); show('runProblem', false); show('progress', false);
   let res, info;
   try {
     res = await fetch('/inspect', {method: 'POST', body: text});
@@ -221,71 +256,94 @@ async function inspect(text, name, course, weights) {
       info.error + '\n\nTip: download the blank template above to see a layout that works.');
     return;
   }
-  csv = text; fileName = name;
+  csv = text;
   $('fileName').textContent = 'Read from ' + name + '. If these numbers look wrong, the file is not what you meant to choose.';
-  const tile = (v, k) => '<div class="tile"><div class="v">' + v + '</div><div class="k">' + k + '</div></div>';
+  const tile = (v, k, hl) => '<div class="tile' + (hl ? ' hl' : '') + '"><div class="v">' + v + '</div><div class="k">' + k + '</div></div>';
   const named = info.assessments.filter(a => a !== '');
   $('tiles').innerHTML = tile(info.students, 'students') + tile(info.assistants, 'TAs') +
       tile(info.questions, 'questions') + tile(Math.max(1, named.length), named.length > 1 ? 'assessments' : 'assessment') +
-      tile(info.rows, 'marks read');
+      tile(info.rows, 'marks read') + tile(info.answers, 'written answers', info.answers > 0);
+  $('answers').innerHTML = info.answers > 0
+      ? '&#10003; <b>' + info.answers + ' written answers</b> will be read' +
+        (semantic ? ' by ' + esc(embedder.split(' (')[0]) + ', on this computer' : ' by their wording (no language model is installed)') +
+        ', to check whether what students wrote explains the differences between TAs.'
+      : 'No written answers in this file: the report will say how differently the TAs marked, but not whether the ' +
+        'answers explain it. Add an answer column (such as <b>Q1 answer</b>) to get that.';
   $('findings').innerHTML = info.findings.map(f => '<li class="' + f.severity + '"><span class="tag">' +
       (f.severity === 'error' ? 'Problem' : f.severity === 'warning' ? 'Check' : 'Note') + '</span>' + esc(f.message) +
       (f.more > 0 ? ' <i>(and ' + f.more + ' more like it)</i>' : '') +
       (f.fix ? '<span class="fix">How to fix: ' + esc(f.fix) + '</span>' : '') + '</li>').join('');
   $('name').value = course;
-  weightInputs(named, weights);
+  weightInputs(named);
   $('run').disabled = info.rows === 0;
-  $('runStatus').textContent = info.rows === 0 ? 'No usable marks were found; see the problems above.' : '';
+  if (info.rows === 0) problem('runProblem', 'No usable marks were found.', 'See the problems listed above.');
   show('s2', true);
   $('s1').classList.add('done');
   $('s2').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
-function weightInputs(names, given) {
-  const declared = {};
-  given.split(',').forEach(p => { const [k, v] = p.split('='); if (v) declared[k.trim()] = v.trim(); });
+function weightInputs(names) {
   show('weightsBox', names.length > 1);
   const equal = names.length ? Math.round(1000 / names.length) / 10 : 100;
-  $('weights').innerHTML = names.map((n, i) => '<label>' + esc(n) + '<span class="w"><input type="number" min="0" step="any" ' +
-      'data-name="' + esc(n) + '" value="' + (declared[n] || equal) + '"> %</span></label>').join('');
+  $('weights').innerHTML = names.map(n => '<label>' + esc(n) + '<span class="w"><input type="number" min="0" step="any" ' +
+      'data-name="' + esc(n) + '" value="' + equal + '"> %</span></label>').join('');
   $('weights').querySelectorAll('input').forEach(i => i.addEventListener('input', sum));
   sum();
 }
 function sum() {
-  let t = 0;
-  $('weights').querySelectorAll('input').forEach(i => t += Number(i.value) || 0);
-  $('sum').textContent = 'Total: ' + Math.round(t * 10) / 10 + '%' + (Math.abs(t - 100) > 0.5 ? ' (does not need to be 100; only the proportions matter)' : '');
-  $('sum').classList.toggle('off', Math.abs(t - 100) > 0.5);
+  let t = 0, bad = false;
+  $('weights').querySelectorAll('input').forEach(i => { const v = Number(i.value); if (!(v > 0)) bad = true; t += v || 0; });
+  $('sum').textContent = bad ? 'Every assessment needs a weight above zero.'
+      : 'Total: ' + Math.round(t * 10) / 10 + '%' + (Math.abs(t - 100) > 0.5 ? ' (does not need to be 100; only the proportions matter)' : '');
+  $('sum').classList.toggle('off', bad || Math.abs(t - 100) > 0.5);
+  $('run').disabled = bad || !csv;
 }
 
-// ---- Step 2: analyse ----
+// ---- Step 2: analyse, as a job the page polls ----
 $('run').addEventListener('click', async () => {
-  show('runProblem', false);
+  show('runProblem', false); show('s3', false);
   $('run').disabled = true;
-  $('runStatus').innerHTML = '<span class="spinner"></span>Checking the marking. This takes a few seconds…';
+  result = null;
   const inputs = [...$('weights').querySelectorAll('input')];
   const q = new URLSearchParams({
     name: $('name').value || 'Course',
     weights: inputs.length > 1 ? inputs.map(i => i.dataset.name + '=' + (Number(i.value) || 0)).join(',') : '',
     rule: $('rule').value
   });
+  progress(0, 'Starting');
+  show('progress', true);
+  const started = Date.now();
+  clearInterval(timer);
+  timer = setInterval(() => { $('elapsed').textContent = Math.round((Date.now() - started) / 1000) + ' s'; }, 500);
   try {
     const res = await fetch('/analyse?' + q, {method: 'POST', body: csv});
     const out = await res.json();
-    if (!res.ok) { problem('runProblem', 'The marking could not be checked.', out.error); return; }
-    result = out;
-    $('runStatus').textContent = '';
-    $('s2').classList.add('done');
-    render();
-    show('s3', true);
-    $('s3').scrollIntoView({behavior: 'smooth', block: 'start'});
-  } catch (e) {
-    stopped('runProblem');
-  } finally {
-    $('run').disabled = false;
-    if (!result) $('runStatus').textContent = '';
-  }
+    if (!res.ok) { finish(); problem('runProblem', 'The marking could not be checked.', out.error); return; }
+    poll(out.job);
+  } catch (e) { finish(); stopped('runProblem'); }
 });
+
+function progress(fraction, stage) {
+  $('fill').style.width = Math.round(100 * fraction) + '%';
+  $('stage').textContent = stage;
+}
+function finish() { clearInterval(timer); $('run').disabled = false; }
+
+async function poll(id) {
+  let j;
+  try { j = await (await fetch('/job?id=' + encodeURIComponent(id))).json(); }
+  catch (e) { finish(); stopped('runProblem'); return; }
+  if (j.error && !j.state) { finish(); problem('runProblem', 'The marking could not be checked.', j.error); return; }
+  progress(j.fraction || 0, j.stage || '');
+  if (j.state === 'running') { setTimeout(() => poll(id), 400); return; }
+  finish();
+  if (j.state === 'failed') { show('progress', false); problem('runProblem', 'The marking could not be checked.', j.error); return; }
+  result = j.result;
+  $('s2').classList.add('done');
+  render();
+  show('s3', true);
+  $('s3').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
 
 // ---- Step 3: the report ----
 function withNames(html) {
@@ -315,7 +373,7 @@ $('saveCommittee').addEventListener('click', () => save(result.committee, '-clas
 $('print').addEventListener('click', () => $('report').contentWindow.print());
 $('again').addEventListener('click', () => {
   csv = ''; result = null; $('file').value = '';
-  ['s2', 's3', 'readProblem'].forEach(id => show(id, false));
+  ['s2', 's3', 'readProblem', 'progress'].forEach(id => show(id, false));
   ['s1', 's2'].forEach(id => $(id).classList.remove('done'));
   window.scrollTo({top: 0, behavior: 'smooth'});
 });

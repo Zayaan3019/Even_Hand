@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>in.ac.iitm.evenhand</groupId>
+    <artifactId>even-hand</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>eh-validation</artifactId>
+  <name>eh-validation</name>
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
+  <description>
+    How we know the product's numbers are right. Not part of the product: nothing here is packaged
+    into even-hand.jar, and no professor ever sees simulated data. It holds the benchmark on
+    simulated courses with known answers, and the validation on real, independently double-graded
+    student answers (docs/VALIDATION.md).
+  </description>
+
+  <dependencies>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-core</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-ingest</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-embed</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-design</artifactId></dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-design</artifactId>
+      <type>test-jar</type>
+    </dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-estimate</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-content</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-outcome</artifactId></dependency>
+  </dependencies>
+</project>

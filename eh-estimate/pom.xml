@@ -33,6 +33,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-design</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>net.jqwik</groupId>
       <artifactId>jqwik</artifactId>
       <scope>test</scope>

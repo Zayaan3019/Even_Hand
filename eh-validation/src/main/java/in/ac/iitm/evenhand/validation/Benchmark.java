@@ -1,4 +1,4 @@
-package in.ac.iitm.evenhand.app;
+package in.ac.iitm.evenhand.validation;
 
 import in.ac.iitm.evenhand.core.AnchoredDesign;
 import in.ac.iitm.evenhand.core.Anchoring;
@@ -15,6 +15,7 @@ import in.ac.iitm.evenhand.design.sim.CourseSimulator.SimulatedCourse;
 import in.ac.iitm.evenhand.estimate.SeverityEstimator;
 import in.ac.iitm.evenhand.estimate.Settings;
 import in.ac.iitm.evenhand.ingest.CsvIngest;
+import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.outcome.Composite;
 import in.ac.iitm.evenhand.outcome.GradingRule;
@@ -53,7 +54,7 @@ import java.util.Optional;
  * <em>not</em> trained: it was fixed in the design document before any data existed, so the
  * test cannot have been tuned to flatter it.
  */
-final class Benchmark {
+public final class Benchmark {
 
     static final double[] STUDENT_GRID = { 0, 5, 10, 20, 40, 80 };
     static final double[] GRADER_GRID = { 0, 5, 10, 20, 50 };
@@ -74,6 +75,13 @@ final class Benchmark {
                  int trueChanges, int flagged, int flaggedRight, int baselineRight, double share) {}
 
     private Benchmark() {
+    }
+
+    /** {@code --out docs --train 24 --test 16}: trains the shrinkage constants and writes docs/BENCHMARK.md. */
+    public static void main(String[] args) throws IOException {
+        Map<String, String> flags = new java.util.HashMap<>();
+        for (int i = 0; i + 1 < args.length; i += 2) flags.put(args[i].replaceFirst("^--", ""), args[i + 1]);
+        main(flags);
     }
 
     static void main(Map<String, String> flags) throws IOException {
@@ -158,7 +166,7 @@ final class Benchmark {
         double[] trueTotals = new Composite(fair.responses(), fair.design(), weights).asMarked();
         AuditVerdict verdict = IdentifiabilityAudit.audit(design, composite.questionWeights());
 
-        Main.KeyLookup key = Main.KeyLookup.of(marked.keyFileContents());
+        PseudonymKey key = PseudonymKey.of(marked.keyFileContents());
         double[] truth = new double[design.graderCount()];
         for (int j = 0; j < truth.length; j++) truth[j] = c.trueSeverity().get(key.real(design.graderLabels().get(j)));
 

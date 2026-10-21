@@ -4,6 +4,7 @@ import in.ac.iitm.evenhand.core.AuditVerdict;
 import in.ac.iitm.evenhand.core.Exposure;
 import in.ac.iitm.evenhand.design.sim.CourseSimulator;
 import in.ac.iitm.evenhand.estimate.Settings;
+import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.outcome.Outcome;
 import in.ac.iitm.evenhand.report.HtmlReport;
@@ -107,7 +108,7 @@ class PipelineTest {
     @Test
     @DisplayName("the in-memory key maps pseudonyms back for the terminal, and only there")
     void keyLookup() {
-        Main.KeyLookup key = Main.KeyLookup.of("# header\nsalt,00\nidentifier,label,digest\nCE23B092,Student 4,ab12\nTA01,Assistant 2,cd34\n");
+        PseudonymKey key = PseudonymKey.of("# header\nsalt,00\nidentifier,label,digest\nCE23B092,Student 4,ab12\nTA01,Assistant 2,cd34\n");
 
         assertThat(key.real("Student 4")).isEqualTo("CE23B092");
         assertThat(key.real("Assistant 2")).isEqualTo("TA01");

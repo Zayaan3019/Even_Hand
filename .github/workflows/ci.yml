@@ -38,7 +38,7 @@ jobs:
         # shows up here as well as in the test report.
         run: |
           ./mvnw -B -q -pl eh-core,eh-numerics,eh-design -am install -DskipTests
-          java -cp "eh-design/target/classes:eh-core/target/classes:eh-numerics/target/classes" \
+          java -cp "eh-design/target/test-classes:eh-design/target/classes:eh-core/target/classes:eh-numerics/target/classes" \
             in.ac.iitm.evenhand.design.AuditReport
 
   statistics:

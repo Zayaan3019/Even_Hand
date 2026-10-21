@@ -24,6 +24,10 @@
       <artifactId>eh-outcome</artifactId>
     </dependency>
     <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-content</artifactId>
+    </dependency>
+    <dependency>
       <groupId>net.jqwik</groupId>
       <artifactId>jqwik</artifactId>
       <scope>test</scope>

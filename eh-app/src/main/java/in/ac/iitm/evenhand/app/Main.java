@@ -1,14 +1,14 @@
 package in.ac.iitm.evenhand.app;
 
+import in.ac.iitm.evenhand.content.CausalFindings;
+import in.ac.iitm.evenhand.content.ContentResult;
 import in.ac.iitm.evenhand.core.FittedModel;
-import in.ac.iitm.evenhand.design.AuditReport;
-import in.ac.iitm.evenhand.design.sim.CourseSimulator;
-import in.ac.iitm.evenhand.estimate.Settings;
+import in.ac.iitm.evenhand.embed.Embedders;
+import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.outcome.Outcome;
 import in.ac.iitm.evenhand.report.HtmlReport;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -23,9 +23,7 @@ import java.util.Map;
  * <pre>
  *   java -jar even-hand.jar serve
  *   java -jar even-hand.jar run marks.csv --weights "Quiz 1=25,Quiz 2=25,End-sem=50" [--rule relative] [--out dir]
- *   java -jar even-hand.jar simulate ce-core 7 samples/
- *   java -jar even-hand.jar benchmark [--out docs]
- *   java -jar even-hand.jar scenarios
+ *   java -jar even-hand.jar model
  * </pre>
  */
 public final class Main {
@@ -38,13 +36,11 @@ public final class Main {
               run <marks.csv> [--name "CE3020 Jul-Nov 2026"] [--weights "Quiz 1=25,Quiz 2=25,End-sem=50"]
                   [--rule relative | relative-sigma | absolute:S=90,A=80,B=70,C=60,D=50,E=40]
                   [--out <dir>] [--seal-key-with-env <VAR>]
-                  Audits the marking, estimates each assistant's severity, regrades under the course's
-                  rule and writes report.html (instructor) and committee.html (Class Committee).
+                  Audits the marking, reads the written answers if the file has them, estimates each TA's
+                  severity, explains why marks differed, regrades under the course's rule, and writes
+                  report.html (instructor) and committee.html (Class Committee).
 
-              simulate <archetype> <seed> <dir>   writes a synthetic IITM course and its answers
-                  archetypes: %s
-              benchmark [--out <dir>] [--train N] [--test M]   trains and tests on synthetic courses
-              scenarios                           prints the audit's verdict on twelve arrangements
+              model                               says which answer-reading model is installed
             """;
 
     private Main() {
@@ -52,18 +48,22 @@ public final class Main {
 
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            System.out.printf(USAGE, archetypeNames());
+            System.out.print(USAGE);
             return;
         }
         Map<String, String> flags = flags(args);
         switch (args[0]) {
-            case "run" -> run(Path.of(args[1]), flags);
+            case "run" -> {
+                if (args.length < 2 || args[1].startsWith("--")) throw new IllegalArgumentException("run needs a CSV file");
+                run(Path.of(args[1]), flags);
+            }
             case "serve" -> serve(Integer.parseInt(flags.getOrDefault("port", String.valueOf(LocalServer.DEFAULT_PORT))));
-            case "simulate" -> simulate(args[1], Long.parseLong(args[2]), Path.of(args[3]));
-            case "benchmark" -> Benchmark.main(flags);
-            case "scenarios" -> AuditReport.main(new String[0]);
+            case "model" -> {
+                Embedders.Choice c = Embedders.best();
+                System.out.println(c.embedder().id() + "\n" + c.note());
+            }
             default -> {
-                System.err.printf(USAGE, archetypeNames());
+                System.err.print(USAGE);
                 System.exit(2);
             }
         }
@@ -75,6 +75,10 @@ public final class Main {
         try {
             LocalServer.start(port);
             System.out.println("Even Hand is open at " + url + "  (this computer only; close this window to stop)");
+            // Load the answer-reading model now, so the first analysis does not wait for it.
+            Thread warm = new Thread(Embedders::best, "model-loader");
+            warm.setDaemon(true);
+            warm.start();
         } catch (java.net.BindException e) {
             // Usually a second double-click: Even Hand is already running, so just show it again.
             System.out.println("Even Hand is already running at " + url + "; opening it in your browser.");
@@ -87,24 +91,23 @@ public final class Main {
     }
 
     static void run(Path csv, Map<String, String> flags) throws IOException {
-        String name = flags.getOrDefault("name", csv.getFileName().toString().replaceFirst("\\.csv$", ""));
+        String name = flags.getOrDefault("name", csv.getFileName().toString().replaceFirst("(?i)\\.csv$", ""));
         CourseConfig config = new CourseConfig(name,
                 flags.containsKey("weights") ? CourseConfig.parseWeights(flags.get("weights")) : Map.of(),
                 CourseConfig.parseRule(flags.getOrDefault("rule", "relative")),
                 flags.containsKey("rule"));
         Path out = Path.of(flags.getOrDefault("out", "even-hand-report"));
 
-        Pseudonymiser pseudonymiser = Pseudonymiser.withRandomSalt();
-        Pipeline.Run result;
-        try (BufferedReader reader = Files.newBufferedReader(csv, StandardCharsets.UTF_8)) {
-            result = Pipeline.run(reader, pseudonymiser, config, Settings.defaults());
-        }
+        String text = Files.readString(csv, StandardCharsets.UTF_8);
+        Pipeline.Run result = Pipeline.run(text, Pseudonymiser.withRandomSalt(), config, Pipeline.Options.defaults(),
+                (stage, fraction) -> System.err.printf(Locale.ROOT, "\r%3.0f%%  %-70s", 100 * fraction, stage));
+        System.err.println();
 
         Files.createDirectories(out);
         Files.writeString(out.resolve("report.html"), HtmlReport.instructor(result.report()), StandardCharsets.UTF_8);
         Files.writeString(out.resolve("committee.html"), HtmlReport.committee(result.report()), StandardCharsets.UTF_8);
         sealKey(result, flags, out);
-        printSummary(result, KeyLookup.of(result.ingest().keyFileContents()));
+        printSummary(result, PseudonymKey.of(result.ingest().keyFileContents()));
         System.out.println("\nWrote " + out.resolve("report.html") + " and " + out.resolve("committee.html"));
     }
 
@@ -112,19 +115,21 @@ public final class Main {
      * The terminal is the one place real identifiers are shown, once, to the instructor
      * running the tool. They are never written to disk except inside the sealed key file.
      */
-    private static void printSummary(Pipeline.Run r, KeyLookup key) {
-        System.out.println("AUDIT     " + r.verdict().headline());
+    private static void printSummary(Pipeline.Run r, PseudonymKey key) {
+        System.out.println("AUDIT     " + r.markingVerdict().headline());
         System.out.println("          " + r.verdict().exposure().headline());
+        r.content().ifPresent(c -> printContent(c, key));
         if (r.model().isEmpty()) {
             System.out.println("ESTIMATE  not run: the arrangement cannot support it.");
             return;
         }
         FittedModel m = r.model().get();
-        System.out.println("ESTIMATE  severity, percentage points of a question's maximum (+ = harsh):");
+        System.out.println("ESTIMATE  severity, percentage points of a question's maximum (+ = harsh), "
+                + (r.report().anchoredByAnswers() ? "from matched answers:" : "from the marks:"));
         for (int j = 0; j < m.graders().size(); j++) {
             double[] ci = m.interval95(j);
             String label = m.graders().labels().get(j);
-            System.out.printf(Locale.ROOT, "          %-13s %-10s %+6.1f  [%+.1f, %+.1f]  %d marks%n",
+            System.out.printf(Locale.ROOT, "          %-13s %-14s %+6.1f  [%+.1f, %+.1f]  %d marks%n",
                     label, key.real(label), m.severity(j), ci[0], ci[1], m.graders().counts()[j]);
         }
         System.out.printf(Locale.ROOT, "          no-effect test p = %.3f%n", m.noEffect().pValue());
@@ -144,6 +149,23 @@ public final class Main {
         }
     }
 
+    private static void printContent(ContentResult c, PseudonymKey key) {
+        System.out.printf(Locale.ROOT, "ANSWERS   %s: %.0f%% of responses carry text; content explains %.0f%% of marks "
+                + "within a pile; %.0f%% of answers have a close match marked by another TA%n",
+                c.status(), 100 * c.textCoverage(), 100 * c.signal(), 100 * c.matchedShare());
+        c.causal().ifPresent(f -> {
+            CausalFindings.VarianceShare v = f.variance();
+            System.out.printf(Locale.ROOT, "WHY       of the variation in marks: %.0f%% what students wrote, %.0f%% who "
+                    + "marked it, %.0f%% neither%n", v.content(), v.assistant(), v.residual());
+            for (CausalFindings.Mechanism m : f.mechanisms()) {
+                System.out.println("          " + key.real(m.assistant()) + ": " + m.explanation());
+            }
+            System.out.printf(Locale.ROOT, "          placebo (labels shuffled among similar answers): p = %.3f%n",
+                    f.placebo().pValue());
+        });
+        for (String n : c.notes()) System.out.println("          note: " + n);
+    }
+
     private static void sealKey(Pipeline.Run r, Map<String, String> flags, Path out) throws IOException {
         String variable = flags.get("seal-key-with-env");
         if (variable == null) {
@@ -156,28 +178,6 @@ public final class Main {
         Files.write(out.resolve("course.key"), r.ingest().sealedKeyFile(passphrase.toCharArray()));
     }
 
-    static void simulate(String archetype, long seed, Path dir) throws IOException {
-        CourseSimulator.Archetype a = CourseSimulator.Archetype.valueOf(archetype.toUpperCase(Locale.ROOT).replace('-', '_'));
-        CourseSimulator.SimulatedCourse course = CourseSimulator.simulate(a, seed);
-        Files.createDirectories(dir);
-        course.writeMarksCsv(dir.resolve(course.name() + ".csv"));
-        course.writeTruthCsv(dir.resolve(course.name() + ".truth.csv"));
-        StringBuilder weights = new StringBuilder();
-        course.weights().forEach((k, v) -> weights.append(weights.length() == 0 ? "" : ",").append(k).append('=')
-                .append(v.intValue()));
-        System.out.println("Wrote " + dir.resolve(course.name() + ".csv") + "  (" + a.description + ")");
-        System.out.println("Run it with: run " + dir.resolve(course.name() + ".csv") + " --weights \"" + weights + "\"");
-    }
-
-    private static String archetypeNames() {
-        StringBuilder sb = new StringBuilder();
-        for (CourseSimulator.Archetype a : CourseSimulator.Archetype.values()) {
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(a.name().toLowerCase(Locale.ROOT).replace('_', '-'));
-        }
-        return sb.toString();
-    }
-
     /** {@code --key value} pairs after the positional arguments. */
     static Map<String, String> flags(String[] args) {
         Map<String, String> out = new HashMap<>();
@@ -188,28 +188,5 @@ public final class Main {
             }
         }
         return out;
-    }
-
-    /** Pseudonym to real identifier, from the key held in memory for this run only. */
-    record KeyLookup(Map<String, String> realByLabel) {
-        static KeyLookup of(String keyFileContents) {
-            Map<String, String> map = new HashMap<>();
-            boolean inTable = false;
-            for (String line : keyFileContents.split("\n")) {
-                if (line.startsWith("identifier,label,digest")) {
-                    inTable = true;
-                    continue;
-                }
-                if (!inTable || line.isBlank()) continue;
-                String[] parts = line.split(",");
-                if (parts.length >= 3) map.put(parts[parts.length - 2], String.join(",",
-                        java.util.Arrays.copyOf(parts, parts.length - 2)));
-            }
-            return new KeyLookup(map);
-        }
-
-        String real(String label) {
-            return realByLabel.getOrDefault(label, "?");
-        }
     }
 }
