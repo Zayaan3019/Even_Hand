@@ -1,0 +1,168 @@
+# Written-answer bank for the course simulator.
+#
+# Each question has rubric points (+), each written three ways, as different students would put
+# the same idea; misconceptions (-), which cost half a point each; and neutral filler (~). A
+# simulated student makes each point with a chance that rises with their ability, may state a
+# misconception, and writes it all in their own order, with the occasional typo. The mark an
+# answer deserves is computed from the points it actually makes, so the text and the mark agree
+# the way they do on a real script. Variants are separated by " | ".
+
+## Q beam-moment | Where is the bending moment maximum in a simply supported beam, and how do you find it?
++ The bending moment is maximum where the shear force is zero or changes sign. | Maximum BM occurs at the section where the shear force passes through zero. | Wherever the SF diagram crosses the axis, the moment reaches its peak.
++ For a central point load P on span L the maximum moment is PL/4 at midspan. | Under a central load the peak moment equals P times L over 4, at the centre. | With P at the middle, M max = PL/4 at L/2.
++ For a uniformly distributed load w the maximum moment is wL^2/8 at midspan. | A UDL of intensity w gives M max = wL²/8 at the centre of the span. | Under UDL the moment is largest at mid span and equals w L squared by 8.
++ The reactions are found first from the equilibrium equations, sum of forces and moments equal to zero. | First find the support reactions using ΣFy = 0 and ΣM = 0. | Start by taking moments about one support to get the reactions.
++ The moment at a section is the sum of moments of all forces on one side of it. | M at any section is obtained by summing the moments of the forces to its left (or right). | Cut the beam at the section and take moments of everything on one side.
+- The bending moment is maximum where the shear force is maximum. | Peak moment is at the point of maximum shear.
+- The maximum moment always occurs at the supports. | For a simply supported beam the moment is largest at the supports.
+~ This is an important concept in structural analysis. | Hence the answer. | The SFD and BMD can be drawn to show this.
+
+## Q truss-member | Find the force in member BC of the truss and state whether it is in tension or compression.
++ Use the method of sections, cutting through BC and two other members. | Pass a section through members BC, CF and EF and consider one part. | The method of sections is quickest: cut the truss through BC.
++ Take moments about the joint where the other two cut members meet, so BC is the only unknown. | Moments about F eliminate the other two unknown member forces. | Choosing the moment centre at the intersection of the other members isolates F_BC.
++ The force in BC works out to 25 kN. | F_BC = 25 kN. | Solving gives a member force of 25 kN in BC.
++ Member BC is in tension, since the force pulls away from the joints. | BC is a tension member. | The positive sign means BC is in tension.
++ Check with the method of joints at joint B. | The result can be verified by equilibrium of joint B. | A joint equilibrium check at B confirms the value.
+- Member BC is in compression. | The force in BC is compressive.
+- The force in BC is 50 kN. | F_BC comes out as 50 kN.
+~ Trusses are pin jointed and members carry only axial force. | Assuming all joints are pins. | Neglecting self weight of members.
+
+## Q effective-stress | State the principle of effective stress and explain its significance for soils.
++ Effective stress is total stress minus pore water pressure, σ' = σ − u. | σ' equals the total stress minus the pore pressure. | The effective stress is the total stress less the water pressure in the pores.
++ The strength and deformation of soil are controlled by effective stress, not total stress. | Shear strength and compressibility depend on σ'. | Soil behaviour, both strength and volume change, is governed by effective stress.
++ Effective stress is carried by the soil skeleton through grain to grain contacts. | It represents the stress transmitted through the solid particles. | σ' is the intergranular stress borne by the soil grains.
++ A rise in pore pressure reduces effective stress and can cause failure, as in liquefaction. | Increasing u lowers σ', which may lead to slope failure or liquefaction. | When pore pressure builds up the soil loses strength.
++ The principle was proposed by Terzaghi. | This is Terzaghi's principle. | Karl Terzaghi stated it in 1923.
+- Effective stress is total stress plus pore water pressure. | σ' = σ + u.
+- Pore water pressure increases the strength of soil. | Higher pore pressure makes the soil stronger.
+~ Soil is a three phase material. | This is the most important principle in soil mechanics. | It applies to saturated soils.
+
+## Q reynolds | What is the Reynolds number, and how does it decide whether pipe flow is laminar or turbulent?
++ The Reynolds number is the ratio of inertial forces to viscous forces. | Re compares inertia forces with viscous forces. | It is a dimensionless ratio of inertial to viscous effects.
++ Re = ρVD/μ, where V is the mean velocity and D the pipe diameter. | It is defined as density times velocity times diameter divided by dynamic viscosity. | Re = VD/ν using the kinematic viscosity.
++ In a pipe the flow is laminar when Re is below about 2000. | For Re < 2000 the flow is laminar. | Low Reynolds numbers, under roughly 2300, give laminar flow.
++ Flow is turbulent above about 4000, with a transition region in between. | Re > 4000 means turbulent flow; between 2000 and 4000 it is transitional. | Beyond about 4000 the flow becomes turbulent.
++ In laminar flow the friction factor is 64/Re. | For laminar flow f = 64/Re. | The Darcy friction factor in laminar flow equals 64 divided by Re.
+- Flow is turbulent when the Reynolds number is low. | Low Re gives turbulent flow.
+- The Reynolds number is the ratio of viscous forces to gravity forces. | Re compares viscosity with gravity.
+~ It was introduced by Osborne Reynolds. | It is used in fluid mechanics. | This is a dimensionless number.
+
+## Q first-law | State the first law of thermodynamics for a closed system and apply it to a cycle.
++ For a closed system, the heat added equals the change in internal energy plus the work done, Q = ΔU + W. | Q − W = ΔU for a closed system. | Energy supplied as heat goes into raising internal energy and doing work.
++ Energy can neither be created nor destroyed; it only changes form. | The first law is the law of conservation of energy. | It states that energy is conserved.
++ For a cycle the change in internal energy is zero, so net heat equals net work. | Over a complete cycle ΔU = 0, so ∮δQ = ∮δW. | In a cyclic process the net heat transfer equals the net work.
++ Internal energy is a property and a point function, while heat and work are path functions. | U depends only on the state; Q and W depend on the path. | Heat and work are not properties, but internal energy is.
++ A perpetual motion machine of the first kind is impossible. | No machine can produce work without an energy input (PMM1). | This rules out a perpetual motion machine of the first kind.
+- Heat and work are properties of the system. | Work is a point function.
+- In a cycle the net work is always zero. | The net work done in a cycle is zero.
+~ Thermodynamics deals with energy interactions. | Sign convention: heat added is positive. | This is very important for engines.
+
+## Q concrete-wc | How does the water-cement ratio affect the strength and workability of concrete?
++ Strength decreases as the water-cement ratio increases. | A higher w/c ratio gives lower compressive strength. | More water per unit cement means weaker concrete.
++ This relation is Abrams' law. | Abrams' water-cement ratio law describes it. | According to Abrams, strength is inversely related to w/c.
++ Workability increases with a higher water-cement ratio. | More water makes the mix more workable. | A higher w/c ratio improves workability.
++ Excess water leaves voids and capillary pores when it evaporates, reducing strength and durability. | Extra water not needed for hydration creates pores in the hardened concrete. | Surplus water causes porosity, which lowers strength and durability.
++ Plasticisers can improve workability without adding water. | Superplasticisers give workability at a low w/c ratio. | Admixtures are used so the w/c ratio can stay low.
+- A higher water-cement ratio increases strength. | Adding more water makes concrete stronger.
+- Workability does not depend on the water content. | Water has no effect on workability.
+~ Concrete is the most widely used construction material. | Cement, sand and aggregate are mixed with water. | Typical w/c ratios are 0.4 to 0.6.
+
+## Q traverse | How are closing errors in a closed traverse adjusted?
++ The closing error is found from the sums of latitudes and departures, which should be zero. | ΣL and ΣD should both be zero for a closed traverse; their values give the error. | Compute the sum of latitudes and departures to get the closing error.
++ The Bowditch rule distributes the error in proportion to the length of each line. | Bowditch's method corrects each line in proportion to its length. | By the compass rule, corrections are proportional to line lengths.
++ The transit rule distributes it in proportion to the latitudes and departures. | Transit rule corrections are proportional to the latitude and departure of each line. | The transit method uses the magnitude of latitudes and departures.
++ Bowditch is used when angles and distances are measured with equal precision. | The compass rule suits traverses where linear and angular measurements are equally accurate. | Use Bowditch when angles and lengths have similar precision.
++ The relative precision is the closing error divided by the perimeter. | Accuracy is expressed as closing error over total length of the traverse. | The ratio of error to perimeter gives the precision, such as 1 in 5000.
+- The error is added to the last line only. | All the error is put on the final leg.
+- The Bowditch rule distributes error equally among all lines. | Each line gets an equal correction.
+~ Surveying is done with a theodolite. | A traverse is a series of connected lines. | Field work should be careful.
+
+## Q unit-hydrograph | What is a unit hydrograph and what assumptions does it rest on?
++ A unit hydrograph is the direct runoff hydrograph from one unit of effective rainfall over the catchment. | It is the hydrograph of direct runoff from 1 cm of excess rainfall. | The UH is the runoff response to a unit depth of effective rainfall.
++ It is for rainfall of a specified duration occurring uniformly over the catchment. | The rainfall is of a given duration and uniform in space and time. | It is defined for a D-hour storm spread evenly over the basin.
++ It assumes linearity: ordinates are proportional to the effective rainfall. | Runoff ordinates scale in proportion to the excess rainfall (linearity). | Doubling the excess rain doubles every ordinate.
++ It assumes time invariance: the same storm always gives the same hydrograph. | The response does not change with time (time invariance). | The catchment's behaviour is assumed constant over time.
++ Hydrographs of longer storms are built by superposition, or with the S-curve method. | Superposition of lagged unit hydrographs gives the response to complex storms. | The S-curve converts a UH from one duration to another.
+- A unit hydrograph includes the base flow. | Base flow is part of the unit hydrograph.
+- The unit hydrograph is valid for any catchment size. | It applies equally to very large basins.
+~ Hydrology is important for design of dams. | Rainfall data is collected from rain gauges. | The peak is important.
+
+## Q sight-distance | What is stopping sight distance and what does it depend on?
++ Stopping sight distance is the distance needed for a driver to stop safely after seeing an obstruction. | SSD is the minimum distance required to bring a vehicle to rest before an obstacle. | It is the distance a driver needs to perceive a hazard and stop.
++ It is the sum of the lag distance during perception-reaction time and the braking distance. | SSD = lag distance + braking distance. | It has two parts: distance covered while reacting, and distance while braking.
++ The lag distance is v times t, with a reaction time of about 2.5 seconds. | Lag distance = vt, taking t as 2.5 s per IRC. | During the reaction time of 2.5 s the vehicle travels v t.
++ The braking distance is v^2/(2gf), where f is the coefficient of friction. | Braking distance equals v²/2gf. | Braking takes v squared over 2 g f.
++ A steeper downgrade increases the stopping distance. | On a descending gradient the braking distance is longer. | Gradient matters: downhill increases SSD.
+- Stopping sight distance does not depend on speed. | SSD is the same at all speeds.
+- Braking distance is v/(2gf). | The braking distance is proportional to speed.
+~ IRC gives standards for highways. | Safety is very important on roads. | Visibility matters.
+
+## Q bod | What is BOD, and why is it measured over five days at 20 °C?
++ BOD is the amount of oxygen needed by microorganisms to decompose the organic matter in water. | Biochemical oxygen demand is the oxygen consumed by bacteria in breaking down organic matter. | It measures the oxygen used by microbes oxidising biodegradable organics.
++ It is an indicator of the strength of organic pollution in wastewater. | High BOD means heavy organic pollution. | BOD tells us how polluted the water is with organic waste.
++ The standard test is BOD5, incubated for five days at 20 °C. | It is measured over 5 days at 20 degrees Celsius. | BOD5 at 20 °C is the standard measurement.
++ Five days covers most of the carbonaceous demand before nitrification starts. | By day five most carbonaceous oxidation is done, and nitrifying bacteria have not yet started. | The 5-day period avoids interference from nitrification.
++ BOD exertion follows first-order kinetics, BOD_t = L(1 − e^(−kt)). | The BOD curve is first order with rate constant k. | It is modelled as y = L0 (1 − exp(−kt)).
+- BOD is the total amount of dissolved oxygen in water. | BOD means dissolved oxygen.
+- Low BOD indicates heavy pollution. | A lower BOD means the water is more polluted.
+~ Water quality is important for public health. | COD is another parameter. | Samples should be kept in the dark.
+
+## Q damping | What is damping in a vibrating structure, and what is critical damping?
++ Damping is the dissipation of energy that makes vibrations die out over time. | It is the mechanism by which vibrating energy is lost, so the amplitude decays. | Damping removes energy and reduces the amplitude of vibration.
++ Critical damping is the smallest damping for which the system returns to rest without oscillating. | At critical damping the system comes back to equilibrium fastest without oscillation. | Critically damped systems do not oscillate and settle quickly.
++ The critical damping coefficient is c_c = 2√(km) = 2mω_n. | c critical equals 2 m ω_n. | It is given by 2 times the square root of k m.
++ The damping ratio is ζ = c/c_c; buildings typically have about 5% damping. | ζ is the ratio of actual to critical damping, around 0.05 for structures. | Most structures are underdamped with ζ near 5 percent.
++ An underdamped system oscillates with a decaying amplitude at the damped frequency ω_d = ω_n√(1 − ζ²). | For ζ < 1 the motion oscillates and decays. | Underdamped vibration has ω_d = ω_n sqrt(1 − ζ²).
+- Critical damping makes the system oscillate forever. | A critically damped system vibrates with constant amplitude.
+- Damping increases the natural frequency. | With more damping the system vibrates faster.
+~ Vibrations are important in earthquake engineering. | A spring mass system is the simplest model. | Damping is present in all real structures.
+
+## Q steel-buckling | Explain Euler buckling of a steel column and its limitations.
++ Euler's critical load is P_cr = π²EI/(KL)². | The buckling load is pi squared EI over effective length squared. | P_cr = π² E I / L_e².
++ The effective length depends on the end conditions, from 0.5L for fixed-fixed to 2L for a cantilever. | End restraints decide the effective length factor K. | Effective length is L for pinned ends, 0.5L fixed-fixed and 2L for fixed-free.
++ Buckling occurs about the axis with the least moment of inertia, or the highest slenderness. | The column buckles about its weaker axis. | The minimum radius of gyration governs.
++ Euler's formula is valid only for long, slender columns. | It applies only when the slenderness ratio is high. | Short columns fail by crushing, so Euler does not apply to them.
++ Real columns have imperfections and residual stresses, so design codes use reduced buckling curves. | IS 800 uses buckling curves that allow for initial crookedness and residual stress. | Practical design reduces the Euler load for imperfections.
+- The buckling load increases with the length of the column. | Longer columns can carry more load before buckling.
+- Euler's formula applies to short stocky columns. | It is valid for all columns.
+~ Steel is a ductile material. | Columns carry axial compression. | Buckling is a stability problem.
+
+## Q newton-friction | A block rests on an inclined plane. When does it start to slide?
++ Resolve the weight into components along and perpendicular to the incline. | The weight mg has components mg sinθ down the slope and mg cosθ into it. | Split gravity into parallel and normal components.
++ The normal reaction is N = mg cosθ. | N equals mg cos theta. | The normal force balances mg cosθ.
++ The maximum static friction is μ_s N. | Friction can be at most μ times the normal reaction. | Limiting friction equals μ_s mg cosθ.
++ The block slides when mg sinθ exceeds μ_s mg cosθ, that is tanθ > μ_s. | Sliding starts when tan θ is greater than the coefficient of static friction. | The angle of repose satisfies tanθ = μ.
++ Once moving, kinetic friction μ_k N acts and the acceleration is g(sinθ − μ_k cosθ). | After it slides, a = g (sin θ − μ_k cos θ). | With kinetic friction the block accelerates at g sinθ − μ_k g cosθ.
+- The block slides when the angle exceeds 45 degrees. | Sliding always starts at 45°.
+- Friction depends on the area of contact. | A larger contact area gives more friction.
+~ Newton's laws apply here. | Draw the free body diagram. | g = 9.81 m/s².
+
+## Q eigen | What are eigenvalues and eigenvectors of a matrix, and how are they found?
++ An eigenvector v satisfies Av = λv, and λ is the eigenvalue. | A v = λ v defines an eigenvalue λ and eigenvector v. | Eigenvectors are directions the matrix only stretches, by the factor λ.
++ The eigenvalues are roots of the characteristic equation det(A − λI) = 0. | Solve det(A − λI) = 0 for λ. | λ comes from setting the determinant of A minus λI to zero.
++ For each eigenvalue the eigenvector is found by solving (A − λI)v = 0. | Substitute λ back and solve the homogeneous system for v. | The null space of A − λI gives the eigenvectors.
++ A symmetric matrix has real eigenvalues and orthogonal eigenvectors. | For real symmetric matrices all eigenvalues are real and eigenvectors are orthogonal. | Symmetric matrices are diagonalisable with an orthogonal basis.
++ The sum of the eigenvalues equals the trace and their product equals the determinant. | Trace = sum of λ, determinant = product of λ. | Σλ = tr A and Πλ = det A.
+- The eigenvalues of any matrix are its diagonal entries. | Eigenvalues are simply the diagonal elements.
+- An eigenvector can be the zero vector. | The zero vector is an eigenvector.
+~ This is an important topic in linear algebra. | Matrices are used everywhere in engineering. | Example: a 2 by 2 matrix.
+
+## Q recursion | Explain recursion with the example of computing a factorial, and its cost.
++ A recursive function calls itself on a smaller instance of the problem. | Recursion is when a function is defined in terms of itself on smaller inputs. | The function solves a problem by calling itself on a simpler version.
++ It needs a base case to stop, for factorial 0! = 1. | The base case n = 0 returns 1, which ends the recursion. | Without a base case such as fact(0) = 1 it would never stop.
++ The recursive case is n! = n × (n − 1)!. | fact(n) returns n * fact(n - 1). | Each call multiplies n by the factorial of n − 1.
++ Each call uses a stack frame, so the memory is O(n) and deep recursion can overflow the stack. | The call stack grows with n, using O(n) space. | Too many nested calls cause a stack overflow.
++ The time complexity is O(n) because there are n calls. | It runs in linear time, O(n). | There are n multiplications, so the cost is O(n).
+- Recursion does not need a base case. | The function stops on its own.
+- Recursive factorial takes O(2^n) time. | It is exponential in n.
+~ Python and C both support recursion. | Recursion is elegant. | Iteration can also be used.
+
+## Q kvl | State Kirchhoff's laws and use them to analyse a circuit.
++ Kirchhoff's current law: the algebraic sum of currents at a node is zero. | KCL says current entering a junction equals current leaving it. | At any node the currents sum to zero.
++ Kirchhoff's voltage law: the sum of voltages around any closed loop is zero. | KVL states that the voltage drops around a loop add up to the EMF. | Around a closed path the algebraic sum of potential differences is zero.
++ KCL follows from conservation of charge. | The current law expresses conservation of charge. | Charge cannot accumulate at a node, which gives KCL.
++ KVL follows from conservation of energy. | The voltage law is a statement of energy conservation. | Energy conservation around a loop gives KVL.
++ Writing KVL for each mesh gives simultaneous equations for the mesh currents. | Mesh analysis applies KVL to every loop and solves for the currents. | Node analysis with KCL gives equations for the node voltages.
+- KCL states that the sum of voltages at a node is zero. | Voltages at a node add to zero.
+- Kirchhoff's laws apply only to DC circuits. | They are not valid for AC circuits.
+~ Ohm's law is V = IR. | Circuits have resistors and sources. | This is basic electrical engineering.

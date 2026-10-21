@@ -43,5 +43,6 @@ if not exist "%MODEL%\model.safetensors" (
   if errorlevel 1 echo Could not fetch it now. Answers will be compared by wording only until it is fetched.
 )
 
-java -jar "%JAR%" serve
+rem --add-modules turns on the SIMD kernels that read answers about five times faster.
+java --add-modules jdk.incubator.vector -jar "%JAR%" serve
 pause

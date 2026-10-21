@@ -3,10 +3,11 @@ package in.ac.iitm.evenhand.embed;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.IntStream;
 
 /**
  * A sentence-transformer model from a local folder in the Hugging Face layout:
@@ -96,26 +97,52 @@ public final class TransformerEmbedder implements SentenceEmbedder {
         return tokenizer;
     }
 
+    /** Word pieces packed into one batch through the encoder: enough to amortise the weights, small enough for cache. */
+    private static final int BATCH_PIECES = 1024;
+
     @Override
     public float[][] embed(List<String> texts) {
         if (memo.size() > MEMO_LIMIT) memo.clear();
+        // Distinct texts not yet seen, longest first, packed into batches; the batches run in parallel.
+        Map<String, int[]> todo = new LinkedHashMap<>();
+        for (String t : texts) {
+            if (!memo.containsKey(t) && !todo.containsKey(t)) todo.put(t, tokenizer.encode(t, maxLength));
+        }
+        List<Map.Entry<String, int[]>> pending = new ArrayList<>(todo.entrySet());
+        pending.sort((a, b) -> Integer.compare(b.getValue().length, a.getValue().length));
+        List<List<Map.Entry<String, int[]>>> batches = new ArrayList<>();
+        List<Map.Entry<String, int[]>> current = new ArrayList<>();
+        int pieces = 0;
+        for (Map.Entry<String, int[]> e : pending) {
+            if (!current.isEmpty() && pieces + e.getValue().length > BATCH_PIECES) {
+                batches.add(current);
+                current = new ArrayList<>();
+                pieces = 0;
+            }
+            current.add(e);
+            pieces += e.getValue().length;
+        }
+        if (!current.isEmpty()) batches.add(current);
+        batches.parallelStream().forEach(batch -> {
+            int[][] seqs = new int[batch.size()][];
+            for (int i = 0; i < seqs.length; i++) seqs[i] = batch.get(i).getValue();
+            float[][] states = encoder.forward(seqs);
+            for (int i = 0; i < seqs.length; i++) memo.put(batch.get(i).getKey(), pool(states[i], seqs[i].length));
+        });
         float[][] out = new float[texts.size()][];
-        IntStream.range(0, texts.size()).parallel().forEach(i ->
-                out[i] = memo.computeIfAbsent(texts.get(i), this::embedOne).clone());
+        for (int i = 0; i < out.length; i++) out[i] = memo.get(texts.get(i)).clone();
         return out;
     }
 
-    private float[] embedOne(String text) {
-        int[] ids = tokenizer.encode(text, maxLength);
-        float[] states = encoder.forward(ids);
+    private float[] pool(float[] states, int tokens) {
         int h = encoder.hidden;
         float[] v = new float[h];
         if (clsPooling) {
             System.arraycopy(states, 0, v, 0, h);
         } else {
             double[] sum = new double[h];
-            for (int t = 0; t < ids.length; t++) for (int c = 0; c < h; c++) sum[c] += states[t * h + c];
-            for (int c = 0; c < h; c++) v[c] = (float) (sum[c] / ids.length);
+            for (int t = 0; t < tokens; t++) for (int c = 0; c < h; c++) sum[c] += states[t * h + c];
+            for (int c = 0; c < h; c++) v[c] = (float) (sum[c] / tokens);
         }
         return SentenceEmbedder.normalise(v);
     }

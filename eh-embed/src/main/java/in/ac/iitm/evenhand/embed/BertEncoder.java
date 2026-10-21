@@ -2,6 +2,7 @@ package in.ac.iitm.evenhand.embed;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -18,8 +19,8 @@ import java.util.Map;
  * <p>That is the whole of what a sentence-transformer computes before pooling. Inference needs
  * no autograd and no batching, so it fits in one class that can be read end to end and checked
  * number for number against the reference implementation (see {@code TransformerEmbedderTest}).
- * Weights are held as {@code float}, as they are stored; linear layers are laid out so the JIT can
- * vectorise them (see {@link #linear}).
+ * Weights are held as {@code float}, as they are stored; the linear layers, where the time goes, run
+ * on SIMD instructions when the JDK's Vector API is available ({@link Kernels}).
  */
 final class BertEncoder {
 
@@ -56,13 +57,13 @@ final class BertEncoder {
         for (int l = 0; l < layers; l++) {
             String b = p + "encoder.layer." + l + ".";
             layer[l] = new Layer(
-                    tr(t, b + "attention.self.query.weight", hidden, hidden), t.floats(b + "attention.self.query.bias"),
-                    tr(t, b + "attention.self.key.weight", hidden, hidden), t.floats(b + "attention.self.key.bias"),
-                    tr(t, b + "attention.self.value.weight", hidden, hidden), t.floats(b + "attention.self.value.bias"),
-                    tr(t, b + "attention.output.dense.weight", hidden, hidden), t.floats(b + "attention.output.dense.bias"),
+                    t.floats(b + "attention.self.query.weight"), t.floats(b + "attention.self.query.bias"),
+                    t.floats(b + "attention.self.key.weight"), t.floats(b + "attention.self.key.bias"),
+                    t.floats(b + "attention.self.value.weight"), t.floats(b + "attention.self.value.bias"),
+                    t.floats(b + "attention.output.dense.weight"), t.floats(b + "attention.output.dense.bias"),
                     t.floats(b + "attention.output.LayerNorm.weight"), t.floats(b + "attention.output.LayerNorm.bias"),
-                    tr(t, b + "intermediate.dense.weight", intermediate, hidden), t.floats(b + "intermediate.dense.bias"),
-                    tr(t, b + "output.dense.weight", hidden, intermediate), t.floats(b + "output.dense.bias"),
+                    t.floats(b + "intermediate.dense.weight"), t.floats(b + "intermediate.dense.bias"),
+                    t.floats(b + "output.dense.weight"), t.floats(b + "output.dense.bias"),
                     t.floats(b + "output.LayerNorm.weight"), t.floats(b + "output.LayerNorm.bias"));
         }
         int vocab = wordEmb.length / hidden;
@@ -82,14 +83,34 @@ final class BertEncoder {
 
     /** The last layer's hidden states, {@code [token][hidden]} flattened, for the given ids. */
     float[] forward(int[] ids) {
-        int n = ids.length, h = hidden;
-        if (n > maxPositions) throw new IllegalArgumentException("sequence longer than the model's " + maxPositions);
+        return forward(new int[][] {ids})[0];
+    }
+
+    /**
+     * The last layer's hidden states for several sequences at once, each {@code [token][hidden]}
+     * flattened. The sequences are packed end to end through the linear layers, which is where the
+     * time goes, so each weight is read from memory once per batch rather than once per answer;
+     * attention, positions and layer norms stay within each sequence, so every result is exactly
+     * what that sequence alone would give.
+     */
+    float[][] forward(int[][] seqs) {
+        int h = hidden, total = 0;
+        int[] start = new int[seqs.length + 1];
+        for (int s = 0; s < seqs.length; s++) {
+            if (seqs[s].length > maxPositions) {
+                throw new IllegalArgumentException("sequence longer than the model's " + maxPositions);
+            }
+            start[s] = total;
+            total += seqs[s].length;
+        }
+        start[seqs.length] = total;
+        int n = total;
         float[] x = new float[n * h];
-        for (int t = 0; t < n; t++) {
-            int id = ids[t];
-            if (id < 0 || id >= vocabSize()) throw new IllegalArgumentException("token id " + id + " out of range");
-            for (int c = 0; c < h; c++) {
-                x[t * h + c] = wordEmb[id * h + c] + posEmb[t * h + c] + typeEmb[c];
+        for (int s = 0; s < seqs.length; s++) {
+            for (int p = 0; p < seqs[s].length; p++) {
+                int id = seqs[s][p], t = start[s] + p;
+                if (id < 0 || id >= vocabSize()) throw new IllegalArgumentException("token id " + id + " out of range");
+                for (int c = 0; c < h; c++) x[t * h + c] = wordEmb[id * h + c] + posEmb[p * h + c] + typeEmb[c];
             }
         }
         layerNorm(x, n, embLnW, embLnB);
@@ -98,33 +119,38 @@ final class BertEncoder {
         float scale = (float) (1.0 / Math.sqrt(dHead));
         float[] q = new float[n * h], k = new float[n * h], v = new float[n * h], ctx = new float[n * h];
         float[] tmp = new float[n * h], up = new float[n * intermediate];
-        float[] scores = new float[n];
+        int longest = 0;
+        for (int[] seq : seqs) longest = Math.max(longest, seq.length);
+        float[] scores = new float[longest];
         for (Layer L : layer) {
             linear(x, n, h, L.q(), L.qb(), h, q);
             linear(x, n, h, L.k(), L.kb(), h, k);
             linear(x, n, h, L.v(), L.vb(), h, v);
-            for (int head = 0; head < heads; head++) {
-                int off = head * dHead;
-                for (int t = 0; t < n; t++) {
-                    float max = Float.NEGATIVE_INFINITY;
-                    for (int u = 0; u < n; u++) {
-                        float s = dot(q, t * h + off, k, u * h + off, dHead) * scale;
-                        scores[u] = s;
-                        if (s > max) max = s;
-                    }
-                    double sum = 0;
-                    for (int u = 0; u < n; u++) {
-                        float e = (float) Math.exp(scores[u] - max);
-                        scores[u] = e;
-                        sum += e;
-                    }
-                    float inv = (float) (1.0 / sum);
-                    int at = t * h + off;
-                    for (int c = 0; c < dHead; c++) ctx[at + c] = 0f;
-                    for (int u = 0; u < n; u++) {
-                        float p = scores[u] * inv;
-                        int from = u * h + off;
-                        for (int c = 0; c < dHead; c++) ctx[at + c] += p * v[from + c];
+            for (int s = 0; s < seqs.length; s++) {
+                int from = start[s], to = start[s + 1];
+                for (int head = 0; head < heads; head++) {
+                    int off = head * dHead;
+                    for (int t = from; t < to; t++) {
+                        float max = Float.NEGATIVE_INFINITY;
+                        for (int u = from; u < to; u++) {
+                            float sc = dot(q, t * h + off, k, u * h + off, dHead) * scale;
+                            scores[u - from] = sc;
+                            if (sc > max) max = sc;
+                        }
+                        double sum = 0;
+                        for (int u = 0; u < to - from; u++) {
+                            float e = (float) Math.exp(scores[u] - max);
+                            scores[u] = e;
+                            sum += e;
+                        }
+                        float inv = (float) (1.0 / sum);
+                        int at = t * h + off;
+                        for (int c = 0; c < dHead; c++) ctx[at + c] = 0f;
+                        for (int u = from; u < to; u++) {
+                            float pr = scores[u - from] * inv;
+                            int src = u * h + off;
+                            for (int c = 0; c < dHead; c++) ctx[at + c] += pr * v[src + c];
+                        }
                     }
                 }
             }
@@ -138,49 +164,19 @@ final class BertEncoder {
             for (int i = 0; i < x.length; i++) x[i] += tmp[i];
             layerNorm(x, n, L.ln2w(), L.ln2b());
         }
-        return x;
+        float[][] out = new float[seqs.length][];
+        for (int s = 0; s < seqs.length; s++) out[s] = Arrays.copyOfRange(x, start[s] * h, start[s + 1] * h);
+        return out;
     }
 
-    /**
-     * {@code out[t][o] = b[o] + sum_i in[t][i] * W[o][i]}: PyTorch's Linear. The weight is held
-     * transposed, {@code [in][out]}, so the inner loop is a multiply-add along a contiguous row with no
-     * reduction, which the JIT compiles to SIMD instructions; four tokens share each row it loads.
-     */
-    private static void linear(float[] in, int n, int inDim, float[] wT, float[] b, int outDim, float[] out) {
-        for (int t = 0; t < n; t++) System.arraycopy(b, 0, out, t * outDim, outDim);
-        int t = 0;
-        for (; t + 3 < n; t += 4) {
-            int o0 = t * outDim, o1 = o0 + outDim, o2 = o1 + outDim, o3 = o2 + outDim;
-            int r0 = t * inDim, r1 = r0 + inDim, r2 = r1 + inDim, r3 = r2 + inDim;
-            for (int i = 0; i < inDim; i++) {
-                float a0 = in[r0 + i], a1 = in[r1 + i], a2 = in[r2 + i], a3 = in[r3 + i];
-                int w = i * outDim;
-                for (int o = 0; o < outDim; o++) {
-                    float wv = wT[w + o];
-                    out[o0 + o] += a0 * wv;
-                    out[o1 + o] += a1 * wv;
-                    out[o2 + o] += a2 * wv;
-                    out[o3 + o] += a3 * wv;
-                }
-            }
-        }
-        for (; t < n; t++) {
-            int ot = t * outDim, rt = t * inDim;
-            for (int i = 0; i < inDim; i++) {
-                float a = in[rt + i];
-                int w = i * outDim;
-                for (int o = 0; o < outDim; o++) out[ot + o] += a * wT[w + o];
-            }
-        }
+    /** {@code out[t][o] = b[o] + sum_i in[t][i] * W[o][i]}: PyTorch's Linear, by the fastest kernel available. */
+    private static void linear(float[] in, int n, int inDim, float[] w, float[] b, int outDim, float[] out) {
+        Kernels.best().linear(in, n, inDim, w, b, outDim, out);
     }
 
-    /** A [out][in] weight as [in][out]. */
-    private static float[] tr(SafeTensors t, String name, int out, int in) {
-        float[] w = t.floats(name);
-        if (w.length != out * in) throw new IllegalArgumentException(name + " does not have shape [" + out + ", " + in + "]");
-        float[] r = new float[w.length];
-        for (int o = 0; o < out; o++) for (int i = 0; i < in; i++) r[i * out + o] = w[o * in + i];
-        return r;
+    /** Which linear-layer kernel is in use, for the report's footnote. */
+    static String kernel() {
+        return Kernels.best().name();
     }
 
     private static float dot(float[] a, int ai, float[] b, int bi, int len) {
@@ -216,7 +212,21 @@ final class BertEncoder {
 
     /** The exact GELU BERT was trained with: x * Phi(x), not the tanh approximation. */
     static float gelu(float x) {
-        return (float) (0.5 * x * (1.0 + erf(x / Math.sqrt(2.0))));
+        return (float) (0.5 * x * (1.0 + erfFast(x * 0.7071067811865476)));
+    }
+
+    /**
+     * erf to 1.2e-7 everywhere (Numerical Recipes' erfcc, a Chebyshev fit), about ten times faster
+     * than {@link #erf}. GELU is evaluated half a million times per answer, and 1.2e-7 is far
+     * below float precision in the activations it feeds.
+     */
+    static double erfFast(double x) {
+        double z = Math.abs(x);
+        double t = 1.0 / (1.0 + 0.5 * z);
+        double r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418
+                + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587
+                + t * (-0.82215223 + t * 0.17087277)))))))));
+        return x >= 0 ? 1.0 - r : r - 1.0;
     }
 
     /**

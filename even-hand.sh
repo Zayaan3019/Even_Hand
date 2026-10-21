@@ -16,4 +16,4 @@ if [ ! -f "$MODEL/model.safetensors" ]; then
   echo "Fetching the answer-reading model once (87 MB). Even Hand itself never goes online."
   sh scripts/fetch-model.sh || echo "Could not fetch it now; answers will be compared by wording only until it is fetched."
 fi
-exec java -jar "$JAR" serve
+exec java --add-modules jdk.incubator.vector -jar "$JAR" serve

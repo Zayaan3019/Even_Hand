@@ -167,6 +167,8 @@
             <!-- Statistical calibration tests are slow and seeded; excluded from
                  the default build and run by -Pstats. -->
             <excludedGroups>slow</excludedGroups>
+            <!-- The embedding model's SIMD kernels; @{argLine} keeps JaCoCo's agent. -->
+            <argLine>@{argLine} --add-modules jdk.incubator.vector</argLine>
           </configuration>
         </plugin>
       </plugins>
