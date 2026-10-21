@@ -18,8 +18,8 @@ import java.util.Map;
  * <p>That is the whole of what a sentence-transformer computes before pooling. Inference needs
  * no autograd and no batching, so it fits in one class that can be read end to end and checked
  * number for number against the reference implementation (see {@code TransformerEmbedderTest}).
- * Weights are held as {@code float}, as they are stored; dot products use four partial sums,
- * which keeps rounding at the reference's level and lets the JIT pipeline the loop.
+ * Weights are held as {@code float}, as they are stored; linear layers are laid out so the JIT can
+ * vectorise them (see {@link #linear}).
  */
 final class BertEncoder {
 
@@ -56,13 +56,13 @@ final class BertEncoder {
         for (int l = 0; l < layers; l++) {
             String b = p + "encoder.layer." + l + ".";
             layer[l] = new Layer(
-                    t.floats(b + "attention.self.query.weight"), t.floats(b + "attention.self.query.bias"),
-                    t.floats(b + "attention.self.key.weight"), t.floats(b + "attention.self.key.bias"),
-                    t.floats(b + "attention.self.value.weight"), t.floats(b + "attention.self.value.bias"),
-                    t.floats(b + "attention.output.dense.weight"), t.floats(b + "attention.output.dense.bias"),
+                    tr(t, b + "attention.self.query.weight", hidden, hidden), t.floats(b + "attention.self.query.bias"),
+                    tr(t, b + "attention.self.key.weight", hidden, hidden), t.floats(b + "attention.self.key.bias"),
+                    tr(t, b + "attention.self.value.weight", hidden, hidden), t.floats(b + "attention.self.value.bias"),
+                    tr(t, b + "attention.output.dense.weight", hidden, hidden), t.floats(b + "attention.output.dense.bias"),
                     t.floats(b + "attention.output.LayerNorm.weight"), t.floats(b + "attention.output.LayerNorm.bias"),
-                    t.floats(b + "intermediate.dense.weight"), t.floats(b + "intermediate.dense.bias"),
-                    t.floats(b + "output.dense.weight"), t.floats(b + "output.dense.bias"),
+                    tr(t, b + "intermediate.dense.weight", intermediate, hidden), t.floats(b + "intermediate.dense.bias"),
+                    tr(t, b + "output.dense.weight", hidden, intermediate), t.floats(b + "output.dense.bias"),
                     t.floats(b + "output.LayerNorm.weight"), t.floats(b + "output.LayerNorm.bias"));
         }
         int vocab = wordEmb.length / hidden;
@@ -141,14 +141,46 @@ final class BertEncoder {
         return x;
     }
 
-    /** {@code out[t][o] = b[o] + sum_i in[t][i] * W[o][i]}: PyTorch's Linear, weight stored [out][in]. */
-    private static void linear(float[] in, int n, int inDim, float[] w, float[] b, int outDim, float[] out) {
-        for (int t = 0; t < n; t++) {
-            int row = t * inDim;
-            for (int o = 0; o < outDim; o++) {
-                out[t * outDim + o] = b[o] + dot(in, row, w, o * inDim, inDim);
+    /**
+     * {@code out[t][o] = b[o] + sum_i in[t][i] * W[o][i]}: PyTorch's Linear. The weight is held
+     * transposed, {@code [in][out]}, so the inner loop is a multiply-add along a contiguous row with no
+     * reduction, which the JIT compiles to SIMD instructions; four tokens share each row it loads.
+     */
+    private static void linear(float[] in, int n, int inDim, float[] wT, float[] b, int outDim, float[] out) {
+        for (int t = 0; t < n; t++) System.arraycopy(b, 0, out, t * outDim, outDim);
+        int t = 0;
+        for (; t + 3 < n; t += 4) {
+            int o0 = t * outDim, o1 = o0 + outDim, o2 = o1 + outDim, o3 = o2 + outDim;
+            int r0 = t * inDim, r1 = r0 + inDim, r2 = r1 + inDim, r3 = r2 + inDim;
+            for (int i = 0; i < inDim; i++) {
+                float a0 = in[r0 + i], a1 = in[r1 + i], a2 = in[r2 + i], a3 = in[r3 + i];
+                int w = i * outDim;
+                for (int o = 0; o < outDim; o++) {
+                    float wv = wT[w + o];
+                    out[o0 + o] += a0 * wv;
+                    out[o1 + o] += a1 * wv;
+                    out[o2 + o] += a2 * wv;
+                    out[o3 + o] += a3 * wv;
+                }
             }
         }
+        for (; t < n; t++) {
+            int ot = t * outDim, rt = t * inDim;
+            for (int i = 0; i < inDim; i++) {
+                float a = in[rt + i];
+                int w = i * outDim;
+                for (int o = 0; o < outDim; o++) out[ot + o] += a * wT[w + o];
+            }
+        }
+    }
+
+    /** A [out][in] weight as [in][out]. */
+    private static float[] tr(SafeTensors t, String name, int out, int in) {
+        float[] w = t.floats(name);
+        if (w.length != out * in) throw new IllegalArgumentException(name + " does not have shape [" + out + ", " + in + "]");
+        float[] r = new float[w.length];
+        for (int o = 0; o < out; o++) for (int i = 0; i < in; i++) r[i * out + o] = w[o * in + i];
+        return r;
     }
 
     private static float dot(float[] a, int ai, float[] b, int bi, int len) {

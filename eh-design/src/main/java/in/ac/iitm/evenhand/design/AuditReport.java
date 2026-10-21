@@ -51,6 +51,7 @@ public final class AuditReport {
                     + p.groups().stream().map(g -> String.valueOf(g.size())).collect(Collectors.joining("+"))
                     + ")";
             case AuditVerdict.NotEstimable ignored -> "NOT-ESTIMABLE";
+            case AuditVerdict.EstimableFromContent c -> "CONTENT (marking alone: " + shortName(c.fromMarking()) + ")";
         };
     }
 

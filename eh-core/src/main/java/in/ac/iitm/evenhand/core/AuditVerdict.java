@@ -50,7 +50,8 @@ public sealed interface AuditVerdict
         permits AuditVerdict.Estimable,
                 AuditVerdict.EstimableUnderExchangeability,
                 AuditVerdict.PartiallyEstimable,
-                AuditVerdict.NotEstimable {
+                AuditVerdict.NotEstimable,
+                AuditVerdict.EstimableFromContent {
 
     IdentifiabilityCertificate certificate();
 
@@ -202,6 +203,53 @@ public sealed interface AuditVerdict
         @Override
         public String headline() {
             return "This marking arrangement cannot support a severity estimate: " + reason;
+        }
+    }
+
+    /**
+     * The marking alone could not place every assistant on one scale without an assumption,
+     * but the students' written answers can: answers that say the same thing, marked by
+     * different assistants, compare the assistants directly. No assumption about who was given
+     * which scripts is needed, because the comparison is between answers, not between piles.
+     *
+     * <p>Reached only after the content analysis has checked that the answers carry enough
+     * signal about the marks and that every assistant is linked to the others by enough
+     * matched answers ({@code eh-content}). It keeps the verdict the marking alone gave, so
+     * the report can say what the answers added.
+     *
+     * @param fromMarking the verdict from who-marked-what alone
+     * @param evidence    what links the assistants, in the instructor's words
+     */
+    record EstimableFromContent(IdentifiabilityCertificate certificate,
+                                List<Diagnostic> diagnostics,
+                                Exposure exposure,
+                                AuditVerdict fromMarking,
+                                String evidence) implements AuditVerdict {
+
+        public EstimableFromContent {
+            diagnostics = List.copyOf(diagnostics);
+            Objects.requireNonNull(exposure, "exposure");
+            Objects.requireNonNull(fromMarking, "fromMarking");
+            if (fromMarking instanceof EstimableFromContent) {
+                throw new IllegalArgumentException("fromMarking must be the verdict of the marking alone");
+            }
+        }
+
+        /** Builds it on top of the marking's verdict, upgrading exposure that hinged on the piles. */
+        public static EstimableFromContent upgrade(AuditVerdict fromMarking, String evidence) {
+            Exposure e = fromMarking.exposure();
+            Exposure upgraded = e.status() == Exposure.Status.UNDER_EXCHANGEABILITY
+                    || e.status() == Exposure.Status.NOT_ESTIMABLE
+                    ? new Exposure(Exposure.Status.ESTIMABLE, e.maxSpread(), e.meanTotal())
+                    : e;
+            return new EstimableFromContent(fromMarking.certificate(), fromMarking.diagnostics(), upgraded,
+                    fromMarking, evidence);
+        }
+
+        @Override
+        public String headline() {
+            return "Every assistant can be placed on one scale by comparing answers that say the same thing "
+                    + "but were marked by different assistants. " + evidence;
         }
     }
 }

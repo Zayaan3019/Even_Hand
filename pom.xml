@@ -29,6 +29,7 @@
       eh-embed     answer text to vectors: our own transformer forward pass, lexical fallback
       eh-design    who-marked-what audit; IITM course simulator (stage 2)
       eh-estimate  TA severity in marks, bootstrap, no-effect test (stage 3)
+      eh-content   were mark differences explained by the answers? matched-answer severity (stage 3b)
       eh-outcome   IITM grading rules, grade changes, re-check list (stage 4)
       eh-report    HTML report and Class Committee sheet       (stage 5)
       eh-app       command-line tool and the benchmark
@@ -44,6 +45,7 @@
     <module>eh-embed</module>
     <module>eh-design</module>
     <module>eh-estimate</module>
+    <module>eh-content</module>
     <module>eh-outcome</module>
     <module>eh-report</module>
     <module>eh-app</module>
@@ -89,6 +91,11 @@
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-estimate</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-content</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
