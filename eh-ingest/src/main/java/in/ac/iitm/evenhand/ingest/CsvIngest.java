@@ -77,9 +77,12 @@ public final class CsvIngest {
     /** Header names recognised for each column, lower-cased with spaces and hyphens folded. */
     static final Map<String, List<String>> ALIASES = Map.of(
             "student",    List.of("student", "student_id", "studentid", "roll", "roll_no", "rollno",
-                                  "roll_number", "candidate", "student_roll"),
+                                  "roll_number", "candidate", "student_roll",
+                                  // Online exams: an LMS's ID number or username, a form's e-mail address.
+                                  "id_number", "username", "email_address", "email", "email_id"),
             "question",   List.of("question", "question_id", "questionid", "item", "q", "part"),
-            "grader",     List.of("grader", "grader_id", "marker", "assistant", "ta", "rater", "evaluator"),
+            "grader",     List.of("grader", "grader_id", "marker", "assistant", "ta", "rater", "evaluator",
+                                  "graded_by", "marked_by", "evaluated_by", "checked_by", "grader_name"),
             "score",      List.of("score", "marks", "mark", "points", "awarded", "marks_awarded"),
             // Deliberately excludes "total". In a marks export that far more often means
             // the student's total across questions than this question's maximum, and
@@ -88,7 +91,11 @@ public final class CsvIngest {
                                   "out_of", "outof", "maximum", "question_max"),
             "assessment", List.of("assessment", "exam", "quiz", "paper", "session", "component"),
             "position",   List.of("position", "order", "sequence", "seq", "pile_position", "index"),
-            "role",       List.of("role", "mark_role", "of_record", "record", "counts", "mark_type"));
+            "role",       List.of("role", "mark_role", "of_record", "record", "counts", "mark_type"),
+            // What the student wrote. Optional: with it, answers that say the same thing can be
+            // compared across assistants (eh-content); without it, nothing else changes.
+            "answer",     List.of("answer", "answer_text", "response", "response_text", "student_answer",
+                                  "written_answer", "text", "answer_script"));
 
     private static final Set<String> RECORD_WORDS = Set.of(
             "record", "of_record", "primary", "official", "counts", "final", "yes", "y", "true", "1");
@@ -117,18 +124,31 @@ public final class CsvIngest {
      * @param saltFingerprint safe to record in a run manifest
      * @param assessmentLabels assessment names in index order (not identifying), so a
      *                        course's weights can be given by name
+     * @param answers         what the student wrote, parallel to {@code responses}: the empty
+     *                        string where the file carries no text. Roll numbers, e-mail
+     *                        addresses and TA names inside an answer are already replaced.
      */
     public record IngestResult(List<Response> responses,
                                MarkingDesign design,
                                List<Diagnostic> diagnostics,
                                String keyFileContents,
                                String saltFingerprint,
-                               List<String> assessmentLabels) {
+                               List<String> assessmentLabels,
+                               List<String> answers) {
 
         public IngestResult {
             responses = List.copyOf(responses);
             diagnostics = List.copyOf(diagnostics);
             assessmentLabels = List.copyOf(assessmentLabels);
+            answers = List.copyOf(answers);
+            if (answers.size() != responses.size()) {
+                throw new IllegalArgumentException("one answer (possibly empty) is needed per response");
+            }
+        }
+
+        /** How many responses carry written text. */
+        public int answerCount() {
+            return (int) answers.stream().filter(a -> !a.isBlank()).count();
         }
 
         public boolean hasErrors() {
@@ -145,7 +165,8 @@ public final class CsvIngest {
 
     /** A row as read, with its real identifiers. Never leaves this class. */
     private record RawRow(String student, String question, String grader, String assessment,
-                          BigDecimal score, BigDecimal declaredMax, int position, Role role, int line) {
+                          BigDecimal score, BigDecimal declaredMax, int position, Role role, int line,
+                          String answer) {
 
         String unitKey() {
             return assessment + SEPARATOR + student + SEPARATOR + question;
@@ -166,30 +187,34 @@ public final class CsvIngest {
     public static IngestResult read(BufferedReader reader, Pseudonymiser pseudonymiser) throws IOException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        String headerLine = reader.readLine();
-        if (headerLine == null) {
+        // Records, not lines: a written answer in quotes may span several lines.
+        CsvRecords records = new CsvRecords(reader);
+        CsvRecords.Record headerRecord = records.next();
+        while (headerRecord != null && headerRecord.isBlank()) headerRecord = records.next();
+        if (headerRecord == null) {
             throw new IllegalArgumentException("the file is empty; expected a header row");
         }
-        // Excel's "CSV UTF-8" starts the file with a byte-order mark, which would hide the first header.
-        String[] header = splitRow(headerLine.startsWith("﻿") ? headerLine.substring(1) : headerLine);
+        String[] header = headerRecord.fields();
         Optional<WideSheet> wide = WideSheet.detect(header, ALIASES);
         Map<String, Integer> columns = wide.isPresent() ? WideSheet.COLUMNS : locateColumns(header, diagnostics);
         if (wide.isPresent()) {
             diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
                     "Read as one row per student, with " + wide.get().questionCount() + " question column(s); "
-                    + "each row's TA is taken to have marked that whole script.", List.of()));
+                    + "each row's TA is taken to have marked that whole script."
+                    + (wide.get().answeredQuestionCount() > 0
+                        ? " Written answers were found for " + wide.get().answeredQuestionCount() + " of them."
+                        : ""), List.of()));
         }
 
         List<RawRow> rows = new ArrayList<>();
         Map<String, Integer> firstLineOfUnit = new HashMap<>();
-        String line;
-        int lineNumber = 1;
-        while ((line = reader.readLine()) != null) {
-            lineNumber++;
-            if (line.isBlank()) {
+        CsvRecords.Record record;
+        while ((record = records.next()) != null) {
+            int lineNumber = record.line();
+            if (record.isBlank()) {
                 continue;
             }
-            String[] fields = splitRow(line);
+            String[] fields = record.fields();
             for (String[] answer : wide.isPresent() ? wide.get().unpack(fields) : Collections.singletonList(fields)) {
                 Optional<RawRow> parsed = parseRow(answer, columns, lineNumber, diagnostics);
                 if (parsed.isEmpty()) {
@@ -223,7 +248,8 @@ public final class CsvIngest {
                 questionNames, diagnostics);
         if (maxima == null) {
             return new IngestResult(List.of(), MarkingDesign.of(List.of(), List.of(), List.of(), List.of()),
-                    diagnostics, pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(), List.of());
+                    diagnostics, pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(), List.of(),
+                    List.of());
         }
 
         List<RawRow> valid = new ArrayList<>();
@@ -267,7 +293,10 @@ public final class CsvIngest {
         Map<String, Integer> graderIndex = indexInOrder(graderLabels.keySet());
 
         List<Response> responses = new ArrayList<>(valid.size());
+        List<String> answers = new ArrayList<>(valid.size());
+        AnswerScrubber scrubber = new AnswerScrubber(rawStudents, rawGraders);
         for (RawRow r : valid) {
+            answers.add(r.answer() == null ? "" : scrubber.scrub(r.answer()));
             int perMark = steps.get(r.questionKey());
             DesignCell cell = new DesignCell(
                     studentIndex.get(r.student()),
@@ -288,9 +317,14 @@ public final class CsvIngest {
                 List.copyOf(studentLabels.values()), questionLabels, List.copyOf(graderLabels.values()))
                 .withAllocationEvidence(evidence);
 
+        if (scrubber.replacements() > 0) {
+            diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                    scrubber.replacements() + " roll number(s), e-mail address(es) or TA name(s) written inside "
+                    + "answers were replaced by placeholders before the answers were read.", List.of()));
+        }
         return new IngestResult(responses, design, diagnostics,
                 pseudonymiser.keyFileContents(), pseudonymiser.saltFingerprint(),
-                List.copyOf(assessmentIndex.keySet()));
+                List.copyOf(assessmentIndex.keySet()), answers);
     }
 
     /**
@@ -557,8 +591,9 @@ public final class CsvIngest {
                 }
             }
 
+            String answer = columns.containsKey("answer") ? field(fields, columns.get("answer")) : null;
             return Optional.of(new RawRow(rawStudent, rawQuestion, rawGrader, assessment,
-                    score, declaredMax, position, role, lineNumber));
+                    score, declaredMax, position, role, lineNumber, answer));
 
         } catch (NumberFormatException e) {
             diagnostics.add(Diagnostic.error(
@@ -630,36 +665,5 @@ public final class CsvIngest {
 
     private static String field(String[] fields, Integer index) {
         return index == null || index >= fields.length ? "" : fields[index];
-    }
-
-    /** Minimal RFC-4180 splitting: quoted fields, doubled quotes inside them. */
-    private static String[] splitRow(String line) {
-        List<String> out = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        boolean quoted = false;
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            if (quoted) {
-                if (c == '"') {
-                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                        current.append('"');
-                        i++;
-                    } else {
-                        quoted = false;
-                    }
-                } else {
-                    current.append(c);
-                }
-            } else if (c == '"') {
-                quoted = true;
-            } else if (c == ',') {
-                out.add(current.toString());
-                current.setLength(0);
-            } else {
-                current.append(c);
-            }
-        }
-        out.add(current.toString());
-        return out.toArray(new String[0]);
     }
 }
