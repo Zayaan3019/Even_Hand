@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>in.ac.iitm.evenhand</groupId>
+    <artifactId>even-hand</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>eh-web</artifactId>
+  <name>eh-web</name>
+  <!-- Primary reviewer: Pruthviraj (see .github/CODEOWNERS) -->
+  <description>
+    The web app the instructor uses: React and TypeScript, built by Vite into static files that the jar
+    serves from /web on 127.0.0.1. Maven fetches a pinned Node once into target/, so building needs only
+    Java; the running product needs no Node and loads nothing from the internet.
+  </description>
+
+  <properties>
+    <node.version>v22.18.0</node.version>
+    <npm.version>10.9.3</npm.version>
+    <skipTests>false</skipTests>
+  </properties>
+
+  <build>
+    <resources>
+      <!-- Vite writes the built app here (vite.config.ts); it is packaged at /web in the jar. -->
+      <resource>
+        <directory>target/web</directory>
+        <targetPath>web</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.15.1</version>
+        <configuration>
+          <installDirectory>target</installDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals><goal>install-node-and-npm</goal></goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm ci</id>
+            <goals><goal>npm</goal></goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <!-- Exactly the versions in package-lock.json, every time. -->
+              <arguments>ci --no-audit --no-fund</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build the app</id>
+            <goals><goal>npm</goal></goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>run build</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test the app</id>
+            <goals><goal>npm</goal></goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>run test</arguments>
+              <skip>${skipTests}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

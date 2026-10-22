@@ -31,3 +31,6 @@ models/
 
 # Third-party data used only to validate accuracy (scripts/validate.sh); never committed.
 validation-data/
+
+# The web app's dependencies and the Node that Maven fetches; restored by npm ci.
+node_modules/

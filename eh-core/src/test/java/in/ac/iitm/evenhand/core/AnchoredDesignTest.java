@@ -66,7 +66,7 @@ class AnchoredDesignTest {
                 List.of(Diagnostic.error(Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
                         "confounded", List.of("Assistant 1"), "second-mark Q1")),
                 NO_EXPOSURE,
-                "no two assistants share enough marking to be compared");
+                "no two TAs share enough marking to be compared");
 
         // The point of the type. Downstream code cannot obtain the estimator's input at
         // all, so "the platform says so and stops" is not a branch anyone can forget.

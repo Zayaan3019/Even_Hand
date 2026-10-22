@@ -156,13 +156,13 @@ public final class ContentAnalysis {
         ContentResult.Status status;
         if (pairs.isEmpty()) {
             status = ContentResult.Status.NO_LINKS;
-            notes.add("No answer marked by one assistant closely resembles an answer marked by another, so the "
-                    + "answers cannot compare the assistants. This is what question-wise marking looks like: every "
-                    + "answer to a question was marked by the same assistant.");
+            notes.add("No answer marked by one TA closely resembles an answer marked by another, so the "
+                    + "answers cannot compare the TAs. This is what question-wise marking looks like: every "
+                    + "answer to a question was marked by the same TA.");
         } else if (signal < s.minSignal()) {
             status = ContentResult.Status.WEAK_SIGNAL;
             notes.add(String.format(Locale.ROOT, "What the answers say explains only %.0f%% of how marks vary within "
-                    + "an assistant's pile (at least %.0f%% is needed), so they are not used to compare assistants. "
+                    + "a TA's pile (at least %.0f%% is needed), so they are not used to compare TAs. "
                     + "The near-identical answers below are still worth a look.", 100 * signal, 100 * s.minSignal()));
         } else {
             status = ContentResult.Status.USABLE;

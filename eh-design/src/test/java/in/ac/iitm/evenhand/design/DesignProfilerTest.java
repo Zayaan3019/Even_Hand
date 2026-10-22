@@ -64,7 +64,7 @@ class DesignProfilerTest {
         assertThat(report.arrangement().value()).isEqualTo(Arrangement.QUESTION_WISE);
         assertThat(report.doubleMarkedUnits()).isEqualTo(40);
         assertThat(report.notes())
-                .anySatisfy(n -> assertThat(n).contains("marked by more than one assistant"));
+                .anySatisfy(n -> assertThat(n).contains("marked by more than one TA"));
     }
 
     @Test

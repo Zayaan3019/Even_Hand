@@ -78,21 +78,59 @@ class LocalServerTest {
     }
 
     @Test
-    @DisplayName("the page is served, and nothing that is not part of the product")
+    @DisplayName("the web app is served, and nothing that is not part of the product")
     void pages() throws Exception {
-        assertThat(get("/").body()).contains("Even Hand");
+        HttpResponse<String> page = get("/");
+        assertThat(page.statusCode()).isEqualTo(200);
+        assertThat(page.body()).contains("<div id=\"root\">", "Even Hand");
+        assertThat(page.headers().firstValue("Cache-Control")).hasValue("no-store");
         assertThat(get("/lab").statusCode()).isEqualTo(404);
         assertThat(get("/sample").statusCode()).isEqualTo(404);
         assertThat(get("/nowhere").statusCode()).isEqualTo(404);
-        assertThat(get("/").headers().firstValue("X-Frame-Options")).hasValue("DENY");
     }
 
     @Test
-    @DisplayName("an analysis runs as a job: the page polls it and collects both reports")
+    @DisplayName("the app's own scripts and styles are served, cached by their hashed names")
+    void assets() throws Exception {
+        Matcher m = Pattern.compile("/assets/[A-Za-z0-9._-]+\\.js").matcher(get("/").body());
+        assertThat(m.find()).as("the page links its script").isTrue();
+        HttpResponse<String> js = get(m.group());
+        assertThat(js.statusCode()).isEqualTo(200);
+        assertThat(js.headers().firstValue("Content-Type")).hasValueSatisfying(v -> assertThat(v).startsWith("text/javascript"));
+        assertThat(js.headers().firstValue("Cache-Control")).hasValueSatisfying(v -> assertThat(v).contains("immutable"));
+    }
+
+    @Test
+    @DisplayName("every response carries the security headers: own files only, no framing by other sites")
+    void securityHeaders() throws Exception {
+        HttpResponse<String> page = get("/");
+        assertThat(page.headers().firstValue("Content-Security-Policy")).hasValueSatisfying(v ->
+                assertThat(v).contains("default-src 'self'", "script-src 'self'", "connect-src 'self'", "object-src 'none'"));
+        assertThat(page.headers().firstValue("X-Frame-Options")).hasValue("SAMEORIGIN");
+        assertThat(page.headers().firstValue("X-Content-Type-Options")).hasValue("nosniff");
+        assertThat(get("/status").headers().firstValue("Content-Security-Policy")).isPresent();
+    }
+
+    @Test
+    @DisplayName("paths that try to leave the app's folder are refused")
+    void noPathTraversal() throws Exception {
+        for (String bad : new String[] {"/assets/../upload.html", "/assets/..%2f..%2fpom.xml", "/assets/%2e%2e/x.js",
+                "/assets/", "/assets/a\\b.js"}) {
+            try {
+                assertThat(get(bad).statusCode()).as(bad).isEqualTo(404);
+            } catch (IllegalArgumentException rejectedByClient) {
+                // the URI itself is invalid: it never reaches the server, which is just as safe
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("an analysis runs as a job: the page polls it and collects the structured result and both reports")
     void analysisJob() throws Exception {
         String body = analyse(WEIGHTS, csv());
 
-        assertThat(body).contains("\"state\":\"done\"", "\"instructor\":", "\"committee\":", "Bottom line");
+        assertThat(body).contains("\"state\":\"done\"", "\"course\":", "\"verdict\":", "\"tas\":", "\"outcome\":",
+                "\"bottomLineHtml\":", "\"instructorHtml\":", "\"committeeHtml\":", "\"manifest\":", "Bottom line");
     }
 
     @Test

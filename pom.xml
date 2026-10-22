@@ -13,7 +13,7 @@
 
   <groupId>in.ac.iitm.evenhand</groupId>
   <artifactId>even-hand</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
 
   <name>Even Hand</name>
@@ -32,6 +32,7 @@
       eh-content   were mark differences explained by the answers? matched-answer severity (stage 3b)
       eh-outcome   IITM grading rules, grade changes, re-check list (stage 4)
       eh-report    HTML report and Class Committee sheet       (stage 5)
+      eh-web       the web app: React + TypeScript, built by Vite, served from the jar
       eh-app       the product: browser page and command line
       eh-validation  not shipped: benchmark, simulator-based calibration, real-data validation
 
@@ -49,6 +50,7 @@
     <module>eh-content</module>
     <module>eh-outcome</module>
     <module>eh-report</module>
+    <module>eh-web</module>
     <module>eh-app</module>
     <module>eh-validation</module>
   </modules>
@@ -114,6 +116,11 @@
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-report</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-web</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

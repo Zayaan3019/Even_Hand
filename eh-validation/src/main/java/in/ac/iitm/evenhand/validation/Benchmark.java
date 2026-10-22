@@ -97,7 +97,7 @@ public final class Benchmark {
 
         // Train: pick the shrinkage with the lowest mean severity error on the training split.
         double bestA = 0, bestS = 0, bestErr = Double.POSITIVE_INFINITY;
-        StringBuilder grid = new StringBuilder("| student \\\\ assistant |");
+        StringBuilder grid = new StringBuilder("| student \\\\ TA |");
         for (double s : GRADER_GRID) grid.append(String.format(Locale.ROOT, " %.0f |", s));
         grid.append("\n|---|").append("---|".repeat(GRADER_GRID.length)).append('\n');
         for (double a : STUDENT_GRID) {
@@ -115,7 +115,7 @@ public final class Benchmark {
             }
             grid.append('\n');
         }
-        System.out.printf(Locale.ROOT, "Trained: student shrinkage %.0f, assistant shrinkage %.0f (train RMSE %.2f points)%n",
+        System.out.printf(Locale.ROOT, "Trained: student shrinkage %.0f, TA shrinkage %.0f (train RMSE %.2f points)%n",
                 bestA, bestS, bestErr);
 
         // Test: everything, once, with the trained settings frozen.
@@ -259,7 +259,7 @@ public final class Benchmark {
 
     private static String csv(List<Score> scores) {
         StringBuilder sb = new StringBuilder("course,archetype,severity_sd_logits,students,verdict,estimated,"
-                + "rmse_points,assistants_covered,assistants,no_effect_rejected,true_grade_changes,flagged,"
+                + "rmse_points,assistants_covered,TAs,no_effect_rejected,true_grade_changes,flagged,"
                 + "flagged_correct,nearest_boundary_correct,assistant_share_pct\n");
         for (Score s : scores) {
             sb.append(String.format(Locale.ROOT, "%s,%s,%.2f,%d,%s,%b,%.3f,%d,%d,%b,%d,%d,%d,%d,%.2f%n",
@@ -279,12 +279,12 @@ public final class Benchmark {
         md.append(String.format(Locale.ROOT, "**Dataset.** %d course shapes x %d seeds for training and x %d further seeds = %d "
                 + "held-out test courses (%d students in the test split). %d training courses were used: those "
                 + "whose stated assumption the tool would accept (see `Benchmark.trainable`). A quarter of the "
-                + "courses have assistants who are truly identical, so false alarms can be counted.%n%n",
+                + "courses have TAs who are truly identical, so false alarms can be counted.%n%n",
                 Archetype.values().length, train, test, scores.size(),
                 scores.stream().mapToInt(Score::students).sum(), trainCourses));
         md.append(String.format(Locale.ROOT, "**Training.** Grid search over the two shrinkage constants, minimising "
-                + "the mean error of the assistants' severities on the training split. Chosen: student %.0f, "
-                + "assistant %.0f marks (training RMSE %.2f percentage points).%n%n", bestA, bestS, bestErr));
+                + "the mean error of the TAs' severities on the training split. Chosen: student %.0f, "
+                + "TA %.0f marks (training RMSE %.2f percentage points).%n%n", bestA, bestS, bestErr));
         md.append(grid).append('\n');
         md.append("**Test** (held-out courses, settings frozen, 100 bootstrap draws, 49 no-effect simulations):\n\n");
         md.append("| Course shape | Courses | Audit verdict | Grades truly moved by who marked | Severity RMSE (points) | "

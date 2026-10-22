@@ -64,12 +64,12 @@ public final class DriftAudit {
             return new Result(Status.UNDER_EXCHANGEABILITY, Optional.of(Diagnostic.warning(
                     Diagnostic.Code.EH013_DRIFT_RESTS_ON_STACK_ORDER,
                     "A script's place in the marking order moves with the student rather than varying "
-                    + "across questions, typically because every assistant worked through the stack in the "
+                    + "across questions, typically because every TA worked through the stack in the "
                     + "same order. So whether marks drift can only be measured by assuming that order is "
                     + "unrelated to ability, and the same students were late on every question, so any "
                     + "drift accumulates for them.",
                     design.graderLabels(),
-                    "Have alternate assistants work through the stack in reverse order. It costs nothing, "
+                    "Have alternate TAs work through the stack in reverse order. It costs nothing, "
                     + "makes drift measurable from the marking alone, and spreads who is marked late.")));
         }
         return new Result(Status.NOT_ESTIMABLE, Optional.of(Diagnostic.warning(
@@ -77,7 +77,7 @@ public final class DriftAudit {
                 "Marking position cannot be separated from the other effects in this arrangement, even "
                 + "assuming the order is unrelated to ability, so drift is not measurable.",
                 design.graderLabels(),
-                "Record each assistant's genuine marking order, and have alternate assistants reverse the stack.")));
+                "Record each TA's genuine marking order, and have alternate TAs reverse the stack.")));
     }
 
     private static ExactRowSpace rowSpaceOf(DesignMatrix matrix, MarkingDesign design) {

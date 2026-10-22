@@ -99,16 +99,16 @@ public final class DesignProfiler {
         boolean anyPosition = design.anyPositionRecorded();
         Provenanced<Boolean> positionRecorded = Provenanced.detected(anyPosition,
                 anyPosition
-                        ? "at least one row records the script's place in its assistant's sequence"
+                        ? "at least one row records the script's place in its TA's sequence"
                         : "no row records the order scripts were marked in");
         if (!anyPosition) {
-            notes.add("Whether marks drift as an assistant works through a pile cannot be tested "
+            notes.add("Whether marks drift as a TA works through a pile cannot be tested "
                     + "for this course, because the marking order was not recorded.");
         }
 
         if (doubleMarked > 0) {
-            notes.add(doubleMarked + " response(s) were marked by more than one assistant. These "
-                    + "link the assistants who share them onto one scale without relying on any "
+            notes.add(doubleMarked + " response(s) were marked by more than one TA. These "
+                    + "link the TAs who share them onto one scale without relying on any "
                     + "assumption about who received which scripts.");
         } else {
             notes.add("No response was marked twice.");
@@ -120,7 +120,7 @@ public final class DesignProfiler {
     private static Provenanced<Arrangement> classifyArrangement(MarkingDesign design, List<String> notes) {
         if (design.graderCount() < 2) {
             return Provenanced.detected(Arrangement.SINGLE_MARKER,
-                    "one assistant marked everything");
+                    "one TA marked everything");
         }
         if (design.size() == 0) {
             return Provenanced.detected(Arrangement.UNKNOWN, "no marking recorded");
@@ -132,27 +132,27 @@ public final class DesignProfiler {
         boolean highStudents = studentCoverage >= HIGH_COVERAGE;
 
         String evidence = String.format(Locale.ROOT,
-                "each assistant saw %.0f%% of the questions and %.0f%% of the class",
+                "each TA saw %.0f%% of the questions and %.0f%% of the class",
                 100 * questionCoverage, 100 * studentCoverage);
 
         Arrangement arrangement;
         if (highQuestions && !highStudents) {
             arrangement = Arrangement.SCRIPT_WISE;
-            notes.add("Each assistant marked whole scripts for part of the class. An assistant's "
+            notes.add("Each TA marked whole scripts for part of the class. A TA's "
                     + "severity is therefore entangled with the ability of the students they "
                     + "happened to receive.");
         } else if (!highQuestions && highStudents) {
             arrangement = Arrangement.QUESTION_WISE;
-            notes.add("Each assistant marked a small part of the paper across most of the class. "
-                    + "An assistant's severity is therefore entangled with the difficulty of the "
+            notes.add("Each TA marked a small part of the paper across most of the class. "
+                    + "A TA's severity is therefore entangled with the difficulty of the "
                     + "question they marked, which only a second marker on that question resolves.");
         } else if (highQuestions) {
             arrangement = Arrangement.CROSSED;
-            notes.add("Assistants were rotated across both questions and students. This is the "
+            notes.add("TAs were rotated across both questions and students. This is the "
                     + "arrangement that identifies every severity without anyone marking twice.");
         } else {
             arrangement = Arrangement.MIXED;
-            notes.add("Neither pattern dominates; the audit reports which assistants this "
+            notes.add("Neither pattern dominates; the audit reports which TAs this "
                     + "arrangement can and cannot compare.");
         }
         return Provenanced.detected(arrangement, evidence);

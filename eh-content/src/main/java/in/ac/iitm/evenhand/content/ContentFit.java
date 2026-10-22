@@ -100,7 +100,7 @@ public final class ContentFit {
         if (!choose(fromMarking, marks, content).useAnswers()) return Optional.empty();
         int pairs = 0;
         for (ContentResult.QuestionSummary q : content.questions()) pairs += q.pairs();
-        String evidence = String.format(Locale.ROOT, "%d matched pairs of answers link all %d assistants; what the "
+        String evidence = String.format(Locale.ROOT, "%d matched pairs of answers link all %d TAs; what the "
                 + "answers say explains %.0f%% of how marks vary within a pile, and %.0f%% of answers have a close "
                 + "match marked by someone else.", pairs, content.graderLabels().size(), 100 * content.signal(),
                 100 * content.matchedShare());
@@ -153,7 +153,7 @@ public final class ContentFit {
         List<List<Integer>> groups = new ArrayList<>(content.groups());
         double residual = 0;
         return new FittedModel(verdict, new Anchoring(Anchoring.Kind.GRADERS_CENTRED,
-                "Severities average zero within each group of assistants the answers link, so each figure is read "
+                "Severities average zero within each group of TAs the answers link, so each figure is read "
                 + "against the panel average for answers saying the same thing."),
                 mean, students, questions, graderFacet, groups, residual, content.draws(),
                 new FittedModel.NoEffectTest(content.observedSpread(), content.pValue(), content.draws().length),

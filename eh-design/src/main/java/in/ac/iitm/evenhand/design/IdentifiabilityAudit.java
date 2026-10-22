@@ -127,7 +127,7 @@ public final class IdentifiabilityAudit {
             List<Set<Integer>> everyone = design.graderCount() == 1 ? List.of(Set.of(0)) : List.of();
             diagnostics.add(Diagnostic.error(
                     Diagnostic.Code.EH001_SINGLE_MARKER,
-                    "All marking was done by one person, so there is no assistant-to-assistant "
+                    "All marking was done by one person, so there is no TA-to-assistant "
                     + "difference for this analysis to be about.",
                     design.graderLabels(),
                     "No repair applies. Severity is only meaningful when marking is divided."));
@@ -155,7 +155,7 @@ public final class IdentifiabilityAudit {
             // only if the groups were alike, and saying "estimable" outright would hide that.
             diagnostics.add(Diagnostic.warning(
                     Diagnostic.Code.EH009_RESTS_ON_EXCHANGEABILITY,
-                    "Every assistant can be placed on one scale, but some groups of students were never "
+                    "Every TA can be placed on one scale, but some groups of students were never "
                     + "marked on a question in common, so their abilities share a scale only if those "
                     + "groups were alike to begin with.",
                     List.of(),
@@ -171,13 +171,13 @@ public final class IdentifiabilityAudit {
         if (exchangeabilityClasses.size() == 1) {
             diagnostics.add(Diagnostic.warning(
                     Diagnostic.Code.EH009_RESTS_ON_EXCHANGEABILITY,
-                    "No script was marked twice, so an assistant's severity is only separable from "
+                    "No script was marked twice, so a TA's severity is only separable from "
                     + "the ability of the students in their pile if those piles are taken to have "
                     + "been alike to begin with. " + allocationEvidence,
                     design.graderLabels(),
                     "Marking a small number of scripts a second time would remove the assumption entirely."));
             return new AuditVerdict.EstimableUnderExchangeability(certificate, diagnostics, exposure,
-                    "that the piles of scripts given to each assistant were alike in ability",
+                    "that the piles of scripts given to each TA were alike in ability",
                     allocationEvidence);
         }
 
@@ -189,7 +189,7 @@ public final class IdentifiabilityAudit {
         if (groups.stream().noneMatch(g -> g.size() >= 2)) {
             diagnostics.add(noComparablePair(design, exposure));
             return new AuditVerdict.NotEstimable(certificate, diagnostics, exposure,
-                    "no two assistants share enough marking to be compared");
+                    "no two TAs share enough marking to be compared");
         }
 
         List<String> restingOnAssumption = new ArrayList<>();
@@ -201,7 +201,7 @@ public final class IdentifiabilityAudit {
         if (!restingOnAssumption.isEmpty()) {
             diagnostics.add(Diagnostic.warning(
                     Diagnostic.Code.EH009_RESTS_ON_EXCHANGEABILITY,
-                    "Within their groups, these assistants can be compared only if their piles of scripts "
+                    "Within their groups, these TAs can be compared only if their piles of scripts "
                     + "are taken to have been alike in ability. " + allocationEvidence,
                     restingOnAssumption,
                     "Marking a small number of scripts a second time would remove the assumption."));
@@ -212,12 +212,12 @@ public final class IdentifiabilityAudit {
                 .collect(Collectors.joining(", "));
         diagnostics.add(Diagnostic.warning(
                 Diagnostic.Code.EH002_DISCONNECTED_GRADERS,
-                "The assistants fall into " + groups.size() + " groups with no chain of shared marking "
+                "The TAs fall into " + groups.size() + " groups with no chain of shared marking "
                 + "between them: " + rendered + ". Severities can be compared within a group, never "
                 + "across groups.",
                 design.graderLabels(),
                 "Connecting " + groups.size() + " groups needs at least " + (groups.size() - 1)
-                + " shared unit(s): each a script marked by assistants from two different groups."));
+                + " shared unit(s): each a script marked by TAs from two different groups."));
         return new AuditVerdict.PartiallyEstimable(certificate, diagnostics, exposure, groups);
     }
 
@@ -226,24 +226,24 @@ public final class IdentifiabilityAudit {
         if (exposure.isNone()) {
             return Diagnostic.note(
                     Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                    "No two assistants can be placed on the same scale: each one's severity is only ever "
+                    "No two TAs can be placed on the same scale: each one's severity is only ever "
                     + "seen together with the difficulty of the question they marked. That also means it "
                     + "cannot have moved anyone, because every student's marks of record came from the "
-                    + "same assistants in the same proportions.",
+                    + "same TAs in the same proportions.",
                     design.graderLabels(),
-                    "Only if you want per-assistant feedback: have a second assistant mark a few scripts on "
+                    "Only if you want per-TA feedback: have a second TA mark a few scripts on "
                     + "each question. Rotating markers also works, but only in a form that leaves every "
-                    + "student with the same mix of assistants, or it creates the harm it measures.");
+                    + "student with the same mix of TAs, or it creates the harm it measures.");
         }
         return Diagnostic.error(
                 Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                "No two assistants can be placed on the same scale. Each one's severity is only ever seen "
+                "No two TAs can be placed on the same scale. Each one's severity is only ever seen "
                 + "together with the difficulty of the question they marked, so only the sum of the two is "
-                + "estimable, and students met different mixes of assistants, so it may have moved some of "
+                + "estimable, and students met different mixes of TAs, so it may have moved some of "
                 + "them.",
                 design.graderLabels(),
-                "Have a second assistant mark a subset of scripts on each question. Where students met "
-                + "different assistants on the same question, giving every student the same mix removes "
+                "Have a second TA mark a subset of scripts on each question. Where students met "
+                + "different TAs on the same question, giving every student the same mix removes "
                 + "the harm outright.");
     }
 
@@ -362,21 +362,21 @@ public final class IdentifiabilityAudit {
             if (everyStudentsMarkOfRecordOn(design, q)) {
                 out.add(Diagnostic.note(
                         Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                        "This assistant alone marked " + question + ", so their severity cannot be separated "
+                        "This TA alone marked " + question + ", so their severity cannot be separated "
                         + "from " + question + "'s difficulty. It also cannot have moved anyone: every "
-                        + "student's " + question + " was marked by this assistant.",
+                        + "student's " + question + " was marked by this TA.",
                         List.of(grader, question),
-                        "Only if you want per-assistant feedback: have a second assistant mark ten or so "
+                        "Only if you want per-TA feedback: have a second TA mark ten or so "
                         + question + " scripts."));
             } else {
                 out.add(Diagnostic.error(
                         Diagnostic.Code.EH003_SEVERITY_CONFOUNDED_WITH_QUESTION,
-                        "This assistant marked only " + question + ", and nobody else marked it. Their "
+                        "This TA marked only " + question + ", and nobody else marked it. Their "
                         + "severity and that question's difficulty are only ever observed added together, so "
-                        + "a harsh assistant and a hard question cannot be told apart, and not every student "
+                        + "a harsh TA and a hard question cannot be told apart, and not every student "
                         + "answered " + question + ", so it may have moved some of them.",
                         List.of(grader, question),
-                        "Have a second assistant mark some of the scripts for " + question + "."));
+                        "Have a second TA mark some of the scripts for " + question + "."));
             }
         }
         return out;
@@ -406,16 +406,16 @@ public final class IdentifiabilityAudit {
         if (doubled.isEmpty()) {
             return List.of(Diagnostic.warning(
                     Diagnostic.Code.EH005_NO_DOUBLE_MARKING,
-                    "No script was marked by more than one assistant, so every comparison between "
-                    + "assistants rests on shared students or shared questions alone.",
+                    "No script was marked by more than one TA, so every comparison between "
+                    + "TAs rests on shared students or shared questions alone.",
                     List.of(),
-                    "A small set of double-marked scripts is the most direct way to make assistants "
+                    "A small set of double-marked scripts is the most direct way to make TAs "
                     + "comparable without relying on an assumption."));
         }
         return List.of(Diagnostic.note(
                 Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
-                doubled.size() + " response(s) were marked by more than one assistant. These are what "
-                + "put the assistants who share them on one scale without any assumption at all.",
+                doubled.size() + " response(s) were marked by more than one TA. These are what "
+                + "put the TAs who share them on one scale without any assumption at all.",
                 List.of()));
     }
 }

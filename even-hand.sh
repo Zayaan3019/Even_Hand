@@ -7,7 +7,7 @@ if ! command -v java >/dev/null 2>&1; then
   echo "Even Hand needs Java 21 or newer. Install it from https://adoptium.net (JDK 21), then run this again."
   exit 1
 fi
-if [ ! -f "$JAR" ] || [ -n "$(find pom.xml eh-*/pom.xml eh-*/src -newer "$JAR" -type f 2>/dev/null | head -n 1)" ]; then
+if [ ! -f "$JAR" ] || [ -n "$(find pom.xml eh-*/pom.xml eh-web/index.html eh-web/package.json eh-web/vite.config.ts eh-*/src -newer "$JAR" -type f 2>/dev/null | head -n 1)" ]; then
   echo "Building the latest version of Even Hand. This takes a minute or two."
   ./mvnw -q clean package -DskipTests || { echo "The build failed. The messages above say why."; exit 1; }
 fi

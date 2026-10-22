@@ -97,7 +97,7 @@ public sealed interface AuditVerdict
 
         @Override
         public String headline() {
-            return "Every assistant can be placed on one scale, from the marking alone.";
+            return "Every TA can be placed on one scale, from the marking alone.";
         }
     }
 
@@ -126,7 +126,7 @@ public sealed interface AuditVerdict
 
         @Override
         public String headline() {
-            return "Assistants can be compared, but only on the assumption that their piles of "
+            return "TAs can be compared, but only on the assumption that their piles of "
                     + "scripts were alike in ability. " + allocationEvidence;
         }
     }
@@ -180,7 +180,7 @@ public sealed interface AuditVerdict
         @Override
         public String headline() {
             String sizes = groups.stream().map(g -> String.valueOf(g.size())).collect(Collectors.joining(", "));
-            return "The assistants fall into " + groups.size() + " groups (of " + sizes + ") that can each "
+            return "The TAs fall into " + groups.size() + " groups (of " + sizes + ") that can each "
                     + "be placed on a scale of their own but not on one another's; the report names them.";
         }
     }
@@ -248,8 +248,8 @@ public sealed interface AuditVerdict
 
         @Override
         public String headline() {
-            return "Every assistant can be placed on one scale by comparing answers that say the same thing "
-                    + "but were marked by different assistants. " + evidence;
+            return "Every TA can be placed on one scale by comparing answers that say the same thing "
+                    + "but were marked by different TAs. " + evidence;
         }
     }
 }

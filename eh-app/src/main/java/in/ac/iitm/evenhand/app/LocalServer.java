@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpServer;
 import in.ac.iitm.evenhand.core.Diagnostic;
 import in.ac.iitm.evenhand.embed.Embedders;
 import in.ac.iitm.evenhand.ingest.CsvIngest;
-import in.ac.iitm.evenhand.ingest.PseudonymKey;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.report.HtmlReport;
@@ -102,8 +101,10 @@ public final class LocalServer {
                 send(ex, 403, "text/plain", "Requests that carry course data must come from the Even Hand page itself.");
                 return;
             }
-            if (get && path.equals("/")) {
-                send(ex, 200, "text/html", resource("/upload.html"));
+            if (get && (path.equals("/") || path.equals("/index.html"))) {
+                sendStatic(ex, "index.html");
+            } else if (get && path.startsWith("/assets/")) {
+                sendStatic(ex, path.substring(1));
             } else if (get && path.equals("/template.csv")) {
                 ex.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"even-hand-template.csv\"");
                 send(ex, 200, "text/csv", TEMPLATE);
@@ -174,7 +175,7 @@ public final class LocalServer {
                             job.stage = stage;
                             job.fraction = fraction;
                         });
-                job.result = result(run);
+                job.result = ResultJson.of(run);
                 job.fraction = 1;
                 job.stage = "Done";
             } catch (IllegalArgumentException | UnsupportedOperationException e) {
@@ -194,22 +195,6 @@ public final class LocalServer {
         if (job.error != null) return j.str("state", "failed").str("error", job.error).toString();
         if (job.result != null) return j.str("state", "done").raw("result", job.result).toString();
         return j.str("state", "running").toString();
-    }
-
-    /**
-     * Both reports, and the pseudonym-to-name table for this run, for the page to show.
-     *
-     * <p>The table goes only to the browser on this computer, the same place the terminal
-     * would show it; it is never part of a report, so a saved report carries pseudonyms only.
-     */
-    static String result(Pipeline.Run run) {
-        Json names = new Json();
-        PseudonymKey.of(run.ingest().keyFileContents()).realByLabel().forEach(names::str);
-        return new Json()
-                .str("instructor", HtmlReport.instructor(run.report()))
-                .str("committee", HtmlReport.committee(run.report()))
-                .raw("names", names.toString())
-                .toString();
     }
 
     /**
@@ -250,11 +235,62 @@ public final class LocalServer {
         return e.getMessage() == null ? e.toString() : e.getMessage();
     }
 
-    private static String resource(String name) throws IOException {
-        try (InputStream in = LocalServer.class.getResourceAsStream(name)) {
-            if (in == null) throw new IOException("missing resource " + name);
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    /** Where the web app's built files live on the classpath (eh-web). */
+    static final String WEB_ROOT = "/web/";
+
+    /** Only plain relative paths: letters, digits, dot, dash, underscore and slash, and never "..". */
+    private static final java.util.regex.Pattern SAFE_PATH = java.util.regex.Pattern.compile("[A-Za-z0-9._/-]{1,200}");
+
+    private static final Map<String, String> TYPES = Map.of(
+            "html", "text/html", "js", "text/javascript", "css", "text/css", "svg", "image/svg+xml",
+            "png", "image/png", "ico", "image/x-icon", "json", "application/json", "woff2", "font/woff2", "map", "application/json");
+
+    /**
+     * A file of the web app. Hashed assets are cached for a year (their name changes with their
+     * content); the page itself is never cached, so a new version is picked up at once.
+     */
+    private static void sendStatic(HttpExchange ex, String relative) throws IOException {
+        // Files only, of the kinds the app is made of: never a folder (which a classpath may list) or "..".
+        int dot = relative.lastIndexOf('.');
+        String ext = dot < 0 ? "" : relative.substring(dot + 1).toLowerCase(Locale.ROOT);
+        if (!SAFE_PATH.matcher(relative).matches() || relative.contains("..") || relative.endsWith("/")
+                || dot < relative.lastIndexOf('/') || !TYPES.containsKey(ext)) {
+            send(ex, 404, "text/plain", "Not found.");
+            return;
         }
+        byte[] body;
+        try (InputStream in = LocalServer.class.getResourceAsStream(WEB_ROOT + relative)) {
+            if (in == null) {
+                send(ex, 404, "text/plain", relative.equals("index.html")
+                        ? "The web app is missing from this build. Rebuild with ./mvnw package." : "Not found.");
+                return;
+            }
+            body = in.readAllBytes();
+        }
+        String type = TYPES.getOrDefault(ext, "application/octet-stream");
+        ex.getResponseHeaders().set("Content-Type", type + (type.startsWith("text/") || type.endsWith("json")
+                || type.endsWith("xml") ? "; charset=utf-8" : ""));
+        ex.getResponseHeaders().set("Cache-Control", relative.startsWith("assets/") ? "public, max-age=31536000, immutable"
+                : "no-store");
+        securityHeaders(ex);
+        ex.sendResponseHeaders(200, body.length);
+        try (OutputStream out = ex.getResponseBody()) {
+            out.write(body);
+        }
+    }
+
+    /**
+     * Headers on every response. The content security policy lets the page load only its own files and
+     * talk only to this server: even a bug that let text from a marks file reach the page as markup could
+     * not load or send anything elsewhere.
+     */
+    private static void securityHeaders(HttpExchange ex) {
+        ex.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
+        ex.getResponseHeaders().set("X-Frame-Options", "SAMEORIGIN");
+        ex.getResponseHeaders().set("Referrer-Policy", "no-referrer");
+        ex.getResponseHeaders().set("Content-Security-Policy", "default-src 'self'; script-src 'self'; "
+                + "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; "
+                + "frame-src 'self' blob: about:; object-src 'none'; base-uri 'none'; form-action 'none'");
     }
 
     /** The uploaded file as CSV text: a CSV as sent, an Excel workbook's first sheet converted. */
@@ -287,9 +323,7 @@ public final class LocalServer {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         ex.getResponseHeaders().set("Content-Type", type + "; charset=utf-8");
         ex.getResponseHeaders().set("Cache-Control", "no-store");
-        ex.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
-        ex.getResponseHeaders().set("X-Frame-Options", "DENY");
-        ex.getResponseHeaders().set("Referrer-Policy", "no-referrer");
+        securityHeaders(ex);
         ex.sendResponseHeaders(status, bytes.length);
         try (OutputStream out = ex.getResponseBody()) {
             out.write(bytes);

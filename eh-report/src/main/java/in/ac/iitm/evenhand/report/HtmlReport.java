@@ -156,6 +156,17 @@ public final class HtmlReport {
 
     // ------------------------------------------------------------------ summary
 
+    /** The bottom line's sentences alone, as escaped HTML, for the web app to show in its own frame. */
+    public static String bottomLineHtml(ReportInput in) {
+        StringBuilder b = new StringBuilder();
+        bottomLine(b, in);
+        String s = b.toString();
+        String open = "<div class=bottom><b>Bottom line.</b> ";
+        if (s.startsWith(open)) s = s.substring(open.length());
+        int end = s.lastIndexOf("</div>");
+        return (end >= 0 ? s.substring(0, end) : s).strip();
+    }
+
     /** The whole report in three sentences, with the one thing to do next. */
     static void bottomLine(StringBuilder b, ReportInput in) {
         b.append("<div class=bottom><b>Bottom line.</b> ");
@@ -213,7 +224,7 @@ public final class HtmlReport {
                     b.append("No student's grade is likely to depend on it, so nothing needs re-checking.");
             case Outcome.Emitted e -> b.append("<b>Next step:</b> take a second look at the ").append(e.rows().size())
                     .append(e.rows().size() == 1 ? " script" : " scripts")
-                    .append(" in the last section, most consequential first.");
+                    .append(" on the re-check list, most consequential first.");
         }
         b.append("</div>\n");
     }

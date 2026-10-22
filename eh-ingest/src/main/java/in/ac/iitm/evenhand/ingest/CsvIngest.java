@@ -253,7 +253,7 @@ public final class CsvIngest {
                             Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
                             "line " + row.line() + ": this response was already marked at line "
                             + previousLine + ". Treated as a second marking, which is what makes the "
-                            + "two assistants comparable.",
+                            + "two TAs comparable.",
                             List.of()));
                 }
             }
@@ -550,7 +550,7 @@ public final class CsvIngest {
             diagnostics.add(Diagnostic.note(
                     Diagnostic.Code.EH012_MARK_OF_RECORD_UNDECLARED,
                     averaged + " response(s) have more than one mark of record, and are read as the average "
-                    + "of those marks, each assistant carrying an equal share.",
+                    + "of those marks, each TA carrying an equal share.",
                     List.of()));
         }
         return recordLines;
@@ -569,7 +569,7 @@ public final class CsvIngest {
             if (rawStudent.isEmpty() || rawQuestion.isEmpty() || rawGrader.isEmpty()) {
                 diagnostics.add(Diagnostic.warning(
                         Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
-                        "line " + lineNumber + ": student, question or assistant is blank; row skipped.",
+                        "line " + lineNumber + ": student, question or TA is blank; row skipped.",
                         List.of(), "Check the export for partly-filled rows."));
                 return Optional.empty();
             }
@@ -689,7 +689,7 @@ public final class CsvIngest {
             diagnostics.add(Diagnostic.note(
                     Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
                     "No column records the order scripts were marked in, so whether marks drift "
-                    + "as an assistant works through a pile cannot be tested for this course.",
+                    + "as a TA works through a pile cannot be tested for this course.",
                     List.of()));
         }
         return found;
