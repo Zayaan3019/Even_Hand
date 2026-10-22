@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useTooltip } from './ui';
-import { inMarks, signed } from '../format';
+import { inMarks, naturalCompare, signed } from '../format';
 
 /** One TA's severity with its 95% interval; an optional second estimate is drawn as a hollow ring. */
 export interface SeverityPoint {
@@ -180,37 +181,52 @@ export function GradeChart({ grades }: { grades: { grade: string; asMarked: numb
   );
 }
 
-/** TA by question: each TA's effect on each question, coloured by direction and size. */
-export function Heatmap({ rows, questions }: {
-  rows: { label: string; cells: Record<string, number> }[];
-  questions: string[];
-}) {
+/** Questions shown before "Show all": enough to see the pattern, short enough to read without scrolling. */
+const TOP_QUESTIONS = 10;
+
+/**
+ * Question by TA: each TA's effect on each question, coloured by direction and size. Questions are rows and TAs columns,
+ * so the table grows downwards with the number of questions and always fits the width of the page.
+ */
+export function QuestionHeatmap({ tas }: { tas: { label: string; cells: Record<string, number> }[] }) {
   const tip = useTooltip();
-  const max = Math.max(5, ...rows.flatMap((r) => Object.values(r.cells).map(Math.abs)));
+  const [all, setAll] = useState(false);
+  const rows = Array.from(new Set(tas.flatMap((t) => Object.keys(t.cells))))
+    .map((q) => ({ q, spread: Math.max(...tas.map((t) => Math.abs(t.cells[q] ?? 0))) }))
+    .sort((a, b) => b.spread - a.spread || naturalCompare(a.q, b.q));
+  const shown = all ? rows : rows.slice(0, TOP_QUESTIONS);
+  const max = Math.max(5, ...rows.map((r) => r.spread));
+  // Beyond a dozen TAs the numbers no longer fit side by side; colour carries the reading and the tooltip the figure.
+  const numbers = tas.length <= 12;
   const colour = (v: number) => {
     const a = Math.min(1, Math.abs(v) / max);
     const base = v >= 0 ? 'var(--harsh)' : 'var(--lenient)';
     return `color-mix(in srgb, ${base} ${Math.round(12 + 70 * a)}%, transparent)`;
   };
   return (
-    <div className="table-wrap">
-      <table className="heat" aria-label="Each TA's effect on each question, in points">
+    <div>
+      {/* About 130px per TA is enough for a figure; wider cells only spread the eye. */}
+      <table className="heat" aria-label="Each TA's effect on each question, in points"
+             style={{ maxWidth: 220 + 130 * tas.length }}>
+        <colgroup><col className="qcol" />{tas.map((t) => <col key={t.label} />)}</colgroup>
         <thead>
           <tr>
-            <th />
-            {questions.map((q) => <th key={q} scope="col">{q}</th>)}
+            <th scope="col">Question</th>
+            {tas.map((t) => <th key={t.label} scope="col" title={t.label}>{t.label}</th>)}
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.label}>
-              <th scope="row">{r.label}</th>
-              {questions.map((q) => {
-                const v = r.cells[q];
-                return v == null ? <td key={q} /> : (
-                  <td key={q} style={{ background: colour(v) }}
-                      onMouseMove={(e) => tip.show(e, `${r.label} on ${q}: ${signed(v)} points`)} onMouseLeave={tip.hide}>
-                    {signed(v, 0)}
+          {shown.map(({ q }) => (
+            <tr key={q}>
+              <th scope="row" title={q}>{q}</th>
+              {tas.map((t) => {
+                const v = t.cells[q];
+                if (v == null) return <td key={t.label} className="none" aria-label="no matched answers">·</td>;
+                const text = `${t.label} on ${q}: ${signed(v)} points (${inMarks(v)} on a 10-mark question)`;
+                return (
+                  <td key={t.label} style={{ background: colour(v) }} aria-label={text}
+                      onMouseMove={(e) => tip.show(e, text)} onMouseLeave={tip.hide}>
+                    {numbers ? signed(v, 0) : ''}
                   </td>
                 );
               })}
@@ -218,6 +234,17 @@ export function Heatmap({ rows, questions }: {
           ))}
         </tbody>
       </table>
+      <div className="legend">
+        <span><span className="key" style={{ background: 'var(--harsh)' }} />harsher than the others</span>
+        <span><span className="key" style={{ background: 'var(--lenient)' }} />more lenient</span>
+        <span>· no matched answers</span>
+        <span>points of a question's maximum</span>
+      </div>
+      {rows.length > TOP_QUESTIONS && (
+        <button type="button" className="btn small-btn" onClick={() => setAll(!all)}>
+          {all ? `Show only the ${TOP_QUESTIONS} largest` : `Show all ${rows.length} questions`}
+        </button>
+      )}
       {tip.node}
     </div>
   );

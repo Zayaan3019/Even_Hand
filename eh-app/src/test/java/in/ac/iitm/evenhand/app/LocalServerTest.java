@@ -134,6 +134,18 @@ class LocalServerTest {
     }
 
     @Test
+    @DisplayName("the same file analysed twice gives the same pseudonyms and the same figures, to the last digit")
+    void analysisReproduces() throws Exception {
+        String csv = csv();
+        // Only the time of the run may differ.
+        String first = analyse(WEIGHTS, csv).replaceAll("\\d{4}-\\d\\d-\\d\\dT[\\d:.]+Z", "TIME");
+        String second = analyse(WEIGHTS, csv).replaceAll("\\d{4}-\\d\\d-\\d\\dT[\\d:.]+Z", "TIME");
+
+        assertThat(first).contains("\"state\":\"done\"");
+        assertThat(second).isEqualTo(first);
+    }
+
+    @Test
     @DisplayName("names reach the screen beside the reports, but never inside a report")
     void analyseKeepsNamesOutOfTheReports() throws Exception {
         String body = analyse(WEIGHTS, csv());

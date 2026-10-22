@@ -28,7 +28,9 @@ encrypted with AES-256-GCM under a key derived from a passphrase that only the i
 (PBKDF2, 600,000 iterations) **before it is written anywhere**. Without the passphrase it cannot be
 opened, and any alteration makes it fail to open. The application reads it back only when the
 instructor opens it to re-run the same course, so that a quiz and the end-semester exam of one course
-use the same pseudonyms. A new offering of the course uses a new salt.
+use the same pseudonyms. The salt of a course's first run is derived from its input file, so running
+the same file twice gives the same pseudonyms and the same figures; recomputing it needs the file
+itself, which already holds the identities. A new offering's file gives a new, unrelated salt.
 
 Tests assert that no identifier from the input survives ingest anywhere except inside the sealed key
 file; once the database exists, the same test scans its bytes.

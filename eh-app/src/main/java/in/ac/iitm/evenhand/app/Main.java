@@ -103,7 +103,7 @@ public final class Main {
 
         byte[] bytes = Files.readAllBytes(csv);
         String text = XlsxReader.looksLikeXlsx(bytes) ? XlsxReader.toCsv(bytes) : new String(bytes, StandardCharsets.UTF_8);
-        Pipeline.Run result = Pipeline.run(text, Pseudonymiser.withRandomSalt(), config, Pipeline.Options.defaults(),
+        Pipeline.Run result = Pipeline.run(text, Pseudonymiser.forInput(text), config, Pipeline.Options.defaults(),
                 (stage, fraction) -> System.err.printf(Locale.ROOT, "\r%3.0f%%  %-70s", 100 * fraction, stage));
         System.err.println();
 

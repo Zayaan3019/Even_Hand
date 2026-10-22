@@ -35,11 +35,11 @@ import java.util.TreeMap;
  * candidate and comparing. A secret salt makes that infeasible for anyone who does not
  * hold the key file.
  *
- * <p>The salt belongs to a course. A fresh one is drawn for its first run and kept in the
- * key file, and restoring it with {@link #fromKeyFile} makes later runs of the same course
- * &mdash; the quizzes, then the end-semester exam &mdash; produce the same digests. A new
- * offering draws a new salt, so nobody can follow an assistant or a student from one
- * offering's reports to the next without both keys.
+ * <p>The salt belongs to a course. Its first run derives one from the input file (see
+ * {@link #forInput}) and keeps it in the key file, and restoring it with {@link #fromKeyFile}
+ * makes later runs of the same course &mdash; the quizzes, then the end-semester exam &mdash;
+ * produce the same digests. A new offering's file gives a new salt, so nobody can follow an
+ * assistant or a student from one offering's reports to the next without both keys.
  */
 public final class Pseudonymiser {
 
@@ -65,7 +65,30 @@ public final class Pseudonymiser {
         }
     }
 
-    /** A pseudonymiser under a fresh random salt, for a course's first run. */
+    /** Separates this use of SHA-256 from every other, so the salt is no digest anyone else computes. */
+    private static final String INPUT_SALT_DOMAIN = "Even Hand pseudonym salt v1|";
+
+    /**
+     * A pseudonymiser whose salt is derived from the whole input file, for a course's first run.
+     *
+     * <p>The same file therefore always gets the same pseudonyms, and since every random draw in the
+     * analysis is seeded and indexed by them, the same report, figure for figure: a professor who runs a
+     * file twice, or a committee that re-runs it, sees identical results. Nothing is lost against a random
+     * salt: recomputing this one requires the file itself, marks and answers included, and whoever holds
+     * that already holds the real identities. A different file (another offering, or a corrected export)
+     * gets an unrelated salt, so pseudonyms still cannot be followed from one offering to the next.
+     */
+    public static Pseudonymiser forInput(String contents) {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            sha.update(INPUT_SALT_DOMAIN.getBytes(StandardCharsets.UTF_8));
+            return new Pseudonymiser(sha.digest(contents.getBytes(StandardCharsets.UTF_8)));
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException("SHA-256 is required and is unavailable", e);
+        }
+    }
+
+    /** A pseudonymiser under a fresh random salt. */
     public static Pseudonymiser withRandomSalt() {
         byte[] salt = new byte[32];
         new SecureRandom().nextBytes(salt);
