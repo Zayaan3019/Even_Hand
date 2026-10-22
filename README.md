@@ -5,6 +5,7 @@ A grading-consistency audit for IIT Madras courses, validated on real double-gra
 
 CS5013 project · Team *God's Eye* · Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104)
 Stakeholder: Prof. Aslam Kunhi Mohamed, Department of Civil Engineering · <https://github.com/Zayaan3019/Even_Hand>
+Project site: <https://even-hand.vercel.app> (the app itself runs on your own computer; see below)
 
 Large courses here are marked by teams of TAs who split the scripts. Part of what a student is
 awarded then depends on whose pile the script landed in. Under relative grading (B at the class
@@ -191,3 +192,10 @@ To work on the web app: run `java -jar eh-app/target/even-hand.jar serve`, then 
 [ARCHITECTURE.md](docs/ARCHITECTURE.md) · [CODE_MAP.md](docs/CODE_MAP.md) (where to change what) ·
 [ASSUMPTIONS.md](docs/ASSUMPTIONS.md) · [BENCHMARK.md](docs/BENCHMARK.md) (simulation benchmark) ·
 [DESIGN.md](docs/DESIGN.md) (the design document)
+
+## Project site
+
+`site/` is the public page at <https://even-hand.vercel.app>: what Even Hand does, the validation
+results, real screenshots (the public UNT dataset, pseudonyms only) and how to get it. It is static
+HTML and CSS with a strict Content-Security-Policy, deployed with `cd site && vercel deploy --prod`.
+It never receives a marks file: the analysis runs only on the professor's computer.
