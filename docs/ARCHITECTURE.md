@@ -30,7 +30,7 @@ call it:
 
 | Front end | Class | For |
 | --- | --- | --- |
-| Browser page, `even-hand.cmd` | `LocalServer` + `upload.html` (JDK `HttpServer` on 127.0.0.1) | The instructor, in three steps: drop the marks file, .xlsx or .csv (`/inspect` says what was read and what to fix), set the weights, read the report (`/analyse` starts a job the page polls on `/job`). Real names are shown on screen only; saved copies carry pseudonyms. Nothing is written to disk. |
+| Web app, `even-hand.cmd` | `eh-web` (React + TypeScript, served from the jar) talking to `LocalServer` (JDK `HttpServer` on 127.0.0.1) | The instructor, in three steps: drop the marks file, .xlsx or .csv (`/inspect` says what was read and what to fix), set the weights, read the report (`/analyse` starts a job the page polls on `/job`). Real names are shown on screen only; saved copies carry pseudonyms. Nothing is written to disk. |
 | Command line, `run` | `Main` | Scripting and batch runs |
 
 The simulator and the benchmarks are not part of the product: the simulator is test code

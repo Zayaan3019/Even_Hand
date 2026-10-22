@@ -41,7 +41,9 @@ java --add-modules jdk.incubator.vector -jar eh-app/target/even-hand.jar run mar
 | A new kind of TA allocation (test code only) | `CourseSimulator.Allocation`, then `piles(...)` and `marker(...)` | a new enum value and its case in both switches | a test that simulates it |
 | Another way of naming an answer column | `eh-ingest/.../WideSheet.java`, `ANSWER_AFTER` / `ANSWER_BEFORE` | one more alternative in the regex | a case in `AnswerIngestTest` |
 | Match answers more or less strictly | `eh-content/.../ContentSettings.java`, `defaults()` (neighbours, caliper) | change the values, then rerun `UntValidation` and keep them only if docs/VALIDATION.md improves | `ContentAnalysisTest` |
-| A new field on the upload page | `eh-app/src/main/resources/upload.html` (step 2 and the `URLSearchParams` in the *Check the marking* handler), `LocalServer.run` (`param(q, ...)`) | | `LocalServerTest.analyseKeepsNamesOutOfTheReports` |
+| A new field on the review step | `eh-web/src/views/Wizard.tsx` (`ReviewStep`), `eh-web/src/api.ts` (`startAnalysis`), `LocalServer.startJob` (`param(q, ...)`) | | `views.test.tsx`, `LocalServerTest.analysisJob` |
+| A new figure on the dashboard | compute it in Java, add it to `eh-app/.../ResultJson.java`, type it in `eh-web/src/api.ts`, show it in `eh-web/src/views/` | keep the field names identical on both sides | `views.test.tsx` with `test/fixture.ts`, `LocalServerTest.analysisJob` |
+| Change how the web app looks | `eh-web/src/styles.css` (design tokens at the top, dark theme below) | `cd eh-web && npm run dev` with the server running | `npm test` |
 | Accept another way of writing a question's maximum, e.g. `Q1 - 10` | `eh-ingest/.../WideSheet.java`, the `QUESTION` pattern | one more alternative in the regex | a header case in `CsvIngestTest.readsOneRowPerStudent` |
 | Treat another cell value as "not answered", e.g. `MP` | `WideSheet.NOT_ANSWERED` | add `"mp"` | `CsvIngestTest.readsOneRowPerStudent` |
 | Change the report's opening summary | `eh-report/.../HtmlReport.java`, `bottomLine` | | `HtmlReportTest.bottomLineNamesTheHarshestAssistant` |
