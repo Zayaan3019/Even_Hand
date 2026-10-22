@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { NamesContext } from '../names';
 import { Overview } from '../views/Overview';
@@ -41,11 +41,28 @@ describe('the dashboard shows what the server computed', () => {
 
   it('why: decomposition, mechanisms, the causal checks and Rosenbaum sensitivity', () => {
     render(withNamesOn(true, <Why r={fixture()} />));
-    expect(screen.getByText('Consistent severity')).toBeTruthy();
+    expect(screen.getAllByText('Consistent severity')).toHaveLength(2); // the line up front and the explanation
     expect(screen.getByText('Placebo')).toBeTruthy();
     expect(screen.getByText('Negative control: answer length')).toBeTruthy();
     expect(screen.getByText('2.4')).toBeTruthy();
     expect(screen.getByRole('img', { name: /split into its causes/ })).toBeTruthy();
+  });
+
+  it('why: one line per TA up front, and many questions as rows, not columns', () => {
+    const r = fixture();
+    const byQuestion = Array.from({ length: 30 }, (_, i) => ({ question: `Q${i + 1}`, severity: i % 7, se: 1, pairs: 20 }));
+    r.content!.causal!.mechanisms[0].byQuestion = byQuestion;
+    r.content!.causal!.mechanisms[1].byQuestion = byQuestion.map((q) => ({ ...q, severity: -q.severity }));
+    render(withNamesOn(true, <Why r={r} />));
+    const lines = screen.getAllByRole('listitem');
+    expect(lines).toHaveLength(2);
+    expect(within(lines[0]).getByText('+5.2')).toBeTruthy();
+    expect(within(lines[0]).getByText(/Γ = 2.4/)).toBeTruthy();
+    const heat = screen.getByRole('table', { name: /each question/ });
+    expect(within(heat).getAllByRole('columnheader')).toHaveLength(3); // the question, then one column per TA
+    expect(within(heat).getAllByRole('rowheader')).toHaveLength(10); // the ten largest first
+    fireEvent.click(screen.getByRole('button', { name: 'Show all 30 questions' }));
+    expect(within(heat).getAllByRole('rowheader')).toHaveLength(30);
   });
 
   it('why: without written answers, it says what to add instead of showing empty charts', () => {
