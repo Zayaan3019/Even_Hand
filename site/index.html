@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Even Hand: did it matter which TA marked the script?</title>
+  <meta name="description" content="A grading-consistency audit for IIT Madras courses. From the marks file a course already keeps, Even Hand measures how differently each TA marked, whether the answers explain it, which grades it moved, and which scripts deserve a second look. It runs on the professor's own computer.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="Even Hand">
+  <meta property="og:description" content="Did it matter which TA marked the script? A grading-consistency audit for IIT Madras courses, validated on real double-graded answers.">
+  <meta property="og:image" content="/img/overview.webp">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="/">
+      <span class="mark" aria-hidden="true">EH</span>
+      <span><b>Even Hand</b><small>Did it matter which TA marked the script?</small></span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#start">Get started</a>
+      <a class="gh" href="https://github.com/Zayaan3019/Even_Hand">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero wrap">
+    <div class="hero-text">
+      <p class="eyebrow">CS5013 · IIT Madras · Even Hand 1.0.0</p>
+      <h1>Did it matter which TA marked the script? And if it did, why?</h1>
+      <p class="lede">
+        Large courses are marked by teams of TAs who split the scripts, so part of a student's grade depends on
+        whose pile the script landed in. From the marks file your course already keeps, with the written answers
+        if you have them, Even Hand measures how differently each TA marked, whether the answers explain it, which
+        grades it moved, and which scripts deserve a second look.
+      </p>
+      <div class="ctas">
+        <a class="btn primary" href="#start">Get started</a>
+        <a class="btn" href="https://github.com/Zayaan3019/Even_Hand">Source code</a>
+      </div>
+      <p class="assure"><span class="lock" aria-hidden="true">🔒</span> Runs on your own computer. Marks, names and answers never leave it. It never changes a mark.</p>
+    </div>
+    <figure class="shot hero-shot">
+      <img src="/img/overview.webp" width="1180" height="765"
+           alt="Even Hand's overview: a bottom line saying the TAs did not mark alike, the size of the gap, letter grades affected, scripts to re-check, and each TA's severity with its interval.">
+      <figcaption>The overview, on the public UNT double-graded dataset (2,273 real answers). Names are off, so only pseudonyms show.</figcaption>
+    </figure>
+  </section>
+
+  <section class="band">
+    <div class="wrap narrow">
+      <h2>Why it matters under relative grading</h2>
+      <p>
+        With B at the class mean, A one standard deviation above and the top 10% at S, grading is zero-sum. A
+        leniently marked student who rises into a band pushes a harshly marked one out of it. Comparing pile
+        averages does not settle it either: one TA may simply have received the stronger scripts. Even Hand
+        separates the two.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="five">
+    <h2 id="five">Five questions, answered in order</h2>
+    <ol class="steps">
+      <li><b>Can this marking be checked at all?</b><span>Decided from who marked what, before any mark is read. If the arrangement cannot separate a TA from their students, Even Hand says so instead of guessing.</span></li>
+      <li><b>How differently did the TAs mark?</b><span>Each TA's severity in marks, with a 95% interval and a test of whether the differences could be chance.</span></li>
+      <li><b>Was it the answers or the marking?</b><span>Answers that say the same thing are compared across TAs, so a pile of stronger answers is never mistaken for a lenient TA.</span></li>
+      <li><b>What did it do to grades?</b><span>The course regraded under its own rule, as if every script had been marked by an average TA.</span></li>
+      <li><b>Which scripts should be looked at again?</b><span>At most 20, most consequential first, plus near-identical answers that got different marks.</span></li>
+    </ol>
+  </section>
+
+  <section id="how" class="band" aria-labelledby="how-h">
+    <div class="wrap">
+      <h2 id="how-h">How it tells the marking apart from the answers</h2>
+      <div class="split">
+        <div>
+          <p>
+            A gap between two TAs' piles has two possible causes: one pile's students wrote better answers (a
+            legitimate difference), or one TA marked the same work differently (a marking effect).
+          </p>
+          <p>
+            Even Hand reads every written answer with a sentence-embedding model (all-MiniLM-L6-v2, run on your
+            computer by its own Java implementation) and compares each answer with the most similar answers
+            <b>marked by other TAs</b>. Once two answers say the same thing, what was written cannot explain a gap in
+            their marks. This is matching with regression adjustment from causal inference (Abadie &amp; Imbens).
+          </p>
+          <p>The report then says how far that comparison can be trusted:</p>
+          <ul class="checks">
+            <li><b>Decomposition.</b> Each TA's gap = what students wrote + how it was marked + neither.</li>
+            <li><b>Overlap and balance.</b> Does each TA have comparable answers marked by others?</li>
+            <li><b>Negative control.</b> Answer length, which a TA cannot change and nothing adjusts for.</li>
+            <li><b>Placebo.</b> TA labels shuffled among similar answers: the method must then find nothing.</li>
+            <li><b>Rosenbaum sensitivity Γ.</b> How much hidden quality difference would overturn the conclusion.</li>
+            <li><b>Mechanism.</b> Consistent severity, a different reading of one question's rubric, drift, isolated slips, or chance.</li>
+          </ul>
+          <p class="muted">
+            When the marks alone can compare TAs only by assuming their piles were alike, a Hausman test compares
+            the two estimates. If they agree, the more precise marks estimate is kept; if not, the answers' estimate
+            is used. <a href="https://github.com/Zayaan3019/Even_Hand/blob/main/docs/METHOD.md">The full method, with references</a>.
+          </p>
+        </div>
+        <div class="stack">
+          <figure class="shot">
+            <img src="/img/why.webp" width="1180" height="765" loading="lazy"
+                 alt="Why marks differed: one line per TA with the kind of difference, its size in points and marks and its robustness Γ, the fairness checks passed, and what the variation in marks is made of.">
+            <figcaption>Why marks differed: one line per TA, the fairness checks, and what the variation in marks is made of.</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="/img/causes.webp" width="1180" height="765" loading="lazy"
+                 alt="Each TA's difference split into what students wrote, how it was marked and neither; what kind of difference it is; and the questions where the TAs differed most.">
+            <figcaption>Each TA's difference split into its causes, and the questions where it concentrates.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="accuracy" class="wrap" aria-labelledby="acc-h">
+    <h2 id="acc-h">How accurate it is, on real answers</h2>
+    <p class="narrow">
+      Measured on the UNT short-answer dataset (Mohler, Bunescu &amp; Mihalcea, ACL 2011): 2,273 real student
+      answers to 81 questions, each graded independently by two people, so the true difference between graders is
+      known. Each run deals every script to one grader only, as a course does, and asks Even Hand to recover what
+      the double grading shows. Settings were tuned on half the questions; every figure below is measured on the
+      other half.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Error in percentage points of a question's maximum (RMSE; lower is better)</caption>
+        <thead>
+          <tr><th scope="col">Scenario</th><th scope="col">Pile averages</th><th scope="col">Marks only</th><th scope="col">Even Hand</th><th scope="col">95% intervals contain the truth</th><th scope="col">Detection</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Two real graders, random deal</th><td>0.67</td><td>0.68</td><td class="hl">0.76</td><td>100%</td><td>finds the real gap in 97%</td></tr>
+          <tr><th scope="row">No difference, unfair piles</th><td>5.28</td><td>4.94</td><td class="hl">1.53</td><td>99%</td><td><b>0%</b> false alarms</td></tr>
+          <tr><th scope="row">Planted 10-point gap, unfair piles</th><td>4.98</td><td>4.53</td><td class="hl">1.61</td><td>96%</td><td>finds it in 100%</td></tr>
+          <tr><th scope="row">Four TAs, unfair piles</th><td>5.21</td><td>4.08</td><td class="hl">2.05</td><td>93%</td><td>finds them in 99%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="narrow muted">
+      When piles differ in quality, comparing pile averages, or the marks alone, is off by about 5 points;
+      comparing answers that say the same thing brings it to about 1.5–2. When piles were dealt at random the marks
+      alone are already good, and are kept. Full tables and the one-command reproduction:
+      <a href="https://github.com/Zayaan3019/Even_Hand/blob/main/docs/VALIDATION.md">VALIDATION.md</a>.
+    </p>
+  </section>
+
+  <section class="band" aria-labelledby="screens-h">
+    <div class="wrap">
+      <h2 id="screens-h">What a professor sees</h2>
+      <div class="gallery">
+        <figure class="shot">
+          <img src="/img/tas.webp" width="1180" height="765" loading="lazy"
+               alt="Each TA's severity with 95% intervals, from the marks and from matched answers, with a table of marks written, severity and its size on a 10-mark question.">
+          <figcaption>Each TA's severity, with 95% intervals and what it means on a 10-mark question.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="/img/grades.webp" width="1180" height="765" loading="lazy"
+               alt="Letter grades as marked and as if every TA had marked like the average, with the number of grades that would change.">
+          <figcaption>What it did to grades: the course regraded under its own rule, and the re-check list below.</figcaption>
+        </figure>
+      </div>
+      <p class="muted">Every chart carries a short <i>How to read this</i> note, so it needs no training. Saved reports carry pseudonyms only; the Class Committee sheet names no TA or student.</p>
+    </div>
+  </section>
+
+  <section id="privacy" class="wrap" aria-labelledby="priv-h">
+    <h2 id="priv-h">Privacy and security</h2>
+    <div class="cards">
+      <div class="card"><h3>Nothing leaves the computer</h3><p>The app is served by your own computer on 127.0.0.1 only, and an architecture test forbids any other network use in the code. That is why it is downloaded rather than used on this website.</p></div>
+      <div class="card"><h3>Pseudonyms from the first step</h3><p>Roll numbers and TA names become keyed HMAC-SHA-256 pseudonyms as the file is read. Real names appear on your screen only; saved reports never contain them.</p></div>
+      <div class="card"><h3>Same file, same report</h3><p>Every random draw is seeded, so running the same file twice gives the same pseudonyms and the same figures, to the last digit.</p></div>
+      <div class="card"><h3>Untrusted files handled defensively</h3><p>Excel files are opened with a size cap and with XML external entities disabled. The answer-reading model is checked against a pinned SHA-256 before use.</p></div>
+    </div>
+  </section>
+
+  <section id="start" class="band" aria-labelledby="start-h">
+    <div class="wrap">
+      <h2 id="start-h">Get started: three steps, no training</h2>
+      <ol class="steps three">
+        <li><b>Download and open it.</b><span>Get the code (below), then double-click <code>even-hand.cmd</code> on Windows or run <code>./even-hand.sh</code> on macOS or Linux. The first start builds it and fetches the answer-reading model once (a few minutes, with internet); after that it starts in seconds and works offline.</span></li>
+        <li><b>Drop in your marks file.</b><span>The Excel workbook or CSV you already keep, or your exam platform's export, with a column saying which TA marked each script. Even Hand shows what it read and anything to fix, in plain words.</span></li>
+        <li><b>Press <i>Check the marking</i>.</b><span>The results open on a one-paragraph bottom line, with sections for the TAs, why marks differed, the evidence, grades and the re-check list.</span></li>
+      </ol>
+      <div class="ctas">
+        <a class="btn primary" href="https://github.com/Zayaan3019/Even_Hand/archive/refs/heads/main.zip">Download (.zip)</a>
+        <a class="btn" href="https://github.com/Zayaan3019/Even_Hand#for-professors-and-tas-three-steps-no-training">Full instructions</a>
+      </div>
+      <p class="muted">Requires Java 21 or newer (<a href="https://adoptium.net">adoptium.net</a>, choose JDK 21). Or clone it: <code>git clone https://github.com/Zayaan3019/Even_Hand</code></p>
+
+      <h3 class="sub">What the marks file can look like</h3>
+      <div class="table-wrap">
+        <table class="formats">
+          <thead><tr><th scope="col">Your file looks like</th><th scope="col">Example header</th><th scope="col">When</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">One row per student</th><td><code>roll_no, ta, Q1 (10), Q1 answer, Q2 (15), Q2 answer</code></td><td>Each TA marked whole scripts. Answer columns are optional.</td></tr>
+            <tr><th scope="row">One row per answer</th><td><code>roll_no, assessment, question, max_marks, marks, ta, answer</code></td><td>TAs split the paper by question, or some scripts were marked twice.</td></tr>
+            <tr><th scope="row">Moodle / LMS quiz export</th><td><code>Q. 1 /10.00, Response 1, …, Graded by</code></td><td>As exported, plus a <i>Graded by</i> column.</td></tr>
+            <tr><th scope="row">Google Forms quiz export</th><td><code>Score, the answer columns, TA</code></td><td>As exported, plus a <i>TA</i> column.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><b>Even Hand</b> · CS5013 project, IIT Madras · Team <i>God's Eye</i>: Mohamed Zayaan S (CE23B092), Pruthviraj Milind Chougale (CE23B104) · Stakeholder: Prof. Aslam Kunhi Mohamed, Department of Civil Engineering</p>
+    <p class="muted">Screenshots use the public UNT short-answer dataset (Mohler, Bunescu &amp; Mihalcea, ACL 2011). Even Hand never changes a mark; severity describes a marking session, not a person.</p>
+  </div>
+</footer>
+</body>
+</html>
