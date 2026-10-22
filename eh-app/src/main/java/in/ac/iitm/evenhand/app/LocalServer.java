@@ -151,7 +151,7 @@ public final class LocalServer {
     static String status() {
         Embedders.Choice c = Embedders.best();
         return new Json().str("embedder", c.embedder().id()).bool("semantic", c.embedder().semantic())
-                .str("note", c.note()).str("version", Pipeline.version()).toString();
+                .str("note", c.note()).str("kernel", Embedders.kernel()).str("version", Pipeline.version()).toString();
     }
 
     /** Queues an analysis and returns its id at once; the page polls {@code /job}. */

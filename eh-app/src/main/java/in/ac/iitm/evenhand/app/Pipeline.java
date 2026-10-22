@@ -185,7 +185,8 @@ public final class Pipeline {
                 options.marks().nullSimulations(), options.marks().seed()));
         if (content.isPresent()) {
             ContentSettings cs = options.content();
-            footnotes.add("answers read by: " + embedderId + "; " + embedderNote);
+            footnotes.add("answers read by: " + embedderId + "; " + embedderNote
+                    + (content.get().semantic() ? "; kernel: " + Embedders.kernel() : ""));
             footnotes.add(String.format(Locale.ROOT, "answer matching: %d nearest answer(s) by another TA at cosine "
                     + ">= %.2f (lexical %.2f), %d pairs to link two TAs, content signal >= %.0f%%, %d-fold cross-fitting, "
                     + "%d bootstrap draws, seed %d", cs.neighbours(), cs.caliper(), cs.lexicalCaliper(),

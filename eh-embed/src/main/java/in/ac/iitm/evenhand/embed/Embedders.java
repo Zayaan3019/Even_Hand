@@ -56,6 +56,15 @@ public final class Embedders {
         return c;
     }
 
+    /**
+     * Which linear-algebra kernel reads answers: "SIMD (256-bit)", or the portable one with the reason,
+     * so a run that is slower than it should be can be diagnosed from its report.
+     */
+    public static String kernel() {
+        String reason = Kernels.fallbackReason();
+        return Kernels.best().name() + (reason.isEmpty() ? "" : " (" + reason + ")");
+    }
+
     /** Folders searched for the model, in order. */
     public static List<Path> searchPath() {
         List<Path> out = new ArrayList<>();

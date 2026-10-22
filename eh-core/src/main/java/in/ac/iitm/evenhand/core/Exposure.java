@@ -74,8 +74,8 @@ public record Exposure(Status status, double maxSpread, double meanTotal) {
         return switch (status) {
             case NONE -> "Every student's marks of record came from the same TAs in the same "
                     + "proportions, so no TA's severity can have moved anyone relative to anyone else.";
-            case ESTIMABLE -> differs + ", and every difference that could have moved a student is "
-                    + "estimable from the marking.";
+            case ESTIMABLE -> differs + ", so once each TA's severity is known, what it did to every "
+                    + "student can be worked out.";
             case UNDER_EXCHANGEABILITY -> differs + ", and its effect is estimable only if the piles were "
                     + "alike in ability.";
             case NOT_ESTIMABLE -> differs + ", and some of its effect cannot be measured from this arrangement.";

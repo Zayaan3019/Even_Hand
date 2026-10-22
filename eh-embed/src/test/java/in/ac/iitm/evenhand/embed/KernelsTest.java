@@ -38,7 +38,7 @@ class KernelsTest {
     @Test
     @DisplayName("the build runs the SIMD kernel, as the launchers do")
     void simdInUse() {
-        assertThat(Kernels.best().name()).startsWith("SIMD");
+        assertThat(Kernels.best().name()).as(Kernels.fallbackReason()).startsWith("SIMD");
     }
 
     @Test

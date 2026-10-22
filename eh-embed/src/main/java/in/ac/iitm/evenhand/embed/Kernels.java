@@ -15,10 +15,18 @@ abstract class Kernels {
     /** Output rows handled together, so a block of the weight stays in cache for every token. */
     static final int ROW_BLOCK = 64;
 
+    /** Why the portable kernel is in use, when it is; empty when the SIMD one is. */
+    private static String fallbackReason = "";
+
     private static final Kernels BEST = choose();
 
     static Kernels best() {
         return BEST;
+    }
+
+    /** Why the faster kernel could not be used, for the status line and the tests; empty when it is in use. */
+    static String fallbackReason() {
+        return fallbackReason;
     }
 
     abstract void linear(float[] in, int n, int inDim, float[] w, float[] b, int outDim, float[] out);
@@ -26,17 +34,23 @@ abstract class Kernels {
     abstract String name();
 
     private static Kernels choose() {
-        if ("scalar".equals(System.getProperty("evenhand.kernels"))) return new Scalar();
-        boolean present = ModuleLayer.boot().findModule("jdk.incubator.vector").isPresent();
-        if (present) {
-            try {
-                return (Kernels) Class.forName("in.ac.iitm.evenhand.embed.VectorKernels").getDeclaredConstructor()
-                        .newInstance();
-            } catch (ReflectiveOperationException | LinkageError e) {
-                // fall through to the portable kernel
-            }
+        if ("scalar".equals(System.getProperty("evenhand.kernels"))) {
+            fallbackReason = "the portable kernel was requested (evenhand.kernels=scalar)";
+            return new Scalar();
         }
-        return new Scalar();
+        if (ModuleLayer.boot().findModule("jdk.incubator.vector").isEmpty()) {
+            fallbackReason = "Java was started without --add-modules jdk.incubator.vector";
+            return new Scalar();
+        }
+        try {
+            return (Kernels) Class.forName("in.ac.iitm.evenhand.embed.VectorKernels").getDeclaredConstructor()
+                    .newInstance();
+        } catch (ReflectiveOperationException | LinkageError e) {
+            Throwable cause = e;
+            while (cause.getCause() != null) cause = cause.getCause();
+            fallbackReason = "the SIMD kernel could not be loaded: " + cause;
+            return new Scalar();
+        }
     }
 
     /** Portable Java: eight partial sums per dot product, weight blocks reused across tokens. */
