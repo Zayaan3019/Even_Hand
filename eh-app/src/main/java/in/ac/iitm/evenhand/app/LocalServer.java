@@ -170,7 +170,7 @@ public final class LocalServer {
         }
         WORKER.submit(() -> {
             try {
-                Pipeline.Run run = Pipeline.run(csv, Pseudonymiser.withRandomSalt(), config, Pipeline.Options.defaults(),
+                Pipeline.Run run = Pipeline.run(csv, Pseudonymiser.forInput(csv), config, Pipeline.Options.defaults(),
                         (stage, fraction) -> {
                             job.stage = stage;
                             job.fraction = fraction;
@@ -204,7 +204,7 @@ public final class LocalServer {
      */
     static String inspect(String csv) throws IOException {
         CsvIngest.IngestResult in = CsvIngest.read(new BufferedReader(new StringReader(csv)),
-                Pseudonymiser.withRandomSalt());
+                Pseudonymiser.forInput(csv));
         List<String> assessments = new ArrayList<>();
         for (String a : in.assessmentLabels()) assessments.add(Json.quote(a));
         Map<String, List<Diagnostic>> byCode = new LinkedHashMap<>();
