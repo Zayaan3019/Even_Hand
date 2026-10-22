@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>in.ac.iitm.evenhand</groupId>
+    <artifactId>even-hand</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>eh-embed</artifactId>
+  <name>eh-embed</name>
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
+  <description>
+    Answer text to vectors, on this machine: a sentence-embedding transformer (BERT family, e.g.
+    all-MiniLM-L6-v2) run by our own forward pass from a local safetensors file, and a lexical
+    TF-IDF embedder as the fallback. No third-party runtime dependency and no network call.
+  </description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- VectorKernels uses the JDK's Vector API; it is loaded only when the module is present. -->
+          <compilerArgs>
+            <arg>--add-modules</arg>
+            <arg>jdk.incubator.vector</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

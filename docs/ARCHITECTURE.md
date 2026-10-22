@@ -23,13 +23,18 @@ is one Maven module and one entry point. The audit can stop the pipeline after s
            design, key)   cases + exposure) intervals, p-value)   corrected, re-check list)
 ```
 
-`Pipeline.run` (in `eh-app`) is exactly this diagram, one line per stage. Three front ends call it:
+`Pipeline.run` (in `eh-app`) is exactly this diagram, one line per stage, plus stage 3b: the written
+answers are embedded (`eh-embed`) and compared across TAs (`eh-content`), and a Hausman test decides
+which estimate corrects the grades (`ContentFit.choose`; see [METHOD.md](METHOD.md)). Two front ends
+call it:
 
 | Front end | Class | For |
 | --- | --- | --- |
-| Browser page, `even-hand.cmd` | `LocalServer` + `upload.html` (JDK `HttpServer` on 127.0.0.1) | The instructor, in three steps: drop the marks sheet (`/inspect` says what was read and what to fix), set the weights, read the report (`/analyse`). Real names are shown on screen only; saved copies carry pseudonyms. Nothing is written to disk. |
-| Simulation Lab, `/lab` | `SimulationLab` + `lab.html` | Demonstration: a simulated course through the real pipeline, with the truth shown beside the estimates |
-| Command line, `run` / `benchmark` | `Main`, `Benchmark` | Scripting, CI and the benchmark |
+| Web app, `even-hand.cmd` | `eh-web` (React + TypeScript, served from the jar) talking to `LocalServer` (JDK `HttpServer` on 127.0.0.1) | The instructor, in three steps: drop the marks file, .xlsx or .csv (`/inspect` says what was read and what to fix), set the weights, read the report (`/analyse` starts a job the page polls on `/job`). Real names are shown on screen only; saved copies carry pseudonyms. Nothing is written to disk. |
+| Command line, `run` | `Main` | Scripting and batch runs |
+
+The simulator and the benchmarks are not part of the product: the simulator is test code
+(`eh-design`'s test-jar) and the benchmarks live in `eh-validation`, which is never packaged.
 
 ## Stage by stage
 

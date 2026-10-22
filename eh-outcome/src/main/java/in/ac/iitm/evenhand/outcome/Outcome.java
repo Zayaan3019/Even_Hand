@@ -123,17 +123,17 @@ public final class Outcome {
                                        int[] timesChanged, double[] pointsSum, int[][] gradeVotes, int draws) {
         Exposure exposure = model.verdict().exposure();
         if (exposure.status() == Exposure.Status.NONE) {
-            return new Refused("Every student was marked by the same assistants in the same proportions, "
-                    + "so no assistant's severity can have moved anyone relative to anyone else.");
+            return new Refused("Every student was marked by the same TAs in the same proportions, "
+                    + "so no TA's severity can have moved anyone relative to anyone else.");
         }
         if (exposure.status() == Exposure.Status.NOT_ESTIMABLE) {
-            return new Refused("Students met different assistants, but this arrangement cannot measure "
+            return new Refused("Students met different TAs, but this arrangement cannot measure "
                     + "what that did to them. The audit names the repair.");
         }
         if (model.verdict() instanceof AuditVerdict.EstimableUnderExchangeability
                 && design.allocationEvidence().map(AllocationEvidence::followsDepartments).orElse(false)) {
             return new Refused("The comparison rests on the piles having been alike, but the piles follow the "
-                    + "department code in the roll number, so an assistant's severity cannot be told apart from "
+                    + "department code in the roll number, so a TA's severity cannot be told apart from "
                     + "the department they marked. Double-mark a few scripts across piles to repair this.");
         }
         if (draws == 0 || Double.isNaN(model.noEffect().pValue())) {
@@ -141,7 +141,7 @@ public final class Outcome {
         }
         if (!model.noEffect().rejectsAt(gate.alpha())) {
             return new Refused(String.format(java.util.Locale.ROOT,
-                    "The assistants' differences are within what chance alone produces (p = %.2f), "
+                    "The TAs' differences are within what chance alone produces (p = %.2f), "
                     + "so no script is flagged.", model.noEffect().pValue()));
         }
         List<Row> rows = new ArrayList<>();

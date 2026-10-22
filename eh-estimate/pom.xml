@@ -6,7 +6,7 @@
   <parent>
     <groupId>in.ac.iitm.evenhand</groupId>
     <artifactId>even-hand</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>eh-estimate</artifactId>
@@ -30,6 +30,12 @@
     <dependency>
       <groupId>in.ac.iitm.evenhand</groupId>
       <artifactId>eh-ingest</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-design</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

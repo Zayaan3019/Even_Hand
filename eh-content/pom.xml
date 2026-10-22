@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>in.ac.iitm.evenhand</groupId>
+    <artifactId>even-hand</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>eh-content</artifactId>
+  <name>eh-content</name>
+  <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
+  <description>
+    Stage 3b: were the marking differences explained by what the students wrote? Compares answers
+    that say the same thing across assistants (bias-corrected matching on answer embeddings),
+    estimates each assistant's severity with intervals, and lists the evidence: near-identical
+    answers given different marks, and marks out of line with similar answers.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>in.ac.iitm.evenhand</groupId>
+      <artifactId>eh-numerics</artifactId>
+    </dependency>
+  </dependencies>
+</project>

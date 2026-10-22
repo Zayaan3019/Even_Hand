@@ -7,8 +7,13 @@ if ! command -v java >/dev/null 2>&1; then
   echo "Even Hand needs Java 21 or newer. Install it from https://adoptium.net (JDK 21), then run this again."
   exit 1
 fi
-if [ ! -f "$JAR" ] || [ -n "$(find pom.xml eh-*/pom.xml eh-*/src -newer "$JAR" -type f 2>/dev/null | head -n 1)" ]; then
+if [ ! -f "$JAR" ] || [ -n "$(find pom.xml eh-*/pom.xml eh-web/index.html eh-web/package.json eh-web/vite.config.ts eh-*/src -newer "$JAR" -type f 2>/dev/null | head -n 1)" ]; then
   echo "Building the latest version of Even Hand. This takes a minute or two."
   ./mvnw -q clean package -DskipTests || { echo "The build failed. The messages above say why."; exit 1; }
 fi
-exec java -jar "$JAR" serve
+MODEL="${EVEN_HAND_MODEL:-$HOME/.even-hand/models/all-MiniLM-L6-v2}"
+if [ ! -f "$MODEL/model.safetensors" ]; then
+  echo "Fetching the answer-reading model once (87 MB). Even Hand itself never goes online."
+  sh scripts/fetch-model.sh || echo "Could not fetch it now; answers will be compared by wording only until it is fetched."
+fi
+exec java --add-modules jdk.incubator.vector -jar "$JAR" serve

@@ -12,10 +12,14 @@
 /eh-core/        @Zayaan3019
 /eh-numerics/    @Zayaan3019
 /eh-ingest/      @Zayaan3019
+/eh-embed/       @Zayaan3019
 /eh-design/      @Zayaan3019
 /eh-estimate/    @Zayaan3019
+/eh-content/     @Zayaan3019
 /eh-outcome/     @PruthvirajChougale
 /eh-report/      @PruthvirajChougale
 /eh-app/         @PruthvirajChougale
 /docs/           @Zayaan3019 @PruthvirajChougale
 /pom.xml         @Zayaan3019 @PruthvirajChougale
+/eh-validation/   @Zayaan3019
+/eh-web/         @PruthvirajChougale @Zayaan3019

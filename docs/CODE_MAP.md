@@ -9,7 +9,7 @@ it belongs in, and the one test that proves it worked.
 ./mvnw -q -o install -DskipTests                         # build everything (~15 s)
 ./mvnw -q -o test -pl eh-outcome                          # one module's tests
 ./mvnw -q -o test -pl eh-outcome -Dtest=GradingRuleTest   # one test class
-java -jar eh-app/target/even-hand.jar run samples/ce-core-7.csv --weights "Quiz 1=25,Quiz 2=25,End-sem=50"
+java --add-modules jdk.incubator.vector -jar eh-app/target/even-hand.jar run marks.xlsx --weights "Quiz 1=25,Quiz 2=25,End-sem=50"
 ```
 
 `-o` (offline) is safe once the first build has downloaded everything.
@@ -37,10 +37,13 @@ java -jar eh-app/target/even-hand.jar run samples/ce-core-7.csv --weights "Quiz 
 | Export the re-check list as CSV (pseudonyms only) | `eh-app/.../Main.java`, `run` | after writing the HTML, loop over `Outcome.Emitted.rows()` and `Files.writeString(out.resolve("recheck.csv"), ...)`; never write `key.real(...)` | `CliTest.simulateThenRun` |
 | More bootstrap draws / a different seed | `eh-estimate/.../Settings.java`, `defaults()` | change `200` / the seed | `SeverityEstimatorTest.reproducible` |
 | Stop shrinking TAs | `Settings.defaults()` second argument → `0` | | `SeverityEstimatorTest.shrinkageOnlyPullsTowardsZero` |
-| A new course shape in the dataset | `eh-design/.../sim/CourseSimulator.java`, enum `Archetype` | add a constant with its size, TAs, departments and `AssessmentPlan`s | `java -jar ... simulate <name> 1 samples/` |
-| A new kind of TA allocation | `CourseSimulator.Allocation`, then `piles(...)` and `marker(...)` | a new enum value and its case in both switches | simulate and run it |
-| A new control on the Simulation Lab (e.g. class size) | `eh-app/src/main/resources/lab.html` (the `controls` div and `run()`), `LocalServer` (`/lab/run` parameters), `SimulationLab.run` | read the new parameter and pass it to the simulator | `LocalServerTest.labRun` |
-| A new field on the upload page | `eh-app/src/main/resources/upload.html` (step 2 and the `URLSearchParams` in the *Check the marking* handler), `LocalServer.run` (`param(q, ...)`) | | `LocalServerTest.analyseKeepsNamesOutOfTheReports` |
+| A new course shape in the benchmark (test code only) | `eh-design/src/test/.../sim/CourseSimulator.java`, enum `Archetype` | add a constant with its size, TAs, departments and `AssessmentPlan`s | run `eh-validation`'s `Benchmark` |
+| A new kind of TA allocation (test code only) | `CourseSimulator.Allocation`, then `piles(...)` and `marker(...)` | a new enum value and its case in both switches | a test that simulates it |
+| Another way of naming an answer column | `eh-ingest/.../WideSheet.java`, `ANSWER_AFTER` / `ANSWER_BEFORE` | one more alternative in the regex | a case in `AnswerIngestTest` |
+| Match answers more or less strictly | `eh-content/.../ContentSettings.java`, `defaults()` (neighbours, caliper) | change the values, then rerun `UntValidation` and keep them only if docs/VALIDATION.md improves | `ContentAnalysisTest` |
+| A new field on the review step | `eh-web/src/views/Wizard.tsx` (`ReviewStep`), `eh-web/src/api.ts` (`startAnalysis`), `LocalServer.startJob` (`param(q, ...)`) | | `views.test.tsx`, `LocalServerTest.analysisJob` |
+| A new figure on the dashboard | compute it in Java, add it to `eh-app/.../ResultJson.java`, type it in `eh-web/src/api.ts`, show it in `eh-web/src/views/` | keep the field names identical on both sides | `views.test.tsx` with `test/fixture.ts`, `LocalServerTest.analysisJob` |
+| Change how the web app looks | `eh-web/src/styles.css` (design tokens at the top, dark theme below) | `cd eh-web && npm run dev` with the server running | `npm test` |
 | Accept another way of writing a question's maximum, e.g. `Q1 - 10` | `eh-ingest/.../WideSheet.java`, the `QUESTION` pattern | one more alternative in the regex | a header case in `CsvIngestTest.readsOneRowPerStudent` |
 | Treat another cell value as "not answered", e.g. `MP` | `WideSheet.NOT_ANSWERED` | add `"mp"` | `CsvIngestTest.readsOneRowPerStudent` |
 | Change the report's opening summary | `eh-report/.../HtmlReport.java`, `bottomLine` | | `HtmlReportTest.bottomLineNamesTheHarshestAssistant` |

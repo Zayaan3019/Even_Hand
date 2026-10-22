@@ -27,7 +27,7 @@ import java.util.List;
  * @param severityDraws bootstrap replicates of the severities, {@code [draw][grader]};
  *                     every interval downstream comes from these, so the re-check
  *                     probabilities and transfer counts come from one tested place
- * @param noEffect     the design-preserving test of "the assistants do not differ"
+ * @param noEffect     the design-preserving test of "the TAs do not differ"
  * @param diagnostics  convergence
  */
 public record FittedModel(AuditVerdict verdict,

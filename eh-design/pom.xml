@@ -6,13 +6,13 @@
   <parent>
     <groupId>in.ac.iitm.evenhand</groupId>
     <artifactId>even-hand</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>eh-design</artifactId>
   <name>eh-design</name>
   <!-- Primary reviewer: Zayaan (see .github/CODEOWNERS) -->
-  <description>Design profiler, identifiability audit, design-only precision forecast.</description>
+  <description>Design profiler, identifiability audit, design-only precision forecast. Its tests carry the course simulator.</description>
 
   <dependencies>
     <dependency>
@@ -29,4 +29,20 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- The course simulator lives in the tests: it is a test fixture, never part of the product.
+           Other modules' tests and eh-validation use it through this test-jar. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals><goal>test-jar</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

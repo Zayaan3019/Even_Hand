@@ -20,7 +20,7 @@ if not defined JAVA_HOME (
 )
 
 rem Exit code 0: the jar is up to date. 1: missing, or some source or pom.xml has changed since it was built.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$j = Get-Item '%JAR%' -ErrorAction SilentlyContinue; if (-not $j) { exit 1 }; $src = @(Get-Item 'pom.xml','eh-*\pom.xml') + @(Get-Item 'eh-*\src' | Get-ChildItem -Recurse -File); if ($src | Where-Object { $_.LastWriteTime -gt $j.LastWriteTime } | Select-Object -First 1) { exit 1 } else { exit 0 }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$j = Get-Item '%JAR%' -ErrorAction SilentlyContinue; if (-not $j) { exit 1 }; $src = @(Get-Item 'pom.xml','eh-*\pom.xml','eh-web\index.html','eh-web\package.json','eh-web\vite.config.ts') + @(Get-Item 'eh-*\src' | Get-ChildItem -Recurse -File); if ($src | Where-Object { $_.LastWriteTime -gt $j.LastWriteTime } | Select-Object -First 1) { exit 1 } else { exit 0 }"
 if errorlevel 1 (
   echo Building the latest version of Even Hand. This takes a minute or two.
   rem A previous version may still be running; stop it so the new one can open.
@@ -33,5 +33,16 @@ if errorlevel 1 (
   )
 )
 
-java -jar "%JAR%" serve
+rem The answer-reading model is fetched once (87 MB) and checked against its pinned SHA-256.
+rem Even Hand itself never goes online.
+set "MODEL=%EVEN_HAND_MODEL%"
+if not defined MODEL set "MODEL=%USERPROFILE%\.even-hand\models\all-MiniLM-L6-v2"
+if not exist "%MODEL%\model.safetensors" (
+  echo Fetching the answer-reading model once ^(87 MB^).
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\fetch-model.ps1"
+  if errorlevel 1 echo Could not fetch it now. Answers will be compared by wording only until it is fetched.
+)
+
+rem --add-modules turns on the SIMD kernels that read answers about five times faster.
+java --add-modules jdk.incubator.vector -jar "%JAR%" serve
 pause

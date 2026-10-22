@@ -13,7 +13,7 @@
 
   <groupId>in.ac.iitm.evenhand</groupId>
   <artifactId>even-hand</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
 
   <name>Even Hand</name>
@@ -26,11 +26,15 @@
       eh-core      shared vocabulary: records, sealed verdicts, grades, the FittedModel seam
       eh-numerics  exact integer rank for the audit
       eh-ingest    CSV parsing and pseudonymisation          (stage 1)
+      eh-embed     answer text to vectors: our own transformer forward pass, lexical fallback
       eh-design    who-marked-what audit; IITM course simulator (stage 2)
       eh-estimate  TA severity in marks, bootstrap, no-effect test (stage 3)
+      eh-content   were mark differences explained by the answers? matched-answer severity (stage 3b)
       eh-outcome   IITM grading rules, grade changes, re-check list (stage 4)
       eh-report    HTML report and Class Committee sheet       (stage 5)
-      eh-app       command-line tool and the benchmark
+      eh-web       the web app: React + TypeScript, built by Vite, served from the jar
+      eh-app       the product: browser page and command line
+      eh-validation  not shipped: benchmark, simulator-based calibration, real-data validation
 
     Dependencies flow strictly downward. No module has a third-party runtime
     dependency: the arithmetic is ours and examinable. Review responsibility per
@@ -40,11 +44,15 @@
     <module>eh-core</module>
     <module>eh-numerics</module>
     <module>eh-ingest</module>
+    <module>eh-embed</module>
     <module>eh-design</module>
     <module>eh-estimate</module>
+    <module>eh-content</module>
     <module>eh-outcome</module>
     <module>eh-report</module>
+    <module>eh-web</module>
     <module>eh-app</module>
+    <module>eh-validation</module>
   </modules>
 
   <properties>
@@ -76,12 +84,28 @@
       </dependency>
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-embed</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-design</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-design</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-estimate</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-content</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -92,6 +116,11 @@
       <dependency>
         <groupId>in.ac.iitm.evenhand</groupId>
         <artifactId>eh-report</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>in.ac.iitm.evenhand</groupId>
+        <artifactId>eh-web</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -153,6 +182,8 @@
             <!-- Statistical calibration tests are slow and seeded; excluded from
                  the default build and run by -Pstats. -->
             <excludedGroups>slow</excludedGroups>
+            <!-- The embedding model's SIMD kernels; @{argLine} keeps JaCoCo's agent. -->
+            <argLine>@{argLine} --add-modules jdk.incubator.vector</argLine>
           </configuration>
         </plugin>
       </plugins>

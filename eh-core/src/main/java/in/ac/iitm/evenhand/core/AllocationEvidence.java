@@ -144,22 +144,22 @@ public record AllocationEvidence(List<Pile> piles,
     public String describe() {
         List<Pile> assessed = piles.stream().filter(p -> isAssessed(p, classSize)).toList();
         if (assessed.isEmpty()) {
-            return "There is not enough marking per assistant to say how the piles were formed.";
+            return "There is not enough marking per TA to say how the piles were formed.";
         }
         long contiguous = assessed.stream().filter(AllocationEvidence::isContiguous).count();
         String out;
         if (contiguous == assessed.size()) {
-            out = "Every assistant's pile is a contiguous block of roll numbers, so the split was made by "
+            out = "Every TA's pile is a contiguous block of roll numbers, so the split was made by "
                     + "roll number rather than at random, and the assumption that the piles were alike in "
                     + "ability is the one most worth doubting.";
         } else if (contiguous == 0) {
-            out = "Assistants' piles are interleaved across roll numbers, which is consistent with a random deal.";
+            out = "TAs' piles are interleaved across roll numbers, which is consistent with a random deal.";
         } else {
-            out = contiguous + " of " + assessed.size() + " assistants' piles are contiguous blocks of roll "
+            out = contiguous + " of " + assessed.size() + " TAs' piles are contiguous blocks of roll "
                     + "numbers, so the split was at least partly made by roll number.";
         }
         if (followsDepartments()) {
-            out += " The piles also follow the department code in the roll number, so an assistant's "
+            out += " The piles also follow the department code in the roll number, so a TA's "
                     + "severity cannot be told apart from the department of the students they marked.";
         }
         return out;
