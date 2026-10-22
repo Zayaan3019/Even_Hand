@@ -93,7 +93,16 @@ marked everything, the true difference between them is known. Each run deals eve
 grader only, as a course does, and asks Even Hand to recover what the double grading shows.
 Settings were tuned on half the questions and every figure below is measured on the other half.
 
-<!-- VALIDATION-SUMMARY -->
+| Scenario | Pile averages | Marks only | **Even Hand** | 95% intervals contain the truth | False alarms / found |
+|---|---|---|---|---|---|
+| Two real graders, random deal | 0.67 | 0.68 | **0.76** | 100% | finds the real gap in 97% |
+| No difference, unfair piles | 5.28 | 4.94 | **1.53** | 99% | **0%** false alarms |
+| Planted 10-point gap, unfair piles | 4.98 | 4.53 | **1.61** | 96% | finds it in 100% |
+| Four TAs, unfair piles | 5.21 | 4.08 | **2.05** | 93% | finds them in 99% |
+
+Error in percentage points of a question's maximum (RMSE). When piles differ in quality, comparing
+pile averages, or the marks alone, is off by about 5 points; comparing answers that say the same thing
+brings it to about 1.5–2. When piles were dealt at random the marks alone are already good and are kept.
 
 Full tables, scenarios and the reproduction script (`sh scripts/validate.sh`) are in
 [docs/VALIDATION.md](docs/VALIDATION.md).

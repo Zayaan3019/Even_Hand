@@ -24,6 +24,13 @@ import in.ac.iitm.evenhand.numerics.Distributions;
  */
 public final class ContentFit {
 
+    /**
+     * The Hausman test's level. 10% rather than 5%, because the two errors are not equally costly: wrongly
+     * trusting the marks when piles differed misplaces a TA by several points (five times the answers'
+     * error on real data), while wrongly preferring the answers costs a little precision.
+     */
+    static final double HAUSMAN_ALPHA = 0.10;
+
     private ContentFit() {
     }
 
@@ -77,7 +84,7 @@ public final class ContentFit {
         }
         int df = Math.max(1, terms - 1);
         double p = terms < 2 ? Double.NaN : Distributions.chiSquareSurvival(chi, df);
-        if (Double.isFinite(p) && p < 0.05) {
+        if (Double.isFinite(p) && p < HAUSMAN_ALPHA) {
             return new Choice(true, chi, df, p, String.format(Locale.ROOT, "The marks-only estimate assumes every TA's "
                     + "pile was alike, and the answers show it was not (Hausman test p = %.3f): the marks alone would have "
                     + "misplaced a TA by up to %.1f points. The answers' estimate is used.", p, largest));

@@ -77,7 +77,8 @@ For every question with written answers:
 - When the marks alone are assumption-free, they are used, and the answers serve as an
   independent check.
 - When the marks need the equal-piles assumption, the two estimates are compared by a **Hausman
-  (1978) test**:
+  (1978) test**, at the 10% level: wrongly trusting the marks when piles differed costs several points,
+  while wrongly preferring the answers costs a little precision:
   - If they agree, the answers have confirmed the assumption, and the more precise marks
     estimate is used.
   - If they disagree, the piles were not alike, and the answers' estimate is used. The report

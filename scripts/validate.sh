@@ -30,4 +30,4 @@ SEP=":"; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) SEP=";";; esac
 CP="eh-validation/target/classes$SEP$(cat eh-validation/target/cp.txt)"
 java --add-modules jdk.incubator.vector -cp "$CP" in.ac.iitm.evenhand.validation.UntValidation "$DIR" \
   --runs "$RUNS" --out docs/validation
-echo "Results in docs/validation/VALIDATION-REAL.md"
+echo "Results in docs/validation/VALIDATION-REAL.md (summary: docs/VALIDATION.md)"
