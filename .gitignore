@@ -28,3 +28,6 @@ even-hand-report/
 # A local copy of the embedding model (fetched by scripts/fetch-model); never committed.
 models/
 *.part
+
+# Third-party data used only to validate accuracy (scripts/validate.sh); never committed.
+validation-data/
