@@ -32,5 +32,6 @@
     <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-estimate</artifactId></dependency>
     <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-content</artifactId></dependency>
     <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-outcome</artifactId></dependency>
+    <dependency><groupId>in.ac.iitm.evenhand</groupId><artifactId>eh-app</artifactId><version>${project.version}</version></dependency>
   </dependencies>
 </project>

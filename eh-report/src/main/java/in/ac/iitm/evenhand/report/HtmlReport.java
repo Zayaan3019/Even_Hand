@@ -108,11 +108,17 @@ public final class HtmlReport {
         if (in.content().isPresent()) evidence(b, in.content().get(), String.valueOf(next++));
 
         section(b, next++ + ". What did it do to grades?");
-        b.append(String.format(Locale.ROOT,
-                "<p><b>%.1f%%</b> of the spread in course totals came from who marked the script rather than "
-                + "what was written. Correcting for it would change <b>%d</b> letter grade%s "
-                + "(90%% range %d&ndash;%d).</p>%n",
-                o.assistantShare(), o.changed(), o.changed() == 1 ? "" : "s", o.changedLow(), o.changedHigh()));
+        boolean differ = in.model().map(m -> m.noEffect().rejectsAt(0.05)).orElse(false);
+        if (differ) {
+            b.append(String.format(Locale.ROOT,
+                    "<p><b>%.1f%%</b> of the spread in course totals came from who marked the script rather than "
+                    + "what was written. Correcting for it would change <b>%d</b> letter grade%s "
+                    + "(90%% range %d&ndash;%d).</p>%n",
+                    o.assistantShare(), o.changed(), o.changed() == 1 ? "" : "s", o.changedLow(), o.changedHigh()));
+        } else {
+            b.append("<p>The TAs' differences are within what chance alone produces, so no grade is attributed to them.</p>\n");
+        }
+        b.append("<p class=note>This counts only consistent differences between TAs. One-off disagreements on individual answers also move grades, and on real double-graded answers they move more; only double-marking a sample can measure them.</p>\n");
         gradeTable(b, o);
 
         section(b, next + ". Scripts worth a second look");
@@ -139,10 +145,14 @@ public final class HtmlReport {
             varianceBar(b, f.variance());
         });
         in.outcome().ifPresent(o -> {
-            b.append(String.format(Locale.ROOT,
-                    "<p><b>%.1f%%</b> of the spread in totals is attributable to the division of marking. "
-                    + "Letter grades that would change on correction: <b>%d</b> (90%% range %d&ndash;%d).</p>%n",
-                    o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh()));
+            if (in.model().map(m -> m.noEffect().rejectsAt(0.05)).orElse(false)) {
+                b.append(String.format(Locale.ROOT,
+                        "<p><b>%.1f%%</b> of the spread in totals is attributable to the division of marking. "
+                        + "Letter grades that would change on correction: <b>%d</b> (90%% range %d&ndash;%d).</p>%n",
+                        o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh()));
+            } else {
+                b.append("<p>The TAs' differences are within what chance alone produces, so no grade is attributed to them.</p>\n");
+            }
             gradeTable(b, o);
             b.append("<p>").append(o.shortlist() instanceof Outcome.Emitted e
                     ? e.rows().size() + " scripts have been recommended to the instructor for re-checking."
@@ -216,7 +226,7 @@ public final class HtmlReport {
         in.content().flatMap(ContentResult::causal).ifPresent(f -> b.append(String.format(Locale.ROOT,
                 "Of the variation in marks, %.0f%% reflects what students wrote and %.0f%% who marked it. ",
                 f.variance().content(), f.variance().assistant())));
-        b.append(String.format(Locale.ROOT, "It changes <b>%d</b> letter grade%s. ", o.changed(),
+        b.append(String.format(Locale.ROOT, "Correcting for it would change <b>%d</b> letter grade%s. ", o.changed(),
                 o.changed() == 1 ? "" : "s"));
         switch (o.shortlist()) {
             case Outcome.Refused r -> b.append("No re-check list: ").append(esc(r.reason()));
@@ -242,7 +252,8 @@ public final class HtmlReport {
                     "marks between the harshest and most lenient TA on a 10-mark question"});
         });
         in.outcome().ifPresent(o -> {
-            tiles.add(new String[] {String.valueOf(o.changed()), "letter grades that depend on who marked"});
+            boolean differ = in.model().map(m -> m.noEffect().rejectsAt(0.05)).orElse(false);
+            tiles.add(new String[] {differ ? String.valueOf(o.changed()) : "0", "letter grades a consistent TA difference would change"});
             tiles.add(new String[] {o.shortlist() instanceof Outcome.Emitted e ? String.valueOf(e.rows().size()) : "0",
                     "scripts recommended for a second look"});
         });

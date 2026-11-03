@@ -388,16 +388,16 @@ public final class UntValidation {
         return c;
     }
 
-    private static String script(UntDataset.Question q, int z) {
+    static String script(UntDataset.Question q, int z) {
         return q.id().substring(0, q.id().indexOf('.')) + "-" + z;
     }
 
-    private static String assignmentOf(String script) {
+    static String assignmentOf(String script) {
         return script.substring(0, script.indexOf('-'));
     }
 
     /** Random, or unfair: strong scripts go to the first half of the TAs with probability 0.8. */
-    private static int allocate(Scenario sc, boolean strong, SplittableRandom rng) {
+    static int allocate(Scenario sc, boolean strong, SplittableRandom rng) {
         int g = sc.tas().size();
         if (!sc.unfair()) return rng.nextInt(g);
         int half = Math.max(1, g / 2);
@@ -406,13 +406,13 @@ public final class UntValidation {
     }
 
     /** The TA's mark for an answer: their grader's, shifted by the planted offset, in half marks. */
-    private static double mark(Ta ta, UntDataset.Answer a, UntDataset.Question q) {
+    static double mark(Ta ta, UntDataset.Answer a, UntDataset.Question q) {
         double base = ta.usesTa() ? a.ta() : a.second();
         double shifted = base + ta.offsetPoints() / 100.0 * q.maxMarks();
         return Math.max(0, Math.min(q.maxMarks(), Math.round(shifted * 2) / 2.0));
     }
 
-    private static double median(double[] v) {
+    static double median(double[] v) {
         double[] s = v.clone();
         Arrays.sort(s);
         int n = s.length;
