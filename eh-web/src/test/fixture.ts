@@ -13,6 +13,7 @@ export function fixture(): Result {
     },
     basis: 'answers',
     confirmedByAnswers: false,
+    pilesAdjusted: false,
     choice: 'The answers show the TAs\' piles were not alike (p = 0.004), so part of the gap in marks is the piles, not the TAs.',
     bottomLineHtml: 'The TAs did not mark alike. Assistant 1 was the harshest. It changes <b>3</b> letter grades.',
     tas: [
