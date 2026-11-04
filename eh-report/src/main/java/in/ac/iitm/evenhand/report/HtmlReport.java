@@ -108,7 +108,7 @@ public final class HtmlReport {
         if (in.content().isPresent()) evidence(b, in.content().get(), String.valueOf(next++));
 
         section(b, next++ + ". What did it do to grades?");
-        boolean differ = in.model().map(m -> m.noEffect().rejectsAt(0.05)).orElse(false);
+        boolean differ = in.model().map(fit -> fit.noEffect().rejectsAt(0.05)).orElse(false);
         if (differ) {
             b.append(String.format(Locale.ROOT,
                     "<p><b>%.1f%%</b> of the spread in course totals came from who marked the script rather than "

@@ -5,6 +5,7 @@ import in.ac.iitm.evenhand.content.ContentResult;
 import in.ac.iitm.evenhand.core.FittedModel;
 import in.ac.iitm.evenhand.embed.Embedders;
 import in.ac.iitm.evenhand.ingest.PseudonymKey;
+import in.ac.iitm.evenhand.ingest.CsvIngest;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.outcome.Outcome;
@@ -103,7 +104,7 @@ public final class Main {
 
         byte[] bytes = Files.readAllBytes(csv);
         String text = XlsxReader.looksLikeXlsx(bytes) ? XlsxReader.toCsv(bytes) : new String(bytes, StandardCharsets.UTF_8);
-        Pipeline.Run result = Pipeline.run(text, Pseudonymiser.forInput(text), config, Pipeline.Options.defaults(),
+        Pipeline.Run result = Pipeline.run(text, CsvIngest.pseudonymiserFor(text), config, Pipeline.Options.defaults(),
                 (stage, fraction) -> System.err.printf(Locale.ROOT, "\r%3.0f%%  %-70s", 100 * fraction, stage));
         System.err.println();
 

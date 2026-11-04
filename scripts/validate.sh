@@ -1,7 +1,7 @@
 #!/bin/sh
 # Reproduces docs/VALIDATION.md: Even Hand on real, independently double-graded student answers.
 #
-#   sh scripts/validate.sh [runs]      (default 100 deals per scenario; about 15 minutes on a laptop)
+#   sh scripts/validate.sh [runs]      (default 100 deals per scenario; a few hours on a laptop for all of it)
 #
 # Downloads the UNT Computer Science Short Answer Dataset v2.0 (Mohler, Bunescu and Mihalcea, ACL 2011)
 # once into validation-data/ (git-ignored), checks its SHA-256, builds Even Hand, and runs eh-validation's
@@ -31,3 +31,21 @@ CP="eh-validation/target/classes$SEP$(cat eh-validation/target/cp.txt)"
 java --add-modules jdk.incubator.vector -cp "$CP" in.ac.iitm.evenhand.validation.UntValidation "$DIR" \
   --runs "$RUNS" --out docs/validation
 echo "Results in docs/validation/VALIDATION-REAL.md (summary: docs/VALIDATION.md)"
+
+# The whole product on the same answers: a marks file in, the professor's report out, scored against the double grading.
+JAVA="java --add-modules jdk.incubator.vector -Xmx8g -cp $CP in.ac.iitm.evenhand.validation.EndToEndValidation"
+$JAVA "$DIR" --runs "$RUNS" --out docs/validation
+
+# A second, larger dataset that nothing was ever tuned on: ASAP short answers (CC BY 4.0, Zenodo 10.5281/zenodo.7641696).
+ASAP=validation-data/asap/short_answers.xlsx
+ASAP_MD5=933b95c6650055fa212ab92d734e9051
+md5() { if command -v md5sum >/dev/null 2>&1; then md5sum "$1" | cut -d' ' -f1; else md5 -q "$1"; fi; }
+mkdir -p validation-data/asap
+if [ ! -f "$ASAP" ] || [ "$(md5 "$ASAP")" != "$ASAP_MD5" ]; then
+  echo "Fetching the ASAP short-answer dataset (1.5 MB) ..."
+  curl -fsSL --retry 3 -o "$ASAP.part" "https://zenodo.org/api/records/7641696/files/short_answers.xlsx/content"
+  [ "$(md5 "$ASAP.part")" = "$ASAP_MD5" ] || { rm -f "$ASAP.part"; echo "MD5 mismatch: not the expected dataset." >&2; exit 1; }
+  mv "$ASAP.part" "$ASAP"
+fi
+$JAVA "$ASAP" --dataset asap --runs "$(( RUNS / 2 ))" --out docs/validation/asap
+echo "End-to-end results in docs/validation/ and docs/validation/asap/"

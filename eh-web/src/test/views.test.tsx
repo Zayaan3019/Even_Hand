@@ -24,6 +24,17 @@ describe('the dashboard shows what the server computed', () => {
     expect(screen.getByRole('img', { name: /Severity of each TA/ })).toBeTruthy();
   });
 
+  it('attributes no grade to the TAs when their differences are within chance', () => {
+    const r = fixture();
+    r.noEffect = { p: 0.4, simulations: 99, spread: 1 };
+    render(withNamesOn(true, <Grades r={r} />));
+    expect(screen.getByText(/no grade is attributed to them/)).toBeTruthy();
+    expect(screen.queryByText(/Correcting for it would change/)).toBeNull();
+    render(withNamesOn(true, <Overview r={r} go={() => {}} />));
+    const tile = screen.getByText('letter grades a consistent TA difference would change');
+    expect(tile.parentElement?.textContent).toContain('0');
+  });
+
   it('keeps pseudonyms when names are switched off', () => {
     render(withNamesOn(false, <Overview r={fixture()} go={() => {}} />));
     expect(screen.getByText(/Assistant 1 was the harshest/)).toBeTruthy();

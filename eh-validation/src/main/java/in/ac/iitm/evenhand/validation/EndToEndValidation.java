@@ -6,6 +6,7 @@ import in.ac.iitm.evenhand.core.AuditVerdict;
 import in.ac.iitm.evenhand.core.CutoffPolicy;
 import in.ac.iitm.evenhand.core.FittedModel;
 import in.ac.iitm.evenhand.core.LetterGrade;
+import in.ac.iitm.evenhand.ingest.CsvIngest;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.outcome.GradingRule;
@@ -69,7 +70,7 @@ public final class EndToEndValidation {
     static final class Tally {
         int runs, failures, answersChosen, notEstimable, covered, intervals, differ, listed, listRows, tp, moved, students;
         int agreeMarked, agreeCorrected, baselineTp, totalMismatch, likelyRight;
-        double sse, count, truthFirst, changedSum;
+        double sse, count, truthFirst, changedSum, chanceShown;
         int agreeMarkedSig, agreeCorrectedSig, studentsSig, changedQuiet, quietRuns;
         Map<String, Integer> verdicts = new LinkedHashMap<>();
         double seconds;
@@ -93,9 +94,21 @@ public final class EndToEndValidation {
           .append(asap ? "real ASAP-SAS answers (" + data.answerCount() + " answers to " + data.questions().size() + " questions, no answer key, none of it used for tuning), each sent through the file reader and " : "real UNT answers (odd-numbered questions, never used for tuning), each sent through the file reader and ")
           .append("`Pipeline.run` with the product's default settings. Severity in percentage points of a question's maximum.\n\n");
 
+        String only = flags.getOrDefault("only", "all");
+        if (only.equals("stability")) {
+            stabilitySection(data, flags, md);
+            flush(flags, md);
+            return;
+        }
+        if (only.equals("robustness")) {
+            md.append("## Robustness: the same real data, damaged or awkward\n\n");
+            robustness(data, flags, md);
+            flush(flags, md);
+            return;
+        }
         md.append("## Accuracy of the final output\n\n");
-        md.append("| Scenario | True severity, first TA | Verdict(s) | Answers' estimate used | Final severity RMSE | 95% coverage | Says TAs differ (no-effect p < 0.05) | Re-check list issued | Grades truly moved | Grade right as marked | Grade right after correction | Same, runs that said they differ | Grades reported changing (mean; in runs that did not) | Re-check precision | Nearest-boundary precision | Re-check recall |\n");
-        md.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n");
+        md.append("| Scenario | True severity, first TA | Verdict(s) | Answers' estimate used | Final severity RMSE | 95% coverage | Says TAs differ (no-effect p < 0.05) | Re-check list issued | Grades truly moved | Grade right as marked | Grade right after correction | Same, runs that said they differ | Grades reported changing (mean; in runs that did not) | Re-check precision | Mean chance the app shows | Nearest-boundary precision | Re-check recall |\n");
+        md.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n");
         for (Scenario sc : scenarios()) {
             Tally t = new Tally();
             for (int run = 0; run < runs; run++) score(sc, data, run, t);
@@ -109,8 +122,17 @@ public final class EndToEndValidation {
         md.append("- *Recall*: of the truly moved scripts in those runs, the share listed. The list is capped at 20.\n");
         md.append("- Scripts stand in for students: the dataset has no student identity across assignments, so each script is a student who sat one paper.\n\n");
 
+        stabilitySection(data, flags, md);
+
+        md.append("## Robustness: the same real data, damaged or awkward\n\n");
+        robustness(data, flags, md);
+        flush(flags, md);
+        System.out.println("done");
+    }
+
+    private static void stabilitySection(UntDataset data, Map<String, String> flags, StringBuilder md) throws IOException {
         md.append("## Stability: the same data, only the pseudonym salt differs\n\n");
-        md.append("Any edit to a file, even renaming a column, changes the salt, which renumbers people and so changes the seeded draws. Nothing real has changed, so nothing should move. " + stabilitySalts + " salts on each of " + stabilityDeals + " deals.\n\n");
+        md.append("Everything is numbered and seeded by the pseudonyms, so a salt is one roll of the analysis's random splits and draws. A corrected mark changes the salt. Nothing real has changed here, so nothing should move. " + stabilitySalts + " salts on each of " + stabilityDeals + " deals.\n\n");
         md.append("| Scenario | Deals where the chosen estimator flipped | Mean range of severity across salts (points) | Largest range | Mean range of grades changing | Deals where the re-check list came and went |\n|---|---|---|---|---|---|\n");
         for (String name : List.of("random", "null", "null-unfair", "planted-unfair", "four")) {
             String row = stability(scenarios().stream().filter(s -> s.name().equals(name)).findFirst().orElseThrow(), data);
@@ -119,11 +141,6 @@ public final class EndToEndValidation {
             flush(flags, md);
         }
         md.append('\n');
-
-        md.append("## Robustness: the same real data, damaged or awkward\n\n");
-        robustness(data, flags, md);
-        flush(flags, md);
-        System.out.println("done");
     }
 
     private static void flush(Map<String, String> flags, StringBuilder md) throws IOException {
@@ -138,7 +155,7 @@ public final class EndToEndValidation {
         String verdicts = t.verdicts.entrySet().stream().map(e -> e.getKey() + " " + e.getValue())
                 .reduce((a, b) -> a + ", " + b).orElse("-");
         return String.format(Locale.ROOT,
-                "| %s | %+.1f | %s | %.0f%% | **%.2f** | %.0f%% | %.0f%% | %.0f%% | %.1f%% | %.1f%% | %.1f%% | %s | %s | %s | %s | %s |%s",
+                "| %s | %+.1f | %s | %.0f%% | **%.2f** | %.0f%% | %.0f%% | %.0f%% | %.1f%% | %.1f%% | %.1f%% | %s | %s | %s | %s | %s | %s |%s",
                 sc.name(), t.truthFirst / n, verdicts, 100 * t.answersChosen / n, t.rmse(),
                 100.0 * t.covered / Math.max(1, t.intervals), 100 * t.differ / n, 100 * t.listed / n,
                 100.0 * t.moved / Math.max(1, t.students), 100.0 * t.agreeMarked / Math.max(1, t.students),
@@ -146,6 +163,7 @@ public final class EndToEndValidation {
                 t.studentsSig == 0 ? "-" : String.format(Locale.ROOT, "%.1f%% to %.1f%%", 100.0 * t.agreeMarkedSig / t.studentsSig, 100.0 * t.agreeCorrectedSig / t.studentsSig),
                 String.format(Locale.ROOT, "%.0f; %s", t.changedSum / n, t.quietRuns == 0 ? "-" : String.format(Locale.ROOT, "%.0f", t.changedQuiet / (double) t.quietRuns)),
                 t.listRows == 0 ? "-" : String.format(Locale.ROOT, "%.0f%% (%d/%d)", 100.0 * t.tp / t.listRows, t.tp, t.listRows),
+                t.listRows == 0 ? "-" : String.format(Locale.ROOT, "%.0f%%", 100.0 * t.chanceShown / t.listRows),
                 t.listRows == 0 ? "-" : String.format(Locale.ROOT, "%.0f%%", 100.0 * t.baselineTp / t.listRows),
                 t.listRows == 0 ? "-" : String.format(Locale.ROOT, "%.0f%%", 100.0 * t.tp / Math.max(1, t.likelyRight)),
                 (t.failures + t.totalMismatch) == 0 ? "" : " FAILURES " + t.failures + " MISMATCH " + t.totalMismatch);
@@ -197,9 +215,10 @@ public final class EndToEndValidation {
         Deal d = deal(sc, data, rng);
         t.runs++;
         t.truthFirst += d.truthSeverity[0];
-        Pseudonymiser p = Pseudonymiser.forInput(d.csv);
+        Pseudonymiser p;
         Pipeline.Run r;
         try {
+            p = CsvIngest.pseudonymiserFor(d.csv);
             r = Pipeline.run(d.csv, p, CourseConfig.defaults(sc.name()), Pipeline.Options.defaults(), Pipeline.Progress.none());
         } catch (Exception e) {
             t.failures++;
@@ -267,6 +286,7 @@ public final class EndToEndValidation {
             t.likelyRight += movedHere;
             for (Outcome.Row row : e.rows()) {
                 t.listRows++;
+                t.chanceShown += row.probability();
                 if (moved[studentLabels.indexOf(row.student())]) t.tp++;
             }
             for (int k : nearestBoundary(policy, o.totalsAsMarked(), e.rows().size())) if (moved[k]) t.baselineTp++;
@@ -498,7 +518,7 @@ public final class EndToEndValidation {
         long t0 = System.nanoTime();
         String row;
         try {
-            Pseudonymiser p = Pseudonymiser.forInput(text);
+            Pseudonymiser p = CsvIngest.pseudonymiserFor(text);
             Pipeline.Run r = Pipeline.run(text, p, CourseConfig.defaults("robustness"), Pipeline.Options.defaults(), Pipeline.Progress.none());
             Map<String, String> labels = labels(p);
             double shift = Double.NaN;

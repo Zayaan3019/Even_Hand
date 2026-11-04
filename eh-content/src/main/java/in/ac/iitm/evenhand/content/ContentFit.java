@@ -84,14 +84,17 @@ public final class ContentFit {
         }
         int df = Math.max(1, terms - 1);
         double p = terms < 2 ? Double.NaN : Distributions.chiSquareSurvival(chi, df);
+        // A close call is said to be one: on real answers, a small change to a file can tip it either way.
+        String close = Double.isFinite(p) && p >= 0.05 && p < 0.20
+                ? " This was a close call, so read both estimates." : "";
         if (Double.isFinite(p) && p < HAUSMAN_ALPHA) {
             return new Choice(true, chi, df, p, String.format(Locale.ROOT, "The marks-only estimate assumes every TA's "
                     + "pile was alike, and the answers show it was not (Hausman test p = %.3f): the marks alone would have "
-                    + "misplaced a TA by up to %.1f points. The answers' estimate is used.", p, largest));
+                    + "misplaced a TA by up to %.1f points. The answers' estimate is used.", p, largest) + close);
         }
         return new Choice(false, chi, df, p, String.format(Locale.ROOT, "The answers confirm that the TAs' piles were "
                 + "comparable (the two estimates agree, Hausman test p = %.2f), so the more precise estimate from the "
-                + "marks is used.", p));
+                + "marks is used.", p) + close);
     }
 
     /**

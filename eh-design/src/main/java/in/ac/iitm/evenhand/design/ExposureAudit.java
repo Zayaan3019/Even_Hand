@@ -99,11 +99,16 @@ public final class ExposureAudit {
     /**
      * The exposure verdict.
      *
-     * <p>A student-to-student difference {@code (E_n - E_m) . gamma} is estimable exactly
-     * when it is a combination of severity differences within groups of mutually
-     * comparable assistants, which is when every student carries the same total weight
-     * inside every such group. So it is checked group by group: against the groups the
-     * marking itself connects, then against the groups connected under exchangeability.
+     * <p>Each group of mutually comparable assistants has a level the marking cannot fix, so
+     * a student-to-student difference {@code (E_n - E_m) . gamma} depends on those levels
+     * through the difference in weight the two students carry in each group. Severity here
+     * means relative to the average TA: the level all the groups share is the same thing as
+     * the paper being harder, and no correction touches it. So what must be measurable is
+     * the levels of the groups relative to each other, which holds exactly when two students'
+     * weights differ by the same amount in every group. With one group that is always so:
+     * a student who skipped a question has less weight overall, not a different TA.
+     * It is checked against the groups the marking itself connects, then against the
+     * groups connected under exchangeability.
      *
      * @param designClasses          assistants comparable from the marking alone, a partition
      * @param exchangeabilityClasses assistants comparable if the piles were alike, a partition
@@ -140,24 +145,25 @@ public final class ExposureAudit {
         if (maxSpread <= tolerance) {
             return new Exposure(Exposure.Status.NONE, 0.0, meanTotal);
         }
-        if (constantWithin(shares, designClasses, tolerance)) {
+        if (levelsDoNotMatter(shares, designClasses, tolerance)) {
             return new Exposure(Exposure.Status.ESTIMABLE, maxSpread, meanTotal);
         }
-        if (constantWithin(shares, exchangeabilityClasses, tolerance)) {
+        if (levelsDoNotMatter(shares, exchangeabilityClasses, tolerance)) {
             return new Exposure(Exposure.Status.UNDER_EXCHANGEABILITY, maxSpread, meanTotal);
         }
         return new Exposure(Exposure.Status.NOT_ESTIMABLE, maxSpread, meanTotal);
     }
 
-    private static boolean constantWithin(double[][] shares, List<? extends Set<Integer>> classes, double tolerance) {
-        for (Set<Integer> group : classes) {
+    /** Whether each student's weight differs from the first student's by the same amount in every group. */
+    private static boolean levelsDoNotMatter(double[][] shares, List<? extends Set<Integer>> classes, double tolerance) {
+        for (double[] row : shares) {
             double low = Double.POSITIVE_INFINITY;
             double high = Double.NEGATIVE_INFINITY;
-            for (double[] row : shares) {
-                double inGroup = 0.0;
-                for (int j : group) inGroup += row[j];
-                low = Math.min(low, inGroup);
-                high = Math.max(high, inGroup);
+            for (Set<Integer> group : classes) {
+                double difference = 0.0;
+                for (int j : group) difference += row[j] - shares[0][j];
+                low = Math.min(low, difference);
+                high = Math.max(high, difference);
             }
             if (high - low > tolerance) return false;
         }

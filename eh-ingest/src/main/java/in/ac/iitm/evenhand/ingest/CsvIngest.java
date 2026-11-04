@@ -191,6 +191,31 @@ public final class CsvIngest {
         }
     }
 
+    /**
+     * The pseudonymiser for a file: its salt comes from what the file <em>says</em> (who was given what by
+     * whom for which answer), not from how it is laid out. Everything downstream is numbered and seeded by
+     * the pseudonyms, so renaming a column, saving from Excel with other line endings or re-sorting the rows
+     * cannot change a figure in the report, while a corrected mark still gets a new salt.
+     */
+    public static Pseudonymiser pseudonymiserFor(String csv) throws IOException {
+        Pseudonymiser draft = Pseudonymiser.forInput(csv);
+        IngestResult in = read(new BufferedReader(new java.io.StringReader(csv)), draft);
+        Map<String, String> raw = draft.identifiersByLabel();
+        List<String> studentLabels = in.design().studentLabels(), graderLabels = in.design().graderLabels();
+        List<String> questionLabels = in.design().questionLabels();
+        List<String> rows = new ArrayList<>(in.responses().size() + in.references().size());
+        for (int i = 0; i < in.responses().size(); i++) {
+            Response r = in.responses().get(i);
+            rows.add(String.join("\u0001", raw.get(studentLabels.get(r.student())),
+                    questionLabels.get(r.question()), raw.get(graderLabels.get(r.grader())),
+                    r.score() + "/" + r.maxScore() + "/" + r.stepsPerMark(),
+                    String.valueOf(r.cell().ofRecord()), String.valueOf(r.cell().position()), in.answers().get(i)));
+        }
+        in.references().forEach((q, key) -> rows.add(questionLabels.get(q) + "\u0001" + key));
+        java.util.Collections.sort(rows);
+        return Pseudonymiser.forInput(String.join("\u0002", rows));
+    }
+
     public static IngestResult read(Path csv, Pseudonymiser pseudonymiser) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(csv, StandardCharsets.UTF_8)) {
             return read(reader, pseudonymiser);

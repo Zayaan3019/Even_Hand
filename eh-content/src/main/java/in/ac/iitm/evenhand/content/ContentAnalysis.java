@@ -74,6 +74,8 @@ public final class ContentAnalysis {
     static final int SHOWN_INCONSISTENT = 8;
     static final int SHOWN_OUT_OF_LINE = 20;
     static final int PLACEBO_SHUFFLES = 99;
+    /** Splits of the students the content model is averaged over: real answers flipped findings on one split. */
+    static final int CROSS_FIT_REPEATS = 5;
 
     private ContentAnalysis() {
     }
@@ -222,11 +224,17 @@ public final class ContentAnalysis {
             out.add(new Matching(e.getKey(), label, first.maxMarks(), resp, x, y, g, st, text));
         }
         // What every question shares first (key, consensus, length), then what each one's embedding adds.
-        Map<Matching, double[]> offsets = out.isEmpty() ? Map.of()
-                : PooledQuality.offsets(out, in.references(), s.folds(), s.seed());
+        Map<Matching, ContentModel[]> fits = new LinkedHashMap<>();
+        for (Matching m : out) fits.put(m, new ContentModel[CROSS_FIT_REPEATS]);
+        for (int repeat = 0; repeat < CROSS_FIT_REPEATS && !out.isEmpty(); repeat++) {
+            int r = repeat;
+            long seed = s.seed() + repeat * 1_000_003L;
+            Map<Matching, double[]> offsets = PooledQuality.offsets(out, in.references(), s.folds(), seed);
+            out.parallelStream().forEach(m -> fits.get(m)[r] = ContentModel.fit(m.x, m.y, m.grader, m.student,
+                    in.design().graderCount(), s.folds(), seed, offsets.get(m)));
+        }
         for (Matching m : out) {
-            m.model = ContentModel.fit(m.x, m.y, m.grader, m.student, in.design().graderCount(), s.folds(), s.seed(),
-                    offsets.get(m));
+            m.model = ContentModel.average(fits.get(m));
             m.findNeighbours(caliper);
         }
         if (!in.references().isEmpty()) {
