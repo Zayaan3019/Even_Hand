@@ -137,8 +137,10 @@ export interface Result {
   };
   basis: 'marks' | 'answers' | 'none';
   choice: string;
-  /** The marks needed the equal-piles assumption, and the answers confirmed it (Hausman test). */
+  /** The marks needed the equal-piles assumption, and the answers showed no difference between the piles. */
   confirmedByAnswers: boolean;
+  /** The answers showed the piles differ, so the severities are the marks' less what the piles explain. */
+  pilesAdjusted: boolean;
   bottomLineHtml: string;
   tas?: TaEstimate[];
   noEffect?: { p: number | null; simulations: number; spread: number };

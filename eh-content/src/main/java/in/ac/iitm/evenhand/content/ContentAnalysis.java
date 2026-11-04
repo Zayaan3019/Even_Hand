@@ -186,7 +186,8 @@ public final class ContentAnalysis {
 
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, summaries, labels, severity, se,
                 sampling, pairCount, groups, draws, pValue, observed, signal, matchedShare, sameDifferent, inconsistent,
-                outOfLine, causal, notes);
+                outOfLine, causal, notes,
+                PileBalance.of(questions, graders, students, s.bootstrapDraws(), s.seed()));
     }
 
     // ---------------------------------------------------------------- building the questions
@@ -287,7 +288,7 @@ public final class ContentAnalysis {
      * comes within {@code margin} of the estimate's: the test that the assistants differ by more than the
      * smallest difference worth reporting.
      */
-    private static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed,
+    static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed,
                                      double margin) {
         if (draws.length == 0) return Double.NaN;
         int count = 0;
@@ -739,7 +740,7 @@ public final class ContentAnalysis {
         int g = labels.size();
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, List.of(), labels, new double[g],
                 new double[g], new double[g], new int[g], List.of(), new double[0][], Double.NaN, 0, 0, 0, List.of(), List.of(),
-                List.of(), Optional.empty(), notes);
+                List.of(), Optional.empty(), notes, PileBalance.none(g));
     }
 
     private static double[] interval(double[][] draws, int j, double estimate) {

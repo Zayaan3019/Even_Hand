@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import in.ac.iitm.evenhand.numerics.Distributions;
 
 /**
  * Hands the content-anchored severities to the outcome stage in the same form as the
@@ -20,16 +19,17 @@ import in.ac.iitm.evenhand.numerics.Distributions;
  * the same tested code whichever estimate the course could support.
  *
  * <p>The answers can stand in for the assumption the marks-only estimate needs only when they
- * are trustworthy and link every assistant: {@link #licence} says when.
+ * are trustworthy and link every assistant: {@link #licence} says when. Otherwise they test whether the
+ * piles were alike, and how much of the gap in marks the piles explain: {@link #choose}.
  */
 public final class ContentFit {
 
     /**
-     * The Hausman test's level. 10% rather than 5%, because the two errors are not equally costly: wrongly
-     * trusting the marks when piles differed misplaces a TA by several points (five times the answers'
-     * error on real data), while wrongly preferring the answers costs a little precision.
+     * The level of the test that the piles differ. 10% rather than 5%, because the two errors are not equally
+     * costly: treating unequal piles as equal blames a TA for the pile, while adjusting equal piles costs a
+     * little precision.
      */
-    static final double HAUSMAN_ALPHA = 0.10;
+    static final double PILE_ALPHA = 0.10;
 
     private ContentFit() {
     }
@@ -37,64 +37,109 @@ public final class ContentFit {
     /**
      * Which estimate corrects the grades, and why.
      *
-     * @param useAnswers  the answer-anchored estimate, rather than the marks-only one
-     * @param chiSquare   the Hausman statistic comparing the two (NaN when there was nothing to compare)
-     * @param pValue      its p-value: small means the two disagree, so the piles were not alike
-     * @param explanation the choice in the instructor's words
+     * @param useAnswers     the answer-anchored estimate, because the marks alone cannot compare the TAs
+     * @param adjustForPiles the marks estimate less what the piles' strength explains ({@link #adjustedForPiles})
+     * @param pileGap        how far the piles' strength spreads, from what their answers say (NaN if not measured)
+     * @param pValue         the chance of a spread that large from dealing alone: small means the piles differ
+     * @param explanation    the choice in the instructor's words
      */
-    public record Choice(boolean useAnswers, double chiSquare, int df, double pValue, String explanation) {}
+    public record Choice(boolean useAnswers, boolean adjustForPiles, double pileGap, double pValue, String explanation) {}
 
     /**
-     * Chooses between the marks-only and the answer-anchored estimate by a Hausman (1978) test.
+     * Chooses by asking whether the answers show the piles differ, before any mark is consulted.
      *
-     * <p>When the marking alone needs the assumption that every TA's pile was alike, the two estimates
-     * differ in what they rest on: the marks-only one is the more precise if the assumption holds, and
-     * wrong if it does not; the answer-anchored one holds either way. If they agree within their
-     * uncertainty, the answers have confirmed the assumption and the more precise estimate is used.
-     * If they disagree, the piles were not alike, and the answers' estimate is used. On real
-     * double-graded answers this choice is what keeps the error low both when piles are dealt at random
-     * (where the marks estimate wins) and when they are not (where it is five times worse).
+     * <p>This replaced a Hausman (1978) test between the marks' and the answers' estimates. On held-out real data
+     * the answers explained only a fifth of the marks, the two estimates shared most of the same bias, and the test
+     * saw no disagreement: it reported TAs differing in 85-99% of deals where they did not. A pretest with little
+     * power is known to behave this way (Guggenberger 2010). The piles' content scores carry no marking noise and
+     * no TA's severity, so they show a difference between piles far more plainly.
      */
     public static Choice choose(AuditVerdict fromMarking, Optional<FittedModel> marks, ContentResult content) {
         if (fromMarking instanceof AuditVerdict.Estimable) {
-            return new Choice(false, Double.NaN, 0, Double.NaN, "The marking alone places every TA on one scale with no "
+            return new Choice(false, false, Double.NaN, Double.NaN, "The marking alone places every TA on one scale with no "
                     + "assumption, so the marks estimate is used; the answers give an independent check.");
         }
-        if (!content.usable() || !content.linksEveryAssistant() || fromMarking.exposure().isNone()) {
-            return new Choice(false, Double.NaN, 0, Double.NaN, marks.isPresent()
-                    ? "The answers could not compare every TA, so the marks estimate is used."
-                    : "Neither the marking nor the answers can compare the TAs.");
-        }
         if (marks.isEmpty()) {
-            return new Choice(true, Double.NaN, 0, Double.NaN, "The marking alone cannot compare the TAs; the answers can, "
-                    + "so their estimate is used.");
+            return content.usable() && content.linksEveryAssistant() && !fromMarking.exposure().isNone()
+                    ? new Choice(true, false, Double.NaN, Double.NaN, "The marking alone cannot compare the TAs; the "
+                            + "answers can, so their estimate is used.")
+                    : new Choice(false, false, Double.NaN, Double.NaN, "Neither the marking nor the answers can compare the TAs.");
         }
-        FittedModel m = marks.get();
-        double chi = 0;
-        int terms = 0;
-        double largest = 0;
-        for (int j = 0; j < content.graderLabels().size(); j++) {
-            // Sampling errors only: the bias allowance widens intervals for coverage, and would only blunt the test.
-            double se2 = Math.pow(m.graders().standardErrors()[j], 2) + Math.pow(content.samplingError()[j], 2);
-            if (!(se2 > 0)) continue;
-            double d = m.severity(j) - content.severity()[j];
-            chi += d * d / se2;
-            terms++;
-            largest = Math.max(largest, Math.abs(d));
+        PileBalance balance = content.balance();
+        if (fromMarking.exposure().isNone() || balance.draws().length == 0) {
+            return new Choice(false, false, Double.NaN, Double.NaN,
+                    "The answers could not compare the TAs' piles, so the marks estimate is used.");
         }
-        int df = Math.max(1, terms - 1);
-        double p = terms < 2 ? Double.NaN : Distributions.chiSquareSurvival(chi, df);
+        double spread = spread(balance.gap());
+        int beyond = 0;
+        for (double[] d : balance.draws()) {
+            double[] centred = new double[d.length];
+            for (int j = 0; j < d.length; j++) centred[j] = d[j] - balance.gap()[j];
+            if (spread(centred) >= spread) beyond++;
+        }
+        double p = (1.0 + beyond) / (1.0 + balance.draws().length);
         // A close call is said to be one: on real answers, a small change to a file can tip it either way.
-        String close = Double.isFinite(p) && p >= 0.05 && p < 0.20
-                ? " This was a close call, so read both estimates." : "";
-        if (Double.isFinite(p) && p < HAUSMAN_ALPHA) {
-            return new Choice(true, chi, df, p, String.format(Locale.ROOT, "The marks-only estimate assumes every TA's "
-                    + "pile was alike, and the answers show it was not (Hausman test p = %.3f): the marks alone would have "
-                    + "misplaced a TA by up to %.1f points. The answers' estimate is used.", p, largest) + close);
+        String close = p >= 0.05 && p < 0.20 ? " This was a close call, so read the interval rather than the figure." : "";
+        if (p < PILE_ALPHA) {
+            return new Choice(false, true, spread, p, String.format(Locale.ROOT, "The answers show the TAs' piles were "
+                    + "not alike (p = %.3f), so part of the gap in marks is the piles, not the TAs. The severities are "
+                    + "reduced by that part, taking what the answers cannot show about a script to differ between piles "
+                    + "in proportion to what they can. That is an assumption the answers cannot check.", p) + close);
         }
-        return new Choice(false, chi, df, p, String.format(Locale.ROOT, "The answers confirm that the TAs' piles were "
-                + "comparable (the two estimates agree, Hausman test p = %.2f), so the more precise estimate from the "
-                + "marks is used.", p) + close);
+        return new Choice(false, false, spread, p, String.format(Locale.ROOT, "The answers show no clear difference "
+                + "in strength between the TAs' piles (p = %.2f), so the marks estimate is used. That supports the "
+                + "assumption that the piles were alike; it does not prove it.", p) + close);
+    }
+
+    /** Root mean square, the size of a set of gaps that already average zero. */
+    private static double spread(double[] gaps) {
+        double ss = 0;
+        for (double g : gaps) ss += g * g;
+        return gaps.length == 0 ? 0 : Math.sqrt(ss / gaps.length);
+    }
+
+    /**
+     * The marks estimate less what the piles' strength explains, when the answers show the piles differ.
+     *
+     * <p>A pile that looks {@code gap} points stronger from its answers shows only the part of quality the answers
+     * reveal. Taking what they do not reveal to differ between piles in proportion (Altonji, Elder and Taber 2005;
+     * Oster 2019, with delta = 1 and a maximum R-squared of 1), the pile is {@code gap / R^2} points stronger, where
+     * R^2 is the share of how scripts' marks vary that the answers explain. That is how far the marks flatter the
+     * TA who had it. Neither number is tuned, and the assumption is named in the report.
+     *
+     * @param floor the least R^2 divided by, so that answers saying almost nothing give a wide interval, not a wild one
+     */
+    public static FittedModel adjustedForPiles(FittedModel m, ContentResult content, double floor, double allowance) {
+        PileBalance balance = content.balance();
+        double scale = 1 / Math.max(balance.scriptSignal(), floor);
+        double[] est = m.graders().estimates().clone();
+        for (int j = 0; j < est.length; j++) est[j] += balance.gap()[j] * scale;
+        double[][] draws = new double[m.severityDraws().length][];
+        for (int b = 0; b < draws.length; b++) {
+            draws[b] = m.severityDraws()[b].clone();
+            double[] gap = balance.draws()[b % balance.draws().length];
+            for (int j = 0; j < est.length; j++) draws[b][j] += gap[j] * scale;
+        }
+        double observed = SeverityGraph.spread(est, m.groups());
+        double pValue = ContentAnalysis.recentredP(draws, est, m.groups(), observed, allowance);
+        ContentAnalysis.biasAware(draws, est, allowance);
+        FacetEstimates g = m.graders();
+        FacetEstimates moved = new FacetEstimates(g.facet(), g.labels(), est, standardErrors(draws, est.length), g.counts(), g.extreme());
+        return new FittedModel(m.verdict(), m.anchoring(), m.mean(), m.students(), m.questions(), moved, m.groups(),
+                m.residualSd(), draws, new FittedModel.NoEffectTest(observed, pValue, draws.length), m.diagnostics());
+    }
+
+    private static double[] standardErrors(double[][] draws, int graders) {
+        double[] se = new double[graders];
+        if (draws.length < 2) return se;
+        for (int j = 0; j < graders; j++) {
+            double mean = 0, ss = 0;
+            for (double[] d : draws) mean += d[j];
+            mean /= draws.length;
+            for (double[] d : draws) ss += (d[j] - mean) * (d[j] - mean);
+            se[j] = Math.sqrt(ss / (draws.length - 1));
+        }
+        return se;
     }
 
     /**
@@ -119,7 +164,7 @@ public final class ContentFit {
 
     /**
      * The marks estimate with the same bias allowance as the answers' one: used when it was kept because
-     * the answers confirmed the equal-piles assumption. The assumption is then supported, not proved, and
+     * the answers showed no difference between the piles. The assumption is then supported, not proved, and
      * on real double-graded answers the additive marks model misses by about the allowance when graders'
      * harshness varies with answer quality.
      */
@@ -128,18 +173,8 @@ public final class ContentFit {
         for (int b = 0; b < draws.length; b++) draws[b] = m.severityDraws()[b].clone();
         double[] est = m.graders().estimates();
         ContentAnalysis.biasAware(draws, est, allowance);
-        double[] se = new double[est.length];
-        if (draws.length > 1) {
-            for (int j = 0; j < est.length; j++) {
-                double mean = 0, ss = 0;
-                for (double[] d : draws) mean += d[j];
-                mean /= draws.length;
-                for (double[] d : draws) ss += (d[j] - mean) * (d[j] - mean);
-                se[j] = Math.sqrt(ss / (draws.length - 1));
-            }
-        }
         FacetEstimates g = m.graders();
-        FacetEstimates widened = new FacetEstimates(g.facet(), g.labels(), est.clone(), se, g.counts(), g.extreme());
+        FacetEstimates widened = new FacetEstimates(g.facet(), g.labels(), est.clone(), standardErrors(draws, est.length), g.counts(), g.extreme());
         return new FittedModel(m.verdict(), m.anchoring(), m.mean(), m.students(), m.questions(), widened, m.groups(),
                 m.residualSd(), draws, m.noEffect(), m.diagnostics());
     }

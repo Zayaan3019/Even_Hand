@@ -52,9 +52,9 @@ import java.util.function.Supplier;
  * </pre>
  *
  * <p>Which severity corrects the grades: the marks-only estimate when the marking alone links
- * every assistant with no assumption; otherwise the answer-anchored estimate, when the answers
- * are informative enough and link every assistant; otherwise the marks-only estimate under the
- * assumption the audit names. Both are always reported when both exist.
+ * every assistant with no assumption; the answer-anchored estimate when only the answers can compare
+ * them; otherwise the marks-only estimate under the assumption the audit names, less what the piles'
+ * strength explains when the answers show the piles differ. Both are reported when both exist.
  */
 public final class Pipeline {
 
@@ -154,8 +154,11 @@ public final class Pipeline {
         if (licence.isPresent()) {
             verdict = licence.get();
             model = Optional.of(ContentFit.toFittedModel(content.get(), verdict, design, ingest.responses()));
+        } else if (choice.isPresent() && choice.get().adjustForPiles() && marksModel.isPresent()) {
+            model = Optional.of(ContentFit.adjustedForPiles(marksModel.get(), content.get(), options.content().minSignal(),
+                    options.content().margin()));
         } else if (choice.isPresent() && Double.isFinite(choice.get().pValue()) && marksModel.isPresent()) {
-            // The answers confirmed the equal-piles assumption, so the marks estimate is kept, with the
+            // The answers showed no difference between the piles, so the marks estimate is kept, with the
             // same allowance for model error the answers' estimate carries.
             model = Optional.of(ContentFit.withAllowance(marksModel.get(), options.content().margin()));
         }
@@ -178,6 +181,7 @@ public final class Pipeline {
                 + (config.ruleDeclared() ? " (declared)" : " (DEFAULTED: departmental convention; pass --rule)"));
         footnotes.add("severity used to correct grades: " + (licence.isPresent()
                 ? "from matched written answers (the marks alone needed an assumption the answers remove)"
+                : choice.isPresent() && choice.get().adjustForPiles() ? "from the marks, less what the strength of the piles explains"
                 : model.isPresent() ? "from the marks" : "none (not estimable)"));
         footnotes.add(String.format(Locale.ROOT,
                 "marks estimator: shrinkage %.0f/%.0f marks, %d bootstrap draws, %d no-effect simulations, seed %d",

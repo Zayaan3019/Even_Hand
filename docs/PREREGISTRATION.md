@@ -46,3 +46,44 @@ using it are labelled as a teacher against a model, not two people. ASAP essays 
 These are real answers and real grades, but the dealing of scripts to TAs is done by the test, and so is any
 planted gap. None of them is an IITM course. Passing is evidence that the method works on real grading behaviour;
 it is not proof that it works on every course, and no dataset could be.
+
+## First results, and the fix they led to (4 November 2026)
+
+Scored against the criteria above, on commit 2b0b5fd, with thresholds unchanged. The severity error in criterion 3 is
+the table's RMSE. "Share truly changed" in criterion 6 is the re-check list's precision.
+
+| Criterion | JorGPT, English | JorGPT, Spanish | CityU |
+|---|---|---|---|
+| 1. False alarms at most 10% | **Fail**: 3% random, 85% unfair | **Fail**: 2% random, 80% unfair | **Fail**: 7% random, 99% unfair |
+| 2. Coverage at least 90% | **Fail**: 30%, 51% and 74% on unfair piles | **Fail**: 33%, 53% and 70% on unfair piles | **Fail**: 2%, 1% and 4% on unfair piles |
+| 3. Finds 10-point gap, error at most 3 | **Fail**: found 100%, error 3.62 | **Fail**: found 100%, error 3.62 | Not judged: found 100%, error 13.31 |
+| 4. Correction improves grades | **Fail**: 79.8% to 79.4% | **Fail**: 79.9% to 79.4% | Not judged: 88.8% to 59.2% |
+| 5. Re-check list beats nearest boundary | Pass: 79% against 37% | Pass: 79% against 37% | Not judged: 75% against 0% |
+| 6. Chance shown within 15 points | **Fail**: 97% shown, 79% true | **Fail**: 97% shown, 79% true | Not judged: 99% shown, 75% true |
+| 7. Robust | Pass | Not run | Not run |
+
+**Cause.** On these datasets the answers explain about a fifth of the marks. The Hausman test compared two estimates
+that shared most of the same bias, saw no disagreement, and said the piles were comparable when they were not. A
+pretest with little power is known to do this (Guggenberger 2010, *Econometric Theory* 26).
+
+**The fix, fixed here before any ASAP result was read.** The choice between estimators no longer uses the Hausman test.
+
+1. *Do the piles differ?* The mean out-of-sample content score of each TA's pile is compared, with whole students
+   resampled, at the 10% level. The score is learned within piles, so no TA's severity enters it.
+2. *If not,* the marks estimate is used, with the existing 1.5-point allowance.
+3. *If so,* each TA's severity becomes `marks estimate + gap / R²`, where `gap` is the pile's content-score gap and `R²`
+   is the squared correlation between content scores and marks across scripts, within piles, floored at the existing
+   0.15. This takes what the answers cannot show to differ between piles in proportion to what they can (Altonji,
+   Elder and Taber 2005; Oster 2019, with delta = 1 and maximum R² = 1). The same allowance applies.
+
+That proportion is an assumption the data cannot check, and the report says so.
+
+**What the new results can claim.** The fix was designed after reading the UNT, JorGPT and CityU results, so these are
+now development data: their new results show whether it repaired the failure, not how it does on unseen data.
+JorGPT's Spanish version shares its marks with the English one, so it is not independent either. **Both ASAP datasets
+stay held out.** Their results on the old code were still running and unread when this was committed, and both those
+and the new results will be reported. Any further change to the rule gets its own dated note here.
+
+**Disclosure.** Before this file's corrections, a check of the loaded data displayed each question's mean gap between
+graders and mean word count for ASAP essays, JorGPT and CityU. The message of commit 2b0b5fd says only that marks were
+read for shape. No pipeline result was read at that point, and no threshold changed.

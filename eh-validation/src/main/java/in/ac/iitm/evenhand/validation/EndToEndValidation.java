@@ -2,6 +2,7 @@ package in.ac.iitm.evenhand.validation;
 
 import in.ac.iitm.evenhand.app.CourseConfig;
 import in.ac.iitm.evenhand.app.Pipeline;
+import in.ac.iitm.evenhand.content.ContentFit;
 import in.ac.iitm.evenhand.core.AuditVerdict;
 import in.ac.iitm.evenhand.core.CutoffPolicy;
 import in.ac.iitm.evenhand.core.FittedModel;
@@ -129,7 +130,7 @@ public final class EndToEndValidation {
             return;
         }
         md.append("## Accuracy of the final output\n\n");
-        md.append("| Scenario | True severity, first TA | Verdict(s) | Answers' estimate used | Final severity RMSE | 95% coverage | Says TAs differ (no-effect p < 0.05) | Re-check list issued | Grades truly moved | Grade right as marked | Grade right after correction | Same, runs that said they differ | Grades reported changing (mean; in runs that did not) | Re-check precision | Mean chance the app shows | Nearest-boundary precision | Re-check recall |\n");
+        md.append("| Scenario | True severity, first TA | Verdict(s) | Piles found to differ | Final severity RMSE | 95% coverage | Says TAs differ (no-effect p < 0.05) | Re-check list issued | Grades truly moved | Grade right as marked | Grade right after correction | Same, runs that said they differ | Grades reported changing (mean; in runs that did not) | Re-check precision | Mean chance the app shows | Nearest-boundary precision | Re-check recall |\n");
         md.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n");
         for (Scenario sc : scenarios()) {
             Tally t = new Tally();
@@ -159,7 +160,7 @@ public final class EndToEndValidation {
     private static void stabilitySection(UntDataset data, Map<String, String> flags, StringBuilder md) throws IOException {
         md.append("## Stability: the same data, only the pseudonym salt differs\n\n");
         md.append("Everything is numbered and seeded by the pseudonyms, so a salt is one roll of the analysis's random splits and draws. A corrected mark changes the salt. Nothing real has changed here, so nothing should move. " + stabilitySalts + " salts on each of " + stabilityDeals + " deals.\n\n");
-        md.append("| Scenario | Deals where the chosen estimator flipped | Mean range of severity across salts (points) | Largest range | Mean range of grades changing | Deals where the re-check list came and went |\n|---|---|---|---|---|---|\n");
+        md.append("| Scenario | Deals where "the piles differ" flipped | Mean range of severity across salts (points) | Largest range | Mean range of grades changing | Deals where the re-check list came and went |\n|---|---|---|---|---|---|\n");
         for (String name : List.of("random", "null", "null-unfair", "planted-unfair", "four")) {
             String row = stability(scenarios().stream().filter(s -> s.name().equals(name)).findFirst().orElseThrow(), data);
             System.out.println(row);
@@ -219,7 +220,7 @@ public final class EndToEndValidation {
                 Pseudonymiser p = Pseudonymiser.withSalt(salt);
                 try {
                     Pipeline.Run r = Pipeline.run(deal.csv, p, CourseConfig.defaults(sc.name()), Pipeline.Options.defaults(), Pipeline.Progress.none());
-                    if (r.verdict() instanceof AuditVerdict.EstimableFromContent) answers++;
+                    if (adjusted(r)) answers++;
                     if (r.model().isPresent()) {
                         int j = r.ingest().design().graderLabels().indexOf(labels(p).get(deal.taNames.get(0)));
                         double v = r.model().get().severity(j);
@@ -245,6 +246,12 @@ public final class EndToEndValidation {
                 rangeSum / deals, rangeMax, gradeRangeSum / deals, listFlips, deals);
     }
 
+    /** Whether the answers showed the piles differ, or were the only way to compare the TAs. */
+    private static boolean adjusted(Pipeline.Run r) {
+        return r.verdict() instanceof AuditVerdict.EstimableFromContent
+                || r.content().map(c -> ContentFit.choose(r.markingVerdict(), r.marksModel(), c).adjustForPiles()).orElse(false);
+    }
+
     // ------------------------------------------------------------------ one deal, scored
 
     static void score(Scenario sc, UntDataset data, int run, Tally t) {
@@ -263,7 +270,7 @@ public final class EndToEndValidation {
             return;
         }
         t.verdicts.merge(r.verdict().getClass().getSimpleName().replace("Estimable", "Est.").replace("UnderExchangeability", "UnderExch"), 1, Integer::sum);
-        if (r.verdict() instanceof AuditVerdict.EstimableFromContent) t.answersChosen++;
+        if (adjusted(r)) t.answersChosen++;
         if (r.model().isEmpty() || r.outcome().isEmpty()) {
             t.notEstimable++;
             return;

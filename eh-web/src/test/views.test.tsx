@@ -47,7 +47,7 @@ describe('the dashboard shows what the server computed', () => {
     expect(within(table).getByText('Ravi')).toBeTruthy();
     expect(within(table).getByText('+2.1 to +8.3')).toBeTruthy();
     expect(screen.getByText('From the marks alone (assumes piles were alike)')).toBeTruthy();
-    expect(screen.getByText(/Hausman test p = 0.004/)).toBeTruthy();
+    expect(screen.getByText(/not alike \(p = 0.004\)/)).toBeTruthy();
   });
 
   it('why: decomposition, mechanisms, the causal checks and Rosenbaum sensitivity', () => {

@@ -38,7 +38,7 @@ import java.util.function.IntPredicate;
  * deals every <em>script</em> (one student's answers to one assignment) to one grader, the way an
  * IITM course splits its scripts, keeps only that grader's marks, and asks Even Hand to recover the
  * difference it can no longer see directly. Over many random deals that measures, for the estimate
- * Even Hand actually uses (marks-only or answer-anchored, chosen by the Hausman test), the error,
+ * Even Hand actually uses (the marks', adjusted for pile strength when the answers show the piles differ), the error,
  * interval coverage, false alarms and power, on real text and real grading behaviour:
  *
  * <ul>
@@ -111,7 +111,7 @@ public final class UntValidation {
     }
 
     static final String HEADER = "| Scenario | Runs | True severity, first TA | Content signal | RMSE pile averages | "
-            + "RMSE marks-only | RMSE answers | **RMSE Even Hand** | Bias, first TA | Answers' estimate chosen | "
+            + "RMSE marks-only | RMSE answers | **RMSE Even Hand** | Bias, first TA | Piles found to differ | "
             + "95% interval coverage | Differences found (p < 0.05) | Placebo flagged | Slips |\n"
             + "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
 
@@ -231,13 +231,15 @@ public final class UntValidation {
                     : Optional.empty();
             ContentFit.Choice choice = ContentFit.choose(verdict, marks, r);
             boolean answers = choice.useAnswers() || marks.isEmpty();
-            if (!answers && Double.isFinite(choice.pValue())) {
-                marks = Optional.of(ContentFit.withAllowance(marks.get(), settings.margin()));   // as the pipeline does
+            if (!answers && choice.adjustForPiles()) {   // as the pipeline does
+                marks = Optional.of(ContentFit.adjustedForPiles(marks.get(), r, settings.minSignal(), settings.margin()));
+            } else if (!answers && Double.isFinite(choice.pValue())) {
+                marks = Optional.of(ContentFit.withAllowance(marks.get(), settings.margin()));
             }
             Optional<FittedModel> chosenMarks = marks;
 
             t.runs++;
-            if (answers) t.answersChosen++;
+            if (answers || choice.adjustForPiles()) t.answersChosen++;
             t.signal += r.signal();
             t.truthFirst += c.truth[0];
             if (r.pValue() < 0.05) t.rejected++;

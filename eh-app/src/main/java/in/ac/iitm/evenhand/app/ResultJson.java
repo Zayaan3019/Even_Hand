@@ -46,12 +46,9 @@ final class ResultJson {
         j.raw("verdict", verdict(in, run));
         j.str("basis", in.anchoredByAnswers() ? "answers" : in.model().isPresent() ? "marks" : "none");
         j.str("choice", in.choiceNote());
-        boolean confirmed = run.content().map(c -> {
-            ContentFit.Choice ch =
-                    ContentFit.choose(run.markingVerdict(), run.marksModel(), c);
-            return !ch.useAnswers() && Double.isFinite(ch.pValue());
-        }).orElse(false);
-        j.bool("confirmedByAnswers", confirmed);
+        var choice = run.content().map(c -> ContentFit.choose(run.markingVerdict(), run.marksModel(), c));
+        j.bool("confirmedByAnswers", choice.map(ch -> !ch.useAnswers() && !ch.adjustForPiles() && Double.isFinite(ch.pValue())).orElse(false));
+        j.bool("pilesAdjusted", choice.map(ContentFit.Choice::adjustForPiles).orElse(false));
         j.str("bottomLineHtml", HtmlReport.bottomLineHtml(in));
         in.model().ifPresent(m -> {
             j.raw("tas", tas(m));

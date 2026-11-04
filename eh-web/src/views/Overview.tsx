@@ -21,7 +21,8 @@ export function taDifferenceShown(r: Result): boolean {
 export function Overview({ r, go }: { r: Result; go: (section: string) => void }) {
   const name = useName();
   const named = useNamedText();
-  const badge = r.confirmedByAnswers ? { tone: 'green' as const, text: 'Checkable: answers confirm the piles were alike' }
+  const badge = r.pilesAdjusted ? { tone: 'amber' as const, text: 'Piles differed: gap adjusted for them' }
+    : r.confirmedByAnswers ? { tone: 'green' as const, text: 'Checkable: answers show no gap between piles' }
     : VERDICT_BADGE[r.verdict.kind];
   const tas = r.tas ?? [];
   const spread = tas.length ? (Math.max(...tas.map((t) => t.severity)) - Math.min(...tas.map((t) => t.severity))) / 10 : null;
