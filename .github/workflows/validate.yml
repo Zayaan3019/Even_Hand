@@ -1,0 +1,73 @@
+name: validate on real data
+
+# Measures the whole product on real, double-graded answers from public datasets, away from any laptop's memory limits.
+# Anyone can run it from the Actions tab and download the same tables. Nothing here is part of the product.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['validation/**']
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: unt-estimators,  main: UntValidation,      data: unt,  args: '--runs 100' }
+          - { name: unt-accuracy,    main: EndToEndValidation, data: unt,  args: '--only accuracy --runs 100' }
+          - { name: unt-stability,   main: EndToEndValidation, data: unt,  args: '--only stability --stability-deals 10 --stability-salts 30' }
+          - { name: unt-robustness,  main: EndToEndValidation, data: unt,  args: '--only robustness' }
+          - { name: asap-accuracy,   main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40' }
+          - { name: asap-stability,  main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10' }
+          - { name: asap-robustness, main: EndToEndValidation, data: asap, args: '--dataset asap --only robustness' }
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.even-hand/models
+          key: minilm-1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+
+      - name: Fetch the embedding model
+        run: sh scripts/fetch-model.sh
+
+      - name: Fetch the dataset
+        run: |
+          mkdir -p validation-data/asap validation-data/unt
+          if [ "${{ matrix.data }}" = unt ]; then
+            curl -fsSL --retry 3 -o validation-data/unt.zip "http://web.eecs.umich.edu/~mihalcea/downloads/ShortAnswerGrading_v2.0.zip"
+            echo "5abee7ee804a2c5ae802b226230fb14c5bdb894f0f33bab6e20b4e7f1ed89247  validation-data/unt.zip" | sha256sum -c
+            (cd validation-data/unt && unzip -q ../unt.zip)
+            echo "DATA=validation-data/unt" >> "$GITHUB_ENV"
+          else
+            curl -fsSL --retry 3 -o validation-data/asap/short_answers.xlsx "https://zenodo.org/api/records/7641696/files/short_answers.xlsx/content"
+            echo "933b95c6650055fa212ab92d734e9051  validation-data/asap/short_answers.xlsx" | md5sum -c
+            echo "DATA=validation-data/asap/short_answers.xlsx" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build
+        run: |
+          ./mvnw -q -B install -DskipTests
+          ./mvnw -q -B -pl eh-validation dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+
+      - name: Measure
+        run: |
+          java --add-modules jdk.incubator.vector -Xmx12g \
+            -cp "eh-validation/target/classes:$(cat eh-validation/target/cp.txt)" \
+            in.ac.iitm.evenhand.validation.${{ matrix.main }} "$DATA" ${{ matrix.args }} --out results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.name }}
+          path: results
+          if-no-files-found: warn

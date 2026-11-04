@@ -122,6 +122,10 @@ public final class EndToEndValidation {
         md.append("- *Recall*: of the truly moved scripts in those runs, the share listed. The list is capped at 20.\n");
         md.append("- Scripts stand in for students: the dataset has no student identity across assignments, so each script is a student who sat one paper.\n\n");
 
+        if (only.equals("accuracy")) {
+            flush(flags, md);
+            return;
+        }
         stabilitySection(data, flags, md);
 
         md.append("## Robustness: the same real data, damaged or awkward\n\n");
