@@ -75,7 +75,7 @@ public final class ContentAnalysis {
     static final int SHOWN_OUT_OF_LINE = 20;
     static final int PLACEBO_SHUFFLES = 99;
     /** Splits of the students the content model is averaged over: real answers flipped findings on one split. */
-    static final int CROSS_FIT_REPEATS = 5;
+    static final int CROSS_FIT_REPEATS = 20;
 
     private ContentAnalysis() {
     }

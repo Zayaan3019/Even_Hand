@@ -105,9 +105,10 @@ on any later stage.
 6. **Per-TA figures reach only the instructor**; the committee sheet names no TA or student
    (`HtmlReportTest.committeeSheetIsAggregateOnly`).
 7. **Reproducible:** every random draw is seeded per draw, so parallel threads give identical
-   results (`SeverityEstimatorTest.reproducible`), and the pseudonym salt is derived from the input
-   file, so the same file always numbers people the same way and gives the same report to the last
-   digit (`LocalServerTest.analysisReproduces`, `PseudonymiserTest`).
+   results (`SeverityEstimatorTest.reproducible`), and the pseudonym salt is derived from what the
+   input file says (who gave what to whom), not how it is laid out, so renaming a column, re-sorting
+   rows or re-saving from Excel changes nothing: the same data gives the same report to the last
+   digit (`LocalServerTest.analysisReproduces`, `ContentSaltTest`).
 
 ## Where this departs from the design document, and why
 

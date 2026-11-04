@@ -139,8 +139,12 @@ public final class Main {
         }
         System.out.printf(Locale.ROOT, "          no-effect test p = %.3f%n", m.noEffect().pValue());
         Outcome.Result o = r.outcome().orElseThrow();
-        System.out.printf(Locale.ROOT, "OUTCOME   %.1f%% of the spread in totals came from who marked; %d grade(s) "
-                + "would change (90%% range %d-%d)%n", o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh());
+        if (m.noEffect().rejectsAt(0.05)) {
+            System.out.printf(Locale.ROOT, "OUTCOME   %.1f%% of the spread in totals came from who marked; correcting for "
+                    + "it would change %d grade(s) (90%% range %d-%d)%n", o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh());
+        } else {
+            System.out.println("OUTCOME   The TAs' differences are within what chance alone produces, so no grade is attributed to them.");
+        }
         switch (o.shortlist()) {
             case Outcome.Refused ref -> System.out.println("RE-CHECK  none: " + ref.reason());
             case Outcome.Emitted e -> {

@@ -178,7 +178,7 @@
     <div class="cards">
       <div class="card"><h3>Nothing leaves the computer</h3><p>The app is served by your own computer on 127.0.0.1 only, and an architecture test forbids any other network use in the code. That is why it is downloaded rather than used on this website.</p></div>
       <div class="card"><h3>Pseudonyms from the first step</h3><p>Roll numbers and TA names become keyed HMAC-SHA-256 pseudonyms as the file is read. Real names appear on your screen only; saved reports never contain them.</p></div>
-      <div class="card"><h3>Same file, same report</h3><p>Every random draw is seeded, so running the same file twice gives the same pseudonyms and the same figures, to the last digit.</p></div>
+      <div class="card"><h3>Same data, same report</h3><p>Every random draw is seeded from what the file says, not how it is laid out. Run it twice, rename a column or re-sort the rows, and every figure is identical to the last digit.</p></div>
       <div class="card"><h3>Untrusted files handled defensively</h3><p>Excel files are opened with a size cap and with XML external entities disabled. The answer-reading model is checked against a pinned SHA-256 before use.</p></div>
     </div>
   </section>

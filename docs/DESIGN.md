@@ -105,8 +105,10 @@ estimated.
 **2. Estimability: can what matters be separated?** For each pair of assistants we test membership
 of the design's row space by fraction-free integer elimination — a fact about the arrangement, not a
 floating-point threshold (Facets' graph heuristic is documented to misreport "exotic forms of
-connectedness"). A harm contrast `(E_n − E_m)·γ` is then estimable exactly when every student
-carries the same weight inside every group of mutually comparable assistants. Script-wise and
+connectedness"). A harm contrast `(E_n − E_m)·γ`, severity being relative to the average assistant,
+is then estimable exactly when two students' weights differ by the same amount in every group of
+mutually comparable assistants. (With one group that always holds: a student with a missing mark has
+less weight overall, not a different assistant.) Script-wise and
 question-wise marking are *equally* rank-deficient (excess null dimension `J−1` beyond the two that
 anchoring removes) but differ in kind. Question-wise, severity is confounded with difficulty and
 nothing about students separates them. Script-wise, it is absorbed into the pile's abilities, and

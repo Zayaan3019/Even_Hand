@@ -54,7 +54,8 @@ For every question with written answers:
 
    Both have one intercept per TA, so they learn only from variation *within* a TA's pile and
    cannot absorb severity (Frisch–Waugh–Lovell). Both are cross-fitted on student folds, so no
-   answer predicts itself.
+   answer predicts itself, and averaged over 20 different splits of the students, so no one split
+   can decide a finding.
 3. **Matching.** Each answer is paired with the 3 most similar answers marked by *other* TAs
    (cosine ≥ 0.60). The pair's mark gap, minus the content model's estimate of what the two answers
    say differently, is evidence about the two TAs alone. This is the bias-corrected matching

@@ -18,9 +18,9 @@ import java.util.Objects;
  * {@link #maxSpread()} bounds the damage any severity profile could do.
  *
  * <p>Where exposure differs, the question becomes whether each student-to-student
- * difference {@code (E_n - E_m) . gamma} is estimable. It is exactly when, within every
- * group of mutually comparable assistants, every student carries the same total weight
- * &mdash; which is what {@link Status#ESTIMABLE} and
+ * difference {@code (E_n - E_m) . gamma} is estimable, severity being relative to the average
+ * assistant. It is exactly when two students' weights differ by the same amount in every group
+ * of mutually comparable assistants &mdash; which is what {@link Status#ESTIMABLE} and
  * {@link Status#UNDER_EXCHANGEABILITY} certify.
  *
  * @param status    what the allocation says
