@@ -59,7 +59,15 @@ import java.util.function.IntPredicate;
 public final class UntValidation {
 
     /** One TA in a scenario: which real grader's marks they carry, plus a planted offset in points. */
-    record Ta(String name, boolean usesTa, double offsetPoints) {}
+    record Ta(String name, boolean usesTa, double offsetPoints, boolean usesThird) {
+        Ta(String name, boolean usesTa, double offsetPoints) {
+            this(name, usesTa, offsetPoints, false);
+        }
+
+        double base(UntDataset.Answer a) {
+            return usesThird ? a.third() : usesTa ? a.ta() : a.second();
+        }
+    }
 
     record Scenario(String name, String story, List<Ta> tas, boolean unfair, double slipRate) {}
 
@@ -389,7 +397,8 @@ public final class UntValidation {
     }
 
     static String script(UntDataset.Question q, int z) {
-        return q.id().substring(0, q.id().indexOf('.')) + "-" + z;
+        int student = q.answers().get(z).student();
+        return q.id().substring(0, q.id().indexOf('.')) + "-" + (student >= 0 ? student : z);
     }
 
     static String assignmentOf(String script) {
@@ -407,8 +416,7 @@ public final class UntValidation {
 
     /** The TA's mark for an answer: their grader's, shifted by the planted offset, in half marks. */
     static double mark(Ta ta, UntDataset.Answer a, UntDataset.Question q) {
-        double base = ta.usesTa() ? a.ta() : a.second();
-        double shifted = base + ta.offsetPoints() / 100.0 * q.maxMarks();
+        double shifted = ta.base(a) + ta.offsetPoints() / 100.0 * q.maxMarks();
         return Math.max(0, Math.min(q.maxMarks(), Math.round(shifted * 2) / 2.0));
     }
 

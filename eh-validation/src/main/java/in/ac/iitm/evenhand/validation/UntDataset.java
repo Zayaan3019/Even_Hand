@@ -20,7 +20,12 @@ import java.util.List;
 record UntDataset(List<Question> questions) {
 
     /** One answer: the text and both people's grades, on the question's own scale. */
-    record Answer(String text, double ta, double second) {
+    record Answer(String text, double ta, double second, double third, int student) {
+        /** Two graders, and no student identity beyond the position of the answer in its assignment. */
+        Answer(String text, double ta, double second) {
+            this(text, ta, second, Double.NaN, -1);
+        }
+
         double average() {
             return (ta + second) / 2;
         }

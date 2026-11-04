@@ -34,7 +34,12 @@ Each applies to every dataset where the scenario can be run.
 7. **Robust.** No damaged or awkward file crashes it. Renaming columns, re-sorting rows and changing line endings
    move severity by 0.00. No identifier survives in an answer.
 
-CityU has 240 answers, so criteria 3 to 6 are reported but not judged there.
+CityU has too few answers, so criteria 3 to 6 are reported but not judged there.
+
+**Corrections from opening the data, 4 November 2026, before any result was read.** CityU's question 6 was published
+with only two TAs' marks, so the test uses its other 5 questions: 200 answers, not 240. JorGPT has 3,031 usable answers,
+not 3,041, because 10 rows have no language-model grade. Its only second opinion is that language model, so scenarios
+using it are labelled as a teacher against a model, not two people. ASAP essays has 12,977 usable essays, not 12,978.
 
 ## What these cannot show
 

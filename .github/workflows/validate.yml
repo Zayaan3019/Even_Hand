@@ -22,6 +22,14 @@ jobs:
           - { name: asap-accuracy,   main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40' }
           - { name: asap-stability,  main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10' }
           - { name: asap-robustness, main: EndToEndValidation, data: asap, args: '--dataset asap --only robustness' }
+          - { name: aes-accuracy,    main: EndToEndValidation, data: aes,  args: '--dataset aes --only accuracy --runs 20' }
+          - { name: aes-stability,   main: EndToEndValidation, data: aes,  args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8' }
+          - { name: jorgpt-accuracy, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only accuracy --runs 100' }
+          - { name: jorgpt-stability, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only stability --stability-deals 10 --stability-salts 30' }
+          - { name: jorgpt-robustness, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only robustness' }
+          - { name: jorgpt-spanish,  main: EndToEndValidation, data: jorgpt-es, args: '--dataset jorgpt --only accuracy --runs 100' }
+          - { name: cityu-accuracy,  main: EndToEndValidation, data: cityu, args: '--dataset cityu --only accuracy --runs 100' }
+          - { name: cityu-stability, main: EndToEndValidation, data: cityu, args: '--dataset cityu --only stability --stability-deals 10 --stability-salts 30' }
     steps:
       - uses: actions/checkout@v5
 
@@ -41,18 +49,7 @@ jobs:
         run: sh scripts/fetch-model.sh
 
       - name: Fetch the dataset
-        run: |
-          mkdir -p validation-data/asap validation-data/unt
-          if [ "${{ matrix.data }}" = unt ]; then
-            curl -fsSL --retry 3 -o validation-data/unt.zip "http://web.eecs.umich.edu/~mihalcea/downloads/ShortAnswerGrading_v2.0.zip"
-            echo "5abee7ee804a2c5ae802b226230fb14c5bdb894f0f33bab6e20b4e7f1ed89247  validation-data/unt.zip" | sha256sum -c
-            (cd validation-data/unt && unzip -q ../unt.zip)
-            echo "DATA=validation-data/unt" >> "$GITHUB_ENV"
-          else
-            curl -fsSL --retry 3 -o validation-data/asap/short_answers.xlsx "https://zenodo.org/api/records/7641696/files/short_answers.xlsx/content"
-            echo "933b95c6650055fa212ab92d734e9051  validation-data/asap/short_answers.xlsx" | md5sum -c
-            echo "DATA=validation-data/asap/short_answers.xlsx" >> "$GITHUB_ENV"
-          fi
+        run: sh scripts/fetch-validation-data.sh "${{ matrix.data }}" >> "$GITHUB_ENV"
 
       - name: Build
         run: |
