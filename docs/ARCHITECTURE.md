@@ -24,8 +24,9 @@ is one Maven module and one entry point. The audit can stop the pipeline after s
 ```
 
 `Pipeline.run` (in `eh-app`) is exactly this diagram, one line per stage, plus stage 3b: the written
-answers are embedded (`eh-embed`) and compared across TAs (`eh-content`), and a Hausman test decides
-which estimate corrects the grades (`ContentFit.choose`; see [METHOD.md](METHOD.md)). Two front ends
+answers are embedded (`eh-embed`) and compared across TAs (`eh-content`), and a test of whether the
+TAs' piles differed in strength decides how the marks' estimate is used (`ContentFit.choose`; see
+[METHOD.md](METHOD.md)). Two front ends
 call it:
 
 | Front end | Class | For |

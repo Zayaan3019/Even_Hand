@@ -78,11 +78,14 @@ the report shows the checks that say how far it can be trusted:
 - **Rosenbaum sensitivity Γ**: how much hidden quality difference would overturn the conclusion.
 - **Mechanism**: consistent severity, a different reading of one question's rubric, drift, isolated slips, or chance.
 
-When the marks alone can compare the TAs only by assuming their piles were alike, a **Hausman test**
-compares the marks-only and the answer-based estimates:
+When the marks alone can compare the TAs only by assuming their piles were alike, the **answers test
+that assumption**: is one TA's pile stronger, judged only by what the students wrote?
 
-- If they agree, the answers confirm the assumption, and the more precise marks estimate is used.
-- If they disagree, the piles were not alike, and the answers' estimate is used.
+- If not, the marks estimate is used. That supports the assumption; it does not prove it.
+- If so, the part of each TA's gap that the stronger pile explains is taken out (Oster 2019). That
+  rests on an assumption the data cannot check, and the report says so.
+
+Nothing is corrected unless the TAs are shown to differ.
 
 The full method, with references, is in [docs/METHOD.md](docs/METHOD.md).
 
@@ -135,7 +138,7 @@ flowchart LR
         D --> E["3 eh-estimate<br/>severity from marks"]
         I --> M["eh-embed<br/>answers → vectors"]
         M --> C["3b eh-content<br/>matched answers, causal checks"]
-        E --> H{{"Hausman choice"}}
+        E --> H{{"Did the piles differ?"}}
         C --> H
         H --> O["4 eh-outcome<br/>grades, re-check list"]
         O --> R["5 eh-report<br/>saved HTML reports"]
@@ -149,7 +152,7 @@ flowchart LR
 | `eh-design` | The audit: can TA severity be separated from student ability (exact integer rank), and could it have moved anyone |
 | `eh-estimate` | Severity from the marks: additive model by backfitting, student bootstrap, design-preserving no-effect test |
 | `eh-embed` | Answer text to vectors: BERT tokenizer and forward pass in Java (SIMD via the Vector API), matching sentence-transformers to cosine > 0.99999; lexical fallback |
-| `eh-content` | Matched-answer severity, pooled quality model, bias-aware intervals, Hausman choice, and the causal checks |
+| `eh-content` | Matched-answer severity, pooled quality model, bias-aware intervals, the pile-balance test and adjustment, and the causal checks |
 | `eh-outcome` | Grades under the course's own rule, as marked and corrected; the gated re-check list |
 | `eh-report` | Self-contained HTML reports: instructor, and Class Committee (aggregates only) |
 | `eh-web` | The web app: React 18 + TypeScript + Vite; built by Maven with a pinned Node, served from the jar |
@@ -179,7 +182,7 @@ The tests include:
 
 - the Java forward pass against reference vectors from sentence-transformers;
 - the statistics against courses with known answers;
-- the Hausman choice;
+- the pile-balance test, its adjustment and its close calls;
 - the server's security rules (Origin, Host, path traversal, CSP);
 - every file layout, Excel included, with zip-bomb and XXE attempts;
 - the web app's components rendering the server's exact JSON.
