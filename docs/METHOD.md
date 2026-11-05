@@ -90,8 +90,15 @@ For every question with written answers:
     the adjustment up. This treats what the answers cannot see about a script as differing
     between piles in proportion to what they can (Altonji, Elder and Taber 2005; Oster 2019,
     with δ = 1 and maximum R² = 1). That proportion is an assumption the data cannot check,
-    and the report says so. The bootstrap draws carry the gap's own uncertainty, and the
-    1.5-point allowance applies as before.
+    and the report says so.
+  - **The interval spans Oster's bounds.** Its low end takes out only the gap the answers show
+    (δ = 0), its high end the full proportional adjustment (δ = 1), each with its own bootstrap
+    interval, and a difference is reported only if it holds at both ends. On the development
+    data the truth lay between the two in every deal checked, at neither end consistently.
+  - **The draws are paired.** The pile gap is recomputed on the very resamples of students the
+    marks' severity draws were fitted on (`SeverityEstimator.resampleCounts`). The two move
+    against each other, so drawing them separately would add their variances and make every
+    interval several times too wide. The 1.5-point allowance applies as before.
   - A p-value between 0.05 and 0.20 is reported as a close call.
 - This replaced a Hausman (1978) test between the marks' and the answers' estimates. On real
   data whose answers explain only about a fifth of the marks, the two estimates shared most of
@@ -99,6 +106,10 @@ For every question with written answers:
   80 to 99% of deals in which they did not. A pretest with little power is known to behave this
   way (Guggenberger 2010). The failure and the fix are recorded in
   [PREREGISTRATION.md](PREREGISTRATION.md).
+
+**Size.** The audit's exact rank works on square matrices over every student, question and TA, so
+its memory grows with the square of the class (317 MB for 5,040 students). A class too large for
+the memory Java has is refused at the start, with what to do.
 
 **No correction without evidence.** Unless the no-effect test rejects at 5%, the corrected marks
 are the marks as written, and no grade changes. Otherwise, on marks with many ties, a correction of
