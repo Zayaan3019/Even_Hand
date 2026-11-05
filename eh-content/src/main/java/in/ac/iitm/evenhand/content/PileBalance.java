@@ -15,11 +15,35 @@ import java.util.stream.IntStream;
  * @param gap          per TA, the pile's mean content score against the average TA's, in percentage points
  * @param scriptSignal squared correlation of the content score with the marks across scripts, within piles
  * @param draws        the gap reweighted by whole students, per draw and TA
+ * @param rows         what the gap is computed from, so it can be recomputed on another resample (null if not kept)
  */
-public record PileBalance(double[] gap, double scriptSignal, double[][] draws) {
+public record PileBalance(double[] gap, double scriptSignal, double[][] draws, Rows rows) {
+
+    /** One entry per answer: its student, its TA, its centred content score and its weight. */
+    public record Rows(int[] student, int[] grader, double[] centred, double[] weight, int graders) {}
+
+    public PileBalance(double[] gap, double scriptSignal, double[][] draws) {
+        this(gap, scriptSignal, draws, null);
+    }
 
     public static PileBalance none(int graders) {
         return new PileBalance(new double[graders], 0, new double[0][]);
+    }
+
+    /**
+     * The gap on each of the given resamples ({@code counts[b][s]}: how often student s was drawn), or empty if the
+     * rows were not kept. Computed on the same resamples as the marks' severities, the two keep their covariance:
+     * a resample that puts more strong scripts in a pile raises its content gap and its apparent lenience together.
+     */
+    public java.util.Optional<double[][]> on(int[][] counts) {
+        if (rows == null) return java.util.Optional.empty();
+        double[][] out = new double[counts.length][];
+        IntStream.range(0, counts.length).parallel().forEach(b -> {
+            double[] xi = new double[counts[b].length];
+            for (int s = 0; s < xi.length; s++) xi[s] = counts[b][s];
+            out[b] = gaps(rows.student, rows.grader, rows.centred, rows.weight, rows.graders, xi);
+        });
+        return java.util.Optional.of(out);
     }
 
     static PileBalance of(List<Matching> questions, int graders, int students, int bootstrapDraws, long seed) {
@@ -73,13 +97,13 @@ public record PileBalance(double[] gap, double scriptSignal, double[][] draws) {
             for (int k = 0; k < students; k++) xi[k] = -Math.log(1 - rng.nextDouble());
             draws[b] = gaps(student, grader, centred, w, graders, xi);
         });
-        return new PileBalance(gap, signal, draws);
+        return new PileBalance(gap, signal, draws, new Rows(student, grader, centred, w, graders));
     }
 
     private static double[] gaps(int[] student, int[] grader, double[] centred, double[] w, int graders, double[] xi) {
         double[] sum = new double[graders], weight = new double[graders];
         for (int i = 0; i < centred.length; i++) {
-            double v = w[i] * (xi == null ? 1 : xi[student[i]]);
+            double v = w[i] * (xi == null ? 1 : student[i] < xi.length ? xi[student[i]] : 0);
             sum[grader[i]] += v * centred[i];
             weight[grader[i]] += v;
         }

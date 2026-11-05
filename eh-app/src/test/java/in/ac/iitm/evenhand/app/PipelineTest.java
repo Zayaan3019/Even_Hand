@@ -21,6 +21,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PipelineTest {
 
+    @Test
+    @DisplayName("a class too large for the memory is refused before any work, with what to do; a real course is not")
+    void tooLargeIsRefusedUpFront() {
+        long gb = 1L << 30;
+        assertThat(Pipeline.memoryCheck(5_040, 81, 2, gb)).isEmpty();
+        assertThat(Pipeline.memoryCheck(1_500, 60, 12, 2 * gb)).isEmpty();
+        assertThat(Pipeline.memoryCheck(40_000, 10, 2, 12 * gb)).hasValueSatisfying(m ->
+                assertThat(m).contains("40,000 students", "as its own file", "-Xmx"));
+    }
+
     /** 39 no-effect worlds: the fewest for which p can fall below 0.05 at all (1/40). */
     private static final Settings QUICK = Settings.defaults().withDraws(40, 39);
 

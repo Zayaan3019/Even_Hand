@@ -126,3 +126,32 @@ and the "Grade right after correction" column still used the corrected marks.
 marks as written, no grade changes, and the report's count and range are 0. No threshold changed. This was prompted by
 the old code's ASAP rows above, so criterion 4 on ASAP now partly reflects a change made after seeing ASAP; that is
 stated wherever the result is reported. The pile-balance rule above is unchanged.
+
+## The adjustment's draws, paired, and its interval, bounded (6 November 2026, 03:00)
+
+**What the run on 8c6d5c6 showed.** False alarms on unfair piles fell to 0-1% (UNT, CityU, ASAP), and intervals held
+(93-100%). A planted 10-point gap on unfair piles was found in only 10% of UNT deals and 4% of CityU's, failing
+criterion 3.
+
+**Cause, a bug.** The adjustment added the piles' gap to the marks' severity draw by draw, but the two came from
+different resamples of the students. The two move against each other: a resample with more strong scripts in a pile
+makes that TA look more lenient and that pile's answers look stronger. Unpaired, their variances added, and the
+intervals were several times too wide. The gap is now recomputed on the marks' own resamples.
+
+**A second finding, from development data only.** With the draws paired, UNT's errors on its planted gap were all on
+one side (+0.3 to +3.1 points): the full proportional adjustment takes out too much there, while on CityU it is about
+right (−12.4 in the marks becomes −1.5, truth 0). In every UNT and CityU deal checked, the truth lay between taking
+out only the gap the answers show and the full proportional adjustment: Oster's (2019) bounds. The estimate stays at
+the full adjustment; each interval now spans both ends, and a difference is reported only if it holds at both.
+
+On 10 UNT deals each: planted gap found in 50% (was 10%), coverage 100%, no-difference unfair piles 0% false alarms,
+correction 70.5% to 78.5% right. That still fails criterion 3's 90%, and is reported as such.
+
+**Also.** A class too large for the exact audit's memory (it grows with the square of the class: 13,440 students did
+not fit in 1 GB; 5,040 used 317 MB) is now refused at the start with what to do, instead of running out of memory.
+The ASAP robustness case of 40,000 one-answer students had stopped with an out-of-memory error.
+
+**What had been read of ASAP before this note**, all on 8c6d5c6: for short answers, the random, null-unfair and four
+rows, stability for random, null and null-unfair, and the robustness table; for essays, the four and null-unfair rows
+and stability for null. No ASAP planted-gap row had been read. ASAP's planted-gap results on the new commit are the
+held-out test of this change; the rows listed above are not.

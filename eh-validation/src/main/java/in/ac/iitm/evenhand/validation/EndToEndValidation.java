@@ -658,8 +658,10 @@ public final class EndToEndValidation {
             if (errors < 0) throw new IllegalStateException();
         } catch (Exception | OutOfMemoryError e) {
             String msg = String.valueOf(e.getMessage()).split("\n")[0];
-            row = String.format(Locale.ROOT, "| %s | %s | **stopped** | - | - | - | - | - | - | %s: %s |", c.name(), c.expected(), e.getClass().getSimpleName(),
-                    msg.substring(0, Math.min(170, msg.length())).replace("|", "/"));
+            // A refusal with a reason is the product working; anything else stopped it.
+            String how = e instanceof IllegalArgumentException ? "refused, with a reason" : "**stopped**";
+            row = String.format(Locale.ROOT, "| %s | %s | %s | - | - | - | - | - | - | %s: %s |", c.name(), c.expected(), how,
+                    e.getClass().getSimpleName(), msg.substring(0, Math.min(170, msg.length())).replace("|", "/"));
         }
         System.out.println(row);
         md.append(row).append('\n');

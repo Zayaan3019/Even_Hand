@@ -83,8 +83,10 @@ public final class ContentFit {
         if (p < PILE_ALPHA) {
             return new Choice(false, true, spread, p, String.format(Locale.ROOT, "The answers show the TAs' piles were "
                     + "not alike (p = %.3f), so part of the gap in marks is the piles, not the TAs. The severities are "
-                    + "reduced by that part, taking what the answers cannot show about a script to differ between piles "
-                    + "in proportion to what they can. That is an assumption the answers cannot check.", p) + close);
+                    + "reduced by that part. How much to take out depends on what the answers cannot show, which is an "
+                    + "assumption they cannot check, so each interval runs from removing only the gap the answers show "
+                    + "to removing as much again in proportion, and a difference is reported only if it holds across "
+                    + "that range.", p) + close);
         }
         return new Choice(false, false, spread, p, String.format(Locale.ROOT, "The answers show no clear difference "
                 + "in strength between the TAs' piles (p = %.2f), so the marks estimate is used. That supports the "
@@ -110,23 +112,74 @@ public final class ContentFit {
      * @param floor the least R^2 divided by, so that answers saying almost nothing give a wide interval, not a wild one
      */
     public static FittedModel adjustedForPiles(FittedModel m, ContentResult content, double floor, double allowance) {
+        return adjustedForPiles(m, content, floor, allowance, null);
+    }
+
+    /**
+     * As above, with the piles' gap recomputed on the marks' own bootstrap resamples ({@code counts}, from
+     * {@code SeverityEstimator.resampleCounts}), so each draw is the marks' severity and the gap of the same
+     * students. Drawn independently, the two would add their variances when they move against each other: the
+     * interval would be several times too wide and a real gap would rarely be found.
+     */
+    public static FittedModel adjustedForPiles(FittedModel m, ContentResult content, double floor, double allowance,
+                                               int[][] counts) {
         PileBalance balance = content.balance();
         double scale = 1 / Math.max(balance.scriptSignal(), floor);
         double[] est = m.graders().estimates().clone();
         for (int j = 0; j < est.length; j++) est[j] += balance.gap()[j] * scale;
-        double[][] draws = new double[m.severityDraws().length][];
-        for (int b = 0; b < draws.length; b++) {
+        double[][] gapDraws = balance.draws();
+        if (counts != null && counts.length == m.severityDraws().length) {
+            gapDraws = balance.on(counts).orElse(gapDraws);
+        }
+        // Two ends of what the answers allow (Oster 2019's bounds). The low end takes out only the gap the answers
+        // show; the high end, the estimate, takes out as much again of what they cannot show, in proportion. On real
+        // data the truth fell between the two, at neither end consistently, so the interval spans both and a
+        // difference is reported only if it holds at both.
+        double[] low = m.graders().estimates().clone();
+        for (int j = 0; j < low.length; j++) low[j] += balance.gap()[j];
+        int n = m.severityDraws().length;
+        double[][] draws = new double[n][], lowDraws = new double[n][];
+        for (int b = 0; b < n; b++) {
             draws[b] = m.severityDraws()[b].clone();
-            double[] gap = balance.draws()[b % balance.draws().length];
-            for (int j = 0; j < est.length; j++) draws[b][j] += gap[j] * scale;
+            lowDraws[b] = m.severityDraws()[b].clone();
+            double[] gap = gapDraws[b % gapDraws.length];
+            for (int j = 0; j < est.length; j++) {
+                draws[b][j] += gap[j] * scale;
+                lowDraws[b][j] += gap[j];
+            }
         }
         double observed = SeverityGraph.spread(est, m.groups());
-        double pValue = ContentAnalysis.recentredP(draws, est, m.groups(), observed, allowance);
+        double pValue = Math.max(ContentAnalysis.recentredP(draws, est, m.groups(), observed, allowance),
+                ContentAnalysis.recentredP(lowDraws, low, m.groups(), SeverityGraph.spread(low, m.groups()), allowance));
+        spanBoth(draws, est, lowDraws);
         ContentAnalysis.biasAware(draws, est, allowance);
         FacetEstimates g = m.graders();
         FacetEstimates moved = new FacetEstimates(g.facet(), g.labels(), est, standardErrors(draws, est.length), g.counts(), g.extreme());
         return new FittedModel(m.verdict(), m.anchoring(), m.mean(), m.students(), m.questions(), moved, m.groups(),
                 m.residualSd(), draws, new FittedModel.NoEffectTest(observed, pValue, draws.length), m.diagnostics());
+    }
+
+    /**
+     * Stretches {@code draws} about {@code est}, each side separately, so that its 95% interval also covers the 95%
+     * interval of {@code other}: the draws stay paired with the resamples behind them, and only their reach changes.
+     */
+    static void spanBoth(double[][] draws, double[] est, double[][] other) {
+        if (draws.length < 2) return;
+        for (int j = 0; j < est.length; j++) {
+            double[] a = column(draws, j), o = column(other, j);
+            double lo = Math.min(a[0], o[0]), hi = Math.max(a[1], o[1]);
+            double down = est[j] - a[0] > 1e-9 ? (est[j] - lo) / (est[j] - a[0]) : 1;
+            double up = a[1] - est[j] > 1e-9 ? (hi - est[j]) / (a[1] - est[j]) : 1;
+            for (double[] d : draws) d[j] = est[j] + (d[j] - est[j]) * (d[j] < est[j] ? down : up);
+        }
+    }
+
+    /** The 2.5th and 97.5th percentiles of one TA's draws, as {@code FittedModel.interval95} reads them. */
+    private static double[] column(double[][] draws, int j) {
+        double[] c = new double[draws.length];
+        for (int b = 0; b < c.length; b++) c[b] = draws[b][j];
+        java.util.Arrays.sort(c);
+        return new double[] {c[(int) Math.floor(0.025 * (c.length - 1))], c[(int) Math.ceil(0.975 * (c.length - 1))]};
     }
 
     private static double[] standardErrors(double[][] draws, int graders) {

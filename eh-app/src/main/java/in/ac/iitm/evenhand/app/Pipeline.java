@@ -69,6 +69,21 @@ public final class Pipeline {
     }
 
     /** Everything a run produced, for the CLI to print, the page to show and the tests to check. */
+    /**
+     * Whether the exact audit fits in memory. It works on square matrices over every student, question and TA, so
+     * its memory grows with the square of the class: about 12 bytes per cell, measured at 317 MB for 5,040
+     * students. A class too large is refused with what to do, before any work starts, rather than failing midway.
+     */
+    static Optional<String> memoryCheck(int students, int questions, int graders, long maxMemory) {
+        double n = (double) students + questions + graders;
+        double need = 12 * n * n;
+        if (need <= 0.7 * maxMemory) return Optional.empty();
+        return Optional.of(String.format(Locale.ROOT, "This file has %,d students. Checking exactly which TAs can be "
+                + "compared needs about %.1f GB of memory for a class this size, and Even Hand has %.1f GB. Check each "
+                + "section or batch of TAs as its own file, or start Even Hand with more memory (java -Xmx%dg ...).",
+                students, need / 1e9, maxMemory / 1e9, (int) Math.ceil(need / 0.7 / 1e9)));
+    }
+
     public record Run(CsvIngest.IngestResult ingest, AuditVerdict markingVerdict, AuditVerdict verdict,
                       Optional<FittedModel> model, Optional<FittedModel> marksModel, Optional<ContentResult> content,
                       Optional<Outcome.Result> outcome, double[] assessmentWeights, ReportInput report,
@@ -107,6 +122,9 @@ public final class Pipeline {
         Composite composite = new Composite(ingest.responses(), design, weights);
 
         // 2. Audit: reads who marked what, never the marks.
+        Optional<String> tooLarge = memoryCheck(design.studentCount(), design.questionCount(), design.graderCount(),
+                Runtime.getRuntime().maxMemory());
+        if (tooLarge.isPresent()) throw new IllegalArgumentException(tooLarge.get());
         progress.at("Checking who marked what", 0.06);
         AuditVerdict markingVerdict = IdentifiabilityAudit.audit(design, composite.questionWeights());
 
@@ -156,7 +174,7 @@ public final class Pipeline {
             model = Optional.of(ContentFit.toFittedModel(content.get(), verdict, design, ingest.responses()));
         } else if (choice.isPresent() && choice.get().adjustForPiles() && marksModel.isPresent()) {
             model = Optional.of(ContentFit.adjustedForPiles(marksModel.get(), content.get(), options.content().minSignal(),
-                    options.content().margin()));
+                    options.content().margin(), SeverityEstimator.resampleCounts(design.studentCount(), options.marks())));
         } else if (choice.isPresent() && Double.isFinite(choice.get().pValue()) && marksModel.isPresent()) {
             // The answers showed no difference between the piles, so the marks estimate is kept, with the
             // same allowance for model error the answers' estimate carries.
