@@ -47,6 +47,32 @@ class CsvIngestTest {
             ME21B145,Q2,Rahul Venkatesh,8,10,quiz1,2
             """;
 
+    @Test
+    @DisplayName("the same marks in any row order are read identically, question by question and student by student")
+    void rowOrderDoesNotMatter() throws IOException {
+        List<String> rows = new ArrayList<>();
+        for (int s = 0; s < 12; s++) {
+            for (int q : new int[] {10, 2, 1}) {
+                rows.add("ROLL" + (100 + s) + ",Quiz " + (q % 2 + 1) + ",Q" + q + ",10," + ((s * 7 + q) % 11)
+                        + ",TA " + (s % 3) + ",answer " + s + " to " + q);
+            }
+        }
+        String header = "roll_no,assessment,question,max_marks,marks,ta,answer";
+        CsvIngest.IngestResult a = ingest(csv(header, rows));
+        List<String> shuffled = new ArrayList<>(rows);
+        Collections.shuffle(shuffled, new Random(5));
+        CsvIngest.IngestResult b = ingest(csv(header, shuffled));
+
+        assertThat(a.hasErrors()).isFalse();
+        assertThat(b.design().questionLabels()).isEqualTo(a.design().questionLabels());
+        assertThat(b.design().studentLabels()).isEqualTo(a.design().studentLabels());
+        assertThat(b.answers()).isEqualTo(a.answers());
+        assertThat(b.responses()).isEqualTo(a.responses());
+        // Natural order: Q2 before Q10 within an assessment.
+        String questions = String.join(" ", a.design().questionLabels());
+        assertThat(questions.indexOf("Q2")).isLessThan(questions.indexOf("Q10"));
+    }
+
     private static CsvIngest.IngestResult ingest(String csv) throws IOException {
         return CsvIngest.read(new BufferedReader(new StringReader(csv)),
                 Pseudonymiser.withSalt(TEST_SALT));
@@ -85,8 +111,8 @@ class CsvIngestTest {
         assertThat(result.design().studentCount()).isEqualTo(2);
         assertThat(result.design().questionCount()).isEqualTo(2);
         assertThat(result.design().graderCount()).isEqualTo(2);
-        assertThat(result.responses().get(0).score()).isEqualTo(7);
-        assertThat(result.responses().get(0).maxScore()).isEqualTo(10);
+        assertThat(result.responses()).extracting(Response::score).containsExactlyInAnyOrder(7, 5, 9, 8);
+        assertThat(result.responses()).allSatisfy(r -> assertThat(r.maxScore()).isEqualTo(10));
     }
 
     @Test
@@ -128,8 +154,13 @@ class CsvIngestTest {
         // one person as two and every ability estimate would be halved in precision.
         assertThat(result.design().studentLabels()).containsExactly("Student 1", "Student 2");
         assertThat(result.design().graderLabels()).containsExactly("Assistant 1", "Assistant 2");
-        assertThat(result.responses().get(0).student()).isEqualTo(result.responses().get(1).student());
-        assertThat(result.responses().get(0).grader()).isNotEqualTo(result.responses().get(1).grader());
+        // Rows come question by question: each student has one row per question, each question its own TA.
+        assertThat(result.responses()).extracting(Response::student).containsExactlyInAnyOrder(0, 0, 1, 1);
+        for (int s = 0; s < 2; s++) {
+            int student = s;
+            assertThat(result.responses().stream().filter(r -> r.student() == student).map(Response::grader).distinct()
+                    .count()).isEqualTo(2);
+        }
     }
 
     @Test
@@ -225,13 +256,17 @@ class CsvIngestTest {
         // Half marks are routine in IIT Madras marking, and reading marks as integers
         // dropped every such row as unreadable.
         assertThat(result.hasErrors()).isFalse();
-        Response half = result.responses().get(0);
+        // Rows come question by question, students in label order: find each by what it is, not where it sat.
+        Response half = result.responses().stream().filter(r -> r.stepsPerMark() == 2 && r.score() == 5).findFirst()
+                .orElseThrow();
         assertThat(half.score()).isEqualTo(5);
         assertThat(half.maxScore()).isEqualTo(10);
         assertThat(half.stepsPerMark()).isEqualTo(2);
         assertThat(half.marks()).isCloseTo(2.5, within(1e-12));
-        assertThat(result.responses().get(1).score()).isEqualTo(6);
-        Response quarter = result.responses().get(2);
+        assertThat(result.responses()).filteredOn(r -> r.stepsPerMark() == 2).extracting(Response::score)
+                .containsExactlyInAnyOrder(5, 6);
+        Response quarter = result.responses().stream().filter(r -> r.stepsPerMark() == 4 && r.score() == 1)
+                .findFirst().orElseThrow();
         assertThat(quarter.stepsPerMark()).isEqualTo(4);
         assertThat(quarter.score()).isEqualTo(1);
         assertThat(quarter.maxScore()).isEqualTo(4);
@@ -324,7 +359,7 @@ class CsvIngestTest {
 
         // Merging them would give two different questions one difficulty, and would read
         // two separate marks as one response marked twice.
-        assertThat(result.design().questionLabels()).containsExactly("quiz1:Q1", "endsem:Q1");
+        assertThat(result.design().questionLabels()).containsExactlyInAnyOrder("quiz1:Q1", "endsem:Q1");
         assertThat(result.diagnostics()).noneMatch(d -> d.code() == Diagnostic.Code.EH008_DOUBLE_MARK_FOUND);
     }
 

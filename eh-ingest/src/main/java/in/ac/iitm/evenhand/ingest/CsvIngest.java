@@ -317,20 +317,30 @@ public final class CsvIngest {
         Map<String, Integer> steps = stepsPerMark(valid, maxima, questionNames, diagnostics);
         Set<Integer> recordLines = marksOfRecord(valid, columns.containsKey("role"), diagnostics);
 
-        // Assessments and questions are not identifying and keep their order of appearance.
+        // Assessments and questions are numbered in natural order of their names (Q2 before Q10), and the rows are taken question by question, student by student, so the same
+        // marks in any row order give the same analysis, draw for draw: every random draw is keyed to these numbers.
         Map<String, Integer> assessmentIndex = new LinkedHashMap<>();
         Map<String, Integer> questionIndex = new LinkedHashMap<>();
         List<String> questionLabels = new ArrayList<>();
         Set<String> rawStudents = new LinkedHashSet<>();
         Set<String> rawGraders = new LinkedHashSet<>();
+        Map<String, String> questionAssessment = new HashMap<>();
+        Set<String> assessments = new HashSet<>();
         for (RawRow r : valid) {
-            assessmentIndex.putIfAbsent(r.assessment(), assessmentIndex.size());
-            if (!questionIndex.containsKey(r.questionKey())) {
-                questionIndex.put(r.questionKey(), questionIndex.size());
-                questionLabels.add(questionNames.get(r.questionKey()));
-            }
+            assessments.add(r.assessment());
+            questionAssessment.putIfAbsent(r.questionKey(), r.assessment());
             rawStudents.add(r.student());
             rawGraders.add(r.grader());
+        }
+        assessments.stream().sorted(Comparator.comparing((String a) -> a, CsvIngest::natural)
+                .thenComparing(Comparator.naturalOrder())).forEach(a -> assessmentIndex.put(a, assessmentIndex.size()));
+        List<String> questionOrder = new ArrayList<>(questionAssessment.keySet());
+        questionOrder.sort(Comparator.comparing((String k) -> questionAssessment.get(k), CsvIngest::natural)
+                .thenComparing(k -> questionNames.get(k), CsvIngest::natural)
+                .thenComparing(Comparator.naturalOrder()));
+        for (String k : questionOrder) {
+            questionIndex.put(k, questionIndex.size());
+            questionLabels.add(questionNames.get(k));
         }
 
         // People are numbered in keyed-digest order, so a label reveals nothing about any list.
@@ -338,6 +348,11 @@ public final class CsvIngest {
         Map<String, String> graderLabels = pseudonymiser.assignLabels(rawGraders, "Assistant ");
         Map<String, Integer> studentIndex = indexInOrder(studentLabels.keySet());
         Map<String, Integer> graderIndex = indexInOrder(graderLabels.keySet());
+        valid = new ArrayList<>(valid);
+        valid.sort(Comparator.comparingInt((RawRow r) -> questionIndex.get(r.questionKey()))
+                .thenComparingInt(r -> studentIndex.get(r.student()))
+                .thenComparingInt(r -> graderIndex.get(r.grader()))
+                .thenComparingInt(RawRow::line));
 
         List<Response> responses = new ArrayList<>(valid.size());
         List<String> answers = new ArrayList<>(valid.size());
@@ -403,6 +418,28 @@ public final class CsvIngest {
         }
         List<DesignCell> cells = responses.stream().map(Response::cell).toList();
         return AllocationEvidence.fromRollOrder(cells, n, graders, rank, department);
+    }
+
+    /** Text order with runs of digits compared as numbers, ignoring case: "Q2" before "Q10". */
+    static int natural(String a, String b) {
+        int i = 0, j = 0;
+        while (i < a.length() && j < b.length()) {
+            char x = a.charAt(i), y = b.charAt(j);
+            if (Character.isDigit(x) && Character.isDigit(y)) {
+                int si = i, sj = j;
+                while (i < a.length() && Character.isDigit(a.charAt(i))) i++;
+                while (j < b.length() && Character.isDigit(b.charAt(j))) j++;
+                String da = a.substring(si, i).replaceFirst("^0+(?=.)", ""), db = b.substring(sj, j).replaceFirst("^0+(?=.)", "");
+                int c = da.length() != db.length() ? Integer.compare(da.length(), db.length()) : da.compareTo(db);
+                if (c != 0) return c;
+            } else {
+                int c = Character.compare(Character.toLowerCase(x), Character.toLowerCase(y));
+                if (c != 0) return c;
+                i++;
+                j++;
+            }
+        }
+        return Integer.compare(a.length() - i, b.length() - j);
     }
 
     private static Map<String, Integer> indexInOrder(Set<String> keys) {

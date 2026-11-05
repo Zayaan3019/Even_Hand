@@ -155,3 +155,23 @@ The ASAP robustness case of 40,000 one-answer students had stopped with an out-o
 rows, stability for random, null and null-unfair, and the robustness table; for essays, the four and null-unfair rows
 and stability for null. No ASAP planted-gap row had been read. ASAP's planted-gap results on the new commit are the
 held-out test of this change; the rows listed above are not.
+
+## The same rows in another order (6 November 2026, 04:30)
+
+**What the run on d5114ea showed.** In the robustness table for ASAP short answers, "Rows in a different order"
+changed 455 grades, where it should change none. Its p-value sat near the 5% line, and re-sorting the rows moved it
+across.
+
+**Cause, a bug.** Students were already numbered by keyed digest, which does not depend on row order. But questions
+and assessments were numbered by first appearance, and responses were kept in file order. Every random draw (the
+bootstrap, the content folds) is keyed to those numbers and that order, so the same marks in another order gave
+slightly different draws.
+
+**Fix.** Assessments and questions are now numbered in natural order of their names (Q2 before Q10), and responses
+are taken question by question, student by student. The same marks in any order are now read identically, response
+for response (`CsvIngestTest.rowOrderDoesNotMatter`). One visible change: reports now list assessments and questions
+in that natural order, not the order they first appear in the file.
+
+This touches every result, so every dataset is rerun on this commit. Its figures are the ones reported, with no
+other change to the rule. Already read before this note: every d5114ea table except JorGPT's (English and Spanish
+accuracy and stability) and the essay null-unfair, planted-unfair, random and small-gap accuracy rows.
