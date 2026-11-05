@@ -87,3 +87,29 @@ and the new results will be reported. Any further change to the rule gets its ow
 **Disclosure.** Before this file's corrections, a check of the loaded data displayed each question's mean gap between
 graders and mean word count for ASAP essays, JorGPT and CityU. The message of commit 2b0b5fd says only that marks were
 read for shape. No pipeline result was read at that point, and no threshold changed.
+
+## ASAP at course size, and what was read first (6 November 2026)
+
+**Why the size changed.** Neither ASAP dataset has ever finished. At full size (about 1,700 answers per question) the
+old code's runs reached GitHub's 350-minute limit after two of seven scenarios for short answers and one for essays.
+From this note on, each ASAP deal draws 400 whole scripts per question afresh from the full dataset, the size of a
+large course, and each scenario runs as its own job. The number of deals per scenario, the scenarios and every
+threshold are unchanged. The other datasets are small enough to run whole, as before.
+
+**What was read before this note.** The rows the old code finished before the limit were read at about 02:00 on
+6 November, after the fix above was committed and before this change:
+
+| Old code (2b0b5fd), full size | Says TAs differ | Coverage | Grade right, as marked to corrected |
+|---|---|---|---|
+| Short answers, random (40 deals) | 8% | 100% | 90.6% to 81.6% |
+| Short answers, null (40 deals) | 15% | 100% | 100.0% to 89.3% |
+| Essays, random (20 deals) | 10% | 100% | 79.3% to 79.3% |
+
+The short-answer null row fails criterion 1 (15% against at most 10%), and both short-answer rows fail criterion 4.
+They are reported as the old code's results. On short answers the correction moved about 1,860 grades even in
+deals where the TAs did not differ. The suspected cause, not yet confirmed: each script there is one answer marked
+0 to 3, so most scripts tie with many others, and a relative grade boundary that falls on a tie lets a correction of a
+hundredth of a point decide which side each tied script lands. This was seen before the new results and is reported,
+not tuned away: the rule for the fix is unchanged.
+
+The fix itself is untouched by anything read here. The new ASAP results remain the held-out test of it.
