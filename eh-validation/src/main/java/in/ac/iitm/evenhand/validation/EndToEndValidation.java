@@ -453,6 +453,9 @@ public final class EndToEndValidation {
         double wTotal = 0;
         double weight = 100.0 / assessmentMax.size();
         List<double[]> totals = new ArrayList<>();
+        // A question answered twice by one student counts once: with no role column the product takes the first mark in
+        // the file as the mark of record (and says so), and so does this.
+        Map<String, double[]> units = new LinkedHashMap<>();
 
         for (int copy = 0; copy < copies; copy++) {
             Map<String, Integer> dealt = new LinkedHashMap<>();
@@ -486,12 +489,20 @@ public final class EndToEndValidation {
                     }
                     wTotal += q.maxMarks();
                     double max = assessmentMax.get(assessment(q));
-                    totals.get(at)[0] += weight * mean / max;
-                    totals.get(at)[1] += weight * given / max;
+                    double[] u = units.computeIfAbsent(at + "\u0000" + q.id(), x -> new double[4]);
+                    if (u[2]++ == 0) {
+                        u[0] = weight * mean / max;
+                        u[1] = weight * given / max;
+                        u[3] = at;
+                    }
                     csv.append(line(roll, assessment(q), question(q), q.maxMarks(), plain(given), taNames.get(g), a.text()));
                 }
                 k++;
             }
+        }
+        for (double[] u : units.values()) {
+            totals.get((int) u[3])[0] += u[0];
+            totals.get((int) u[3])[1] += u[1];
         }
         double[] truth = new double[graders];
         double bar = 0;
