@@ -317,7 +317,9 @@ public final class CsvIngest {
         Map<String, Integer> steps = stepsPerMark(valid, maxima, questionNames, diagnostics);
         Set<Integer> recordLines = marksOfRecord(valid, columns.containsKey("role"), diagnostics);
 
-        // Assessments and questions are numbered in natural order of their names (Q2 before Q10), and the rows are taken question by question, student by student, so the same
+        // Assessments keep their order in the file, so they are listed as the course wrote them; their number feeds
+        // no random draw. Questions are numbered in natural order of assessment and question name (Q2 before Q10),
+        // and the rows are taken question by question, student by student, so the same
         // marks in any row order give the same analysis, draw for draw: every random draw is keyed to these numbers.
         Map<String, Integer> assessmentIndex = new LinkedHashMap<>();
         Map<String, Integer> questionIndex = new LinkedHashMap<>();
@@ -325,15 +327,12 @@ public final class CsvIngest {
         Set<String> rawStudents = new LinkedHashSet<>();
         Set<String> rawGraders = new LinkedHashSet<>();
         Map<String, String> questionAssessment = new HashMap<>();
-        Set<String> assessments = new HashSet<>();
         for (RawRow r : valid) {
-            assessments.add(r.assessment());
+            assessmentIndex.putIfAbsent(r.assessment(), assessmentIndex.size());
             questionAssessment.putIfAbsent(r.questionKey(), r.assessment());
             rawStudents.add(r.student());
             rawGraders.add(r.grader());
         }
-        assessments.stream().sorted(Comparator.comparing((String a) -> a, CsvIngest::natural)
-                .thenComparing(Comparator.naturalOrder())).forEach(a -> assessmentIndex.put(a, assessmentIndex.size()));
         List<String> questionOrder = new ArrayList<>(questionAssessment.keySet());
         questionOrder.sort(Comparator.comparing((String k) -> questionAssessment.get(k), CsvIngest::natural)
                 .thenComparing(k -> questionNames.get(k), CsvIngest::natural)

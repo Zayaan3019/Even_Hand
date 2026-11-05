@@ -67,7 +67,15 @@ class CsvIngestTest {
         assertThat(b.design().questionLabels()).isEqualTo(a.design().questionLabels());
         assertThat(b.design().studentLabels()).isEqualTo(a.design().studentLabels());
         assertThat(b.answers()).isEqualTo(a.answers());
-        assertThat(b.responses()).isEqualTo(a.responses());
+        // Everything but the assessment's number, which follows the file so assessments are listed as written.
+        assertThat(b.responses()).hasSameSizeAs(a.responses());
+        for (int i = 0; i < a.responses().size(); i++) {
+            Response x = a.responses().get(i), y = b.responses().get(i);
+            assertThat(List.of(y.student(), y.question(), y.grader(), y.score(), y.maxScore()))
+                    .isEqualTo(List.of(x.student(), x.question(), x.grader(), x.score(), x.maxScore()));
+            assertThat(b.assessmentLabels().get(y.cell().assessment()))
+                    .isEqualTo(a.assessmentLabels().get(x.cell().assessment()));
+        }
         // Natural order: Q2 before Q10 within an assessment.
         String questions = String.join(" ", a.design().questionLabels());
         assertThat(questions.indexOf("Q2")).isLessThan(questions.indexOf("Q10"));
@@ -360,6 +368,7 @@ class CsvIngestTest {
         // Merging them would give two different questions one difficulty, and would read
         // two separate marks as one response marked twice.
         assertThat(result.design().questionLabels()).containsExactlyInAnyOrder("quiz1:Q1", "endsem:Q1");
+        assertThat(result.assessmentLabels()).containsExactly("quiz1", "endsem");
         assertThat(result.diagnostics()).noneMatch(d -> d.code() == Diagnostic.Code.EH008_DOUBLE_MARK_FOUND);
     }
 
