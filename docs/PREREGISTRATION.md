@@ -113,3 +113,16 @@ hundredth of a point decide which side each tied script lands. This was seen bef
 not tuned away: the rule for the fix is unchanged.
 
 The fix itself is untouched by anything read here. The new ASAP results remain the held-out test of it.
+
+## No correction without evidence of a difference (6 November 2026, later)
+
+**Cause, confirmed in the code.** The default rule gives S to the top 10%, admitting everyone tied at the cut, and a
+corrected mark is held within zero and full marks. On ASAP short answers many scripts tie at full marks. A correction
+of a hundredth of a point lowers one TA's full-mark scripts below the tie while the other TA's stay capped at full marks,
+so a whole pile leaves S. The report already said no grade was attributed to the TAs in such runs, but its grade table
+and the "Grade right after correction" column still used the corrected marks.
+
+**Change.** Unless the no-effect test rejects at the re-check gate's existing 5% level, the corrected marks are now the
+marks as written, no grade changes, and the report's count and range are 0. No threshold changed. This was prompted by
+the old code's ASAP rows above, so criterion 4 on ASAP now partly reflects a change made after seeing ASAP; that is
+stated wherever the result is reported. The pile-balance rule above is unchanged.

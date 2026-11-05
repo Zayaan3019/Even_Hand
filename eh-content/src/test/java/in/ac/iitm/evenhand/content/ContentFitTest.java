@@ -89,6 +89,40 @@ class ContentFitTest {
         assertThat(adjusted.noEffect().rejectsAt(0.05)).isFalse();
     }
 
+    /** A pile gap of {1, 0, -1} whose draws reach it {@code beyond} times in 200: p = (1 + beyond) / 201. */
+    private static ContentResult closeTo(int beyond) {
+        double[] gap = {1, 0, -1};
+        double[][] draws = new double[200][];
+        for (int b = 0; b < draws.length; b++) {
+            draws[b] = gap.clone();
+            if (b < beyond) for (int j = 0; j < 3; j++) draws[b][j] += 1.5 * gap[j];
+        }
+        return new ContentResult(CONTENT.status(), CONTENT.embedder(), CONTENT.semantic(), CONTENT.textCoverage(),
+                CONTENT.questions(), CONTENT.graderLabels(), CONTENT.severity(), CONTENT.standardError(), CONTENT.samplingError(),
+                CONTENT.pairCount(), CONTENT.groups(), CONTENT.draws(), CONTENT.pValue(), CONTENT.observedSpread(), CONTENT.signal(),
+                CONTENT.matchedShare(), List.of(), List.of(), List.of(), Optional.empty(), List.of(),
+                new PileBalance(gap, 0.5, draws));
+    }
+
+    @Test
+    @DisplayName("a close call on either side of the 10% line is called one; a clear result is not")
+    void closeCallsAreSaid() {
+        Optional<FittedModel> marks = Optional.of(marksFit(new double[3]));
+        ContentFit.Choice justAdjusted = ContentFit.choose(underExchangeability(), marks, closeTo(15));   // p = 0.080
+        ContentFit.Choice justKept = ContentFit.choose(underExchangeability(), marks, closeTo(30));       // p = 0.154
+        ContentFit.Choice clear = ContentFit.choose(underExchangeability(), marks, closeTo(0));           // p = 0.005
+        ContentFit.Choice farOff = ContentFit.choose(underExchangeability(), marks, closeTo(100));        // p = 0.502
+
+        assertThat(justAdjusted.adjustForPiles()).isTrue();
+        assertThat(justAdjusted.explanation()).contains("close call");
+        assertThat(justKept.adjustForPiles()).isFalse();
+        assertThat(justKept.explanation()).contains("close call");
+        assertThat(clear.adjustForPiles()).isTrue();
+        assertThat(clear.explanation()).doesNotContain("close call");
+        assertThat(farOff.adjustForPiles()).isFalse();
+        assertThat(farOff.explanation()).doesNotContain("close call");
+    }
+
     @Test
     @DisplayName("a real gap larger than the piles explain survives the adjustment")
     void aGapBeyondThePilesSurvives() {
