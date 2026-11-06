@@ -558,16 +558,18 @@ public final class HtmlReport {
             return;
         }
         b.append("<p>Ranked by expected change in grade points (R.21.1 points are uneven: D&rarr;E costs two). "
+                + "When grading is relative, the cut-offs are worked out again from the corrected totals, so a grade "
+                + "can change even where a script's own total barely moves. "
                 + "Saved copies name students by pseudonym; roll numbers appear only on your screen, and the "
                 + "sealed key file maps them back.</p>\n");
         b.append("<table><tr><th>Student</th><th>Total as marked</th><th>Corrected</th><th>Grade</th>"
-                + "<th>If it changes</th><th>Chance of change</th><th>Direction</th></tr>\n");
+                + "<th>If it changes</th><th>Chance of change</th><th>Expected change</th><th>Direction</th></tr>\n");
         for (Outcome.Row r : e.rows()) {
             b.append(String.format(Locale.ROOT,
                     "<tr><td>%s</td><td class=num>%.1f</td><td class=num>%.1f</td><td>%s</td><td>%s</td>"
-                    + "<td class=num>%.0f%%</td><td>%s</td></tr>%n",
+                    + "<td class=num>%.0f%%</td><td class=num>%.2f grade points</td><td>%s</td></tr>%n",
                     esc(r.student()), r.totalAsMarked(), r.totalCorrected(), r.gradeAsMarked(), r.likelyGrade(),
-                    100 * r.probability(), r.expectedPoints() > 0 ? "probably marked down" : "probably marked up"));
+                    100 * r.probability(), Math.abs(r.expectedPoints()), r.expectedPoints() > 0 ? "probably marked down" : "probably marked up"));
         }
         b.append("</table>\n");
         b.append(String.format(Locale.ROOT, "<p class=note>Expect about %.1f of these %d to turn out unchanged on "
