@@ -27,10 +27,12 @@ Even Hand answers five questions:
 
 ## For professors and TAs: three steps, no training
 
-1. **Open it.** Double-click `even-hand.cmd` (Windows) or run `./even-hand.sh` (macOS, Linux). Your
+1. **Open it.** Download Even Hand for Windows, macOS or Linux from the
+   [latest release](https://github.com/Zayaan3019/Even_Hand/releases/latest), unzip it and open
+   `EvenHand` (`READ ME FIRST.txt` inside says how, including the one-time prompt for an unsigned app).
+   Java and the answer-reading model are included: nothing to install, and no internet needed. Your
    browser opens Even Hand at `http://127.0.0.1:8642`, served by your own computer. Nothing is sent
-   anywhere. The first start builds it and fetches the answer-reading model once (a few minutes, with
-   internet); after that it starts in seconds and works offline.
+   anywhere.
 2. **Drop in your marks file.** The Excel workbook or CSV you already keep, or your exam platform's
    export, with a column saying which TA marked each script. Even Hand shows what it read (students,
    TAs, questions, written answers) and anything to fix, in plain words, and asks how much each exam
@@ -41,7 +43,9 @@ Even Hand answers five questions:
    names appear on your screen only. **Save report** and **Save Class Committee sheet** save copies
    with pseudonyms only, safe to file or forward; **Print** prints the full report.
 
-Java 21 or newer is the only requirement (<https://adoptium.net>).
+**From the source instead**: double-click `even-hand.cmd` (Windows) or run `./even-hand.sh` (macOS, Linux).
+It needs Java 21 or newer (<https://adoptium.net>); the first start builds Even Hand and fetches the model
+once, with internet.
 
 ### What the file can look like
 
