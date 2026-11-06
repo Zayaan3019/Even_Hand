@@ -53,6 +53,8 @@ export function Grades({ r }: { r: Result }) {
             <p className="muted small" style={{ marginTop: 0 }}>
               Ranked by expected change in grade points. Re-mark these scripts; Even Hand never changes a grade. Expect about{' '}
               {(o.expectedFalseFlags ?? 0).toFixed(1)} of these {rows.length} to turn out unchanged: the price of catching the others.
+              {' '}When grading is relative, the cut-offs are worked out again from the corrected totals, so a grade can change even
+              where a script's own total barely moves.
             </p>
             <div className="table-wrap">
               <table className="data">
@@ -62,7 +64,8 @@ export function Grades({ r }: { r: Result }) {
                     <SortHeader k="total" label="Total as marked" sort={sort} onSort={onSort} />
                     <th>Corrected</th><th>Grade</th><th>If it changes</th>
                     <SortHeader k="probability" label="Chance of change" sort={sort} onSort={onSort} />
-                    <SortHeader k="points" label="Direction" sort={sort} onSort={onSort} />
+                    <SortHeader k="points" label="Expected change" sort={sort} onSort={onSort} />
+                    <th>Direction</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -79,6 +82,7 @@ export function Grades({ r }: { r: Result }) {
                           <span className="n">{Math.round(100 * x.probability)}%</span>
                         </div>
                       </td>
+                      <td className="n">{Math.abs(x.points).toFixed(2)} grade points</td>
                       <td>{x.points > 0 ? 'probably marked down' : 'probably marked up'}</td>
                     </tr>
                   ))}
