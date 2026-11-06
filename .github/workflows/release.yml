@@ -1,0 +1,169 @@
+name: release
+
+# Builds Even Hand as an app a professor downloads and double-clicks: no Java, no build, no internet.
+# Each package carries its own Java runtime (jlink, only the modules the jar uses) and the answer-reading
+# model at the exact revision the validation ran on, checked against its pinned SHA-256 when fetched and
+# again by Even Hand on every start. Each package is started and checked before it is published.
+# A tag v1.2.3 publishes a GitHub release; anything else only keeps the packages as workflow artifacts.
+
+on:
+  push:
+    tags: ['v*']
+    # A release branch builds and checks the packages without publishing them.
+    branches: ['release/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            launcher: EvenHand/EvenHand.exe
+          - os: macos-latest
+            platform: macos
+            launcher: EvenHand.app/Contents/MacOS/EvenHand
+          - os: ubuntu-latest
+            platform: linux
+            launcher: EvenHand/bin/EvenHand
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Version
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF_TYPE" == tag && "$v" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]] || v=1.0.0
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Build the jar
+        run: ./mvnw -B -q package -DskipTests
+
+      - name: Stage the jar and the pinned model
+        run: |
+          mkdir -p staging
+          cp eh-app/target/even-hand.jar staging/
+          EVEN_HAND_MODEL="$PWD/staging/models/all-MiniLM-L6-v2" sh scripts/fetch-model.sh
+
+      - name: Package with its own Java runtime
+        run: |
+          modules=$(jdeps --ignore-missing-deps --print-module-deps --multi-release 21 staging/even-hand.jar)
+          [[ ",$modules," == *",jdk.incubator.vector,"* ]] || modules="$modules,jdk.incubator.vector"
+          echo "Runtime modules: $modules"
+          extra=()
+          [[ "${{ matrix.platform }}" == windows ]] && extra+=(--win-console)
+          jpackage --type app-image --name EvenHand --app-version "$VERSION" \
+            --vendor "Even Hand" --description "Checks whether TAs marked alike" \
+            --input staging --main-jar even-hand.jar --arguments serve \
+            --java-options '--add-modules=jdk.incubator.vector' \
+            --java-options '-Devenhand.model=$APPDIR/models/all-MiniLM-L6-v2' \
+            --add-modules "$modules" \
+            --jlink-options '--strip-debug --no-header-files --no-man-pages' \
+            --dest dist "${extra[@]}"
+          # Apple Silicon refuses to open unsigned code at all; an ad-hoc signature lets macOS offer "Open Anyway".
+          if [[ "${{ matrix.platform }}" == macos ]]; then codesign --force --deep --sign - dist/EvenHand.app; fi
+
+      - name: Check the packaged app before publishing it
+        working-directory: dist
+        run: |
+          set -o pipefail
+          app="./${{ matrix.launcher }}"
+          # The model inside the package loads and matches its pinned SHA-256.
+          "$app" model | tee model.txt
+          grep -q "checked against its pinned SHA-256" model.txt
+          # A refused file gives its reason, not a stack trace.
+          printf 'roll_no,ta,Q1,Q2\nCE26B001,Ravi,7,8\n' > broken.csv
+          if "$app" run broken.csv > refused.txt 2>&1; then echo "a broken file was accepted"; exit 1; fi
+          cat refused.txt
+          grep -q "marked out of" refused.txt
+          ! grep -q "Exception" refused.txt
+          # The local page answers.
+          "$app" serve > serve.txt 2>&1 &
+          pid=$!
+          for i in $(seq 1 60); do
+            code=$(curl -s -o page.html -w '%{http_code}' http://127.0.0.1:8642/ || true)
+            [[ "$code" == 200 ]] && break
+            sleep 1
+          done
+          kill "$pid" 2>/dev/null || true
+          cat serve.txt
+          [[ "$code" == 200 ]] && grep -qi "even hand" page.html
+          rm -f model.txt broken.csv refused.txt serve.txt page.html
+
+      - name: Add the read-me
+        working-directory: dist
+        run: |
+          cat > "READ ME FIRST.txt" <<'EOF'
+          Even Hand: checks whether TAs marked alike, on your own computer.
+
+          Open it
+            Windows: open the EvenHand folder and double-click EvenHand.exe. Windows may say it
+                     protected your PC, because this app is not signed: choose "More info", then "Run anyway".
+            macOS:   move EvenHand.app to Applications and open it. The app is not notarised by Apple, so the
+                     first time macOS will refuse: open System Settings, Privacy & Security, and choose
+                     "Open Anyway" beside Even Hand.
+            Linux:   run EvenHand/bin/EvenHand.
+          Your browser opens Even Hand at http://127.0.0.1:8642. Nothing is sent anywhere; no internet is
+          needed. Close the window it runs in to stop it.
+
+          Java and the answer-reading model are included. You do not need to install anything.
+
+          Documents, validation and source: https://github.com/Zayaan3019/Even_Hand
+
+          Included software
+            Java runtime: Eclipse Temurin (GPLv2 with the Classpath Exception), in the runtime folder.
+            all-MiniLM-L6-v2 by sentence-transformers, Apache License 2.0,
+            https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+          EOF
+
+      - name: Archive
+        working-directory: dist
+        run: |
+          name="EvenHand-$VERSION-${{ matrix.platform }}"
+          case "${{ matrix.platform }}" in
+            windows) 7z a -tzip -bso0 "../$name.zip" EvenHand "READ ME FIRST.txt" ;;
+            macos)   ditto -c -k --sequesterRsrc --keepParent EvenHand.app "../$name.zip" && zip -q "../$name.zip" "READ ME FIRST.txt" ;;
+            linux)   tar czf "../$name.tar.gz" EvenHand "READ ME FIRST.txt" ;;
+          esac
+          ls -l ..
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EvenHand-${{ matrix.platform }}
+          path: EvenHand-*.*
+          if-no-files-found: error
+
+  publish:
+    needs: package
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd packages
+          sha256sum EvenHand-* > SHA256SUMS.txt
+          gh release create "$GITHUB_REF_NAME" EvenHand-* SHA256SUMS.txt -R "$GITHUB_REPOSITORY" \
+            --title "Even Hand ${GITHUB_REF_NAME#v}" \
+            --notes "Download the file for your computer, unzip it and open Even Hand: Java and the answer-reading model are included, and nothing needs installing or an internet connection. See READ ME FIRST.txt inside. How accurate it is, including where it falls short: docs/VALIDATION.md."
