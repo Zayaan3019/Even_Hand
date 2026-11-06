@@ -49,6 +49,29 @@ public final class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        try {
+            dispatch(args);
+        } catch (Exception e) {
+            String said = userError(e);
+            if (said == null) throw e;
+            // A problem with the instructor's file or command: say what to do, without a Java stack trace.
+            System.err.println();
+            System.err.println(said);
+            System.exit(1);
+        }
+    }
+
+    /**
+     * What to tell the instructor when a command fails because of their file or their command, as the local page
+     * does; null for anything else, which is a fault in Even Hand and keeps its stack trace.
+     */
+    static String userError(Exception e) {
+        if (e instanceof java.nio.file.NoSuchFileException n) return "There is no file at " + n.getFile() + ".";
+        if (e instanceof IllegalArgumentException || e instanceof UnsupportedOperationException) return e.getMessage();
+        return null;
+    }
+
+    private static void dispatch(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.print(USAGE);
             return;
