@@ -116,6 +116,14 @@ public final class ContentFit {
     }
 
     /**
+     * How far the interval's high end reaches: what the answers cannot show is taken to differ between the piles by up
+     * to this many times as much, in proportion, as what they can (Oster's delta). The estimate itself stays at 1.
+     * Experiment of 6 November 2026, written into PREREGISTRATION.md before its results were read: at 1, JorGPT's
+     * intervals fell short when its piles were unequal.
+     */
+    static final double MAX_DELTA = 2;
+
+    /**
      * As above, with the piles' gap recomputed on the marks' own bootstrap resamples ({@code counts}, from
      * {@code SeverityEstimator.resampleCounts}), so each draw is the marks' severity and the gap of the same
      * students. Drawn independently, the two would add their variances when they move against each other: the
@@ -148,10 +156,22 @@ public final class ContentFit {
                 lowDraws[b][j] += gap[j];
             }
         }
+        // The far end, at MAX_DELTA: the pile gap the answers show plus MAX_DELTA times what the estimate adds to it.
+        double reach = 1 + MAX_DELTA * (scale - 1);
+        double[] high = m.graders().estimates().clone();
+        for (int j = 0; j < high.length; j++) high[j] += balance.gap()[j] * reach;
+        double[][] highDraws = new double[n][];
+        for (int b = 0; b < n; b++) {
+            highDraws[b] = m.severityDraws()[b].clone();
+            double[] gap = gapDraws[b % gapDraws.length];
+            for (int j = 0; j < est.length; j++) highDraws[b][j] += gap[j] * reach;
+        }
         double observed = SeverityGraph.spread(est, m.groups());
         double pValue = Math.max(ContentAnalysis.recentredP(draws, est, m.groups(), observed, allowance),
-                ContentAnalysis.recentredP(lowDraws, low, m.groups(), SeverityGraph.spread(low, m.groups()), allowance));
+                Math.max(ContentAnalysis.recentredP(lowDraws, low, m.groups(), SeverityGraph.spread(low, m.groups()), allowance),
+                        ContentAnalysis.recentredP(highDraws, high, m.groups(), SeverityGraph.spread(high, m.groups()), allowance)));
         spanBoth(draws, est, lowDraws);
+        spanBoth(draws, est, highDraws);
         ContentAnalysis.biasAware(draws, est, allowance);
         FacetEstimates g = m.graders();
         FacetEstimates moved = new FacetEstimates(g.facet(), g.labels(), est, standardErrors(draws, est.length), g.counts(), g.extreme());

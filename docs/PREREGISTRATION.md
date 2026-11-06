@@ -175,3 +175,26 @@ response for response (`CsvIngestTest.rowOrderDoesNotMatter`).
 This touches every result, so every dataset is rerun on this commit. Its figures are the ones reported, with no
 other change to the rule. Already read before this note: every d5114ea table except JorGPT's (English and Spanish
 accuracy and stability) and the essay null-unfair, planted-unfair, random and small-gap accuracy rows.
+
+## Experiment: a wider reach for the pile adjustment (6 November 2026, 17:30)
+
+**What was seen first.** Every result of run 42124687822 (commit a6ef30b), and diagnostic run 42177788388. On
+JorGPT, with no real difference and piles of unequal strength, the full proportional adjustment (delta = 1) left 1.6
+points of the stronger pile's flattery in English and 1.8 in Spanish. 85% and 81% of intervals held the truth,
+failing criterion 2. On UNT, ASAP short answers and the essays, delta = 1 reached or passed the truth.
+
+**The change tested.** The estimate stays at delta = 1. The interval now spans delta = 0 to delta = 2, not 0 to 1, and
+a difference is reported only if it holds at delta = 0, 1 and 2. Nothing else changes.
+
+**Rule for adopting it, written before any result of it is read.** It goes into the product only if, on this
+commit's full run:
+
+1. criterion 1 passes on every dataset, as it does now;
+2. criterion 2 passes on every dataset, JorGPT English and Spanish included; and
+3. no dataset that passes criterion 3 at delta = 1 (JorGPT English, JorGPT Spanish, ASAP essays) fails it at
+   delta = 2.
+
+Otherwise delta = 1 stays, and this experiment is reported in VALIDATION.md with its figures either way.
+
+**What this cannot show.** Every dataset has now been read, so no held-out data is left to test this change on. If
+it is adopted, that is stated beside its figures.
