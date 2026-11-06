@@ -48,7 +48,7 @@ public final class ContentFit {
     /**
      * Chooses by asking whether the answers show the piles differ, before any mark is consulted.
      *
-     * <p>This replaced a Hausman (1978) test between the marks' and the answers' estimates. On held-out real data
+     * <p>This replaced a Hausman (1978) test between the marks' and the answers' estimates. On JorGPT and CityU
      * the answers explained only a fifth of the marks, the two estimates shared most of the same bias, and the test
      * saw no disagreement: it reported TAs differing in 85-99% of deals where they did not. A pretest with little
      * power is known to behave this way (Guggenberger 2010). The piles' content scores carry no marking noise and
