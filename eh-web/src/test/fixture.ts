@@ -13,7 +13,8 @@ export function fixture(): Result {
     },
     basis: 'answers',
     confirmedByAnswers: false,
-    choice: 'The answers show the piles were not alike (Hausman test p = 0.004). The answers\' estimate is used.',
+    pilesAdjusted: false,
+    choice: 'The answers show the TAs\' piles were not alike (p = 0.004), so part of the gap in marks is the piles, not the TAs.',
     bottomLineHtml: 'The TAs did not mark alike. Assistant 1 was the harshest. It changes <b>3</b> letter grades.',
     tas: [
       { label: 'Assistant 1', marks: 180, severity: 5.2, lo: 2.1, hi: 8.3, se: 1.5, group: 1, clear: true },

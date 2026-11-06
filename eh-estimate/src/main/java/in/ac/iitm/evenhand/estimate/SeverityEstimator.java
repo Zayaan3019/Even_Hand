@@ -97,6 +97,22 @@ public final class SeverityEstimator {
         return draws;
     }
 
+    /**
+     * How many times each student was drawn in each of the bootstrap's resamples, in draw order: the very students
+     * behind each row of {@link FittedModel#severityDraws()}. Anything computed on the same resamples can then be
+     * combined with the severities draw by draw, keeping how the two move together.
+     */
+    public static int[][] resampleCounts(int students, Settings settings) {
+        int[][] out = new int[settings.bootstrapDraws()][];
+        for (int b = 0; b < out.length; b++) {
+            SplittableRandom rng = new SplittableRandom(settings.seed() * 1_000_003L + b);
+            int[] counts = new int[students];
+            for (int k = 0; k < students; k++) counts[rng.nextInt(students)]++;
+            out[b] = counts;
+        }
+        return out;
+    }
+
     static Observations resampleStudents(Observations obs, int[][] rowsOf, SplittableRandom rng) {
         int total = 0;
         int[] picked = new int[obs.students()];

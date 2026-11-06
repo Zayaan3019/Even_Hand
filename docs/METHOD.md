@@ -54,7 +54,8 @@ For every question with written answers:
 
    Both have one intercept per TA, so they learn only from variation *within* a TA's pile and
    cannot absorb severity (Frisch–Waugh–Lovell). Both are cross-fitted on student folds, so no
-   answer predicts itself.
+   answer predicts itself, and averaged over 20 different splits of the students, so no one split
+   can decide a finding.
 3. **Matching.** Each answer is paired with the 3 most similar answers marked by *other* TAs
    (cosine ≥ 0.60). The pair's mark gap, minus the content model's estimate of what the two answers
    say differently, is evidence about the two TAs alone. This is the bias-corrected matching
@@ -76,13 +77,43 @@ For every question with written answers:
 
 - When the marks alone are assumption-free, they are used, and the answers serve as an
   independent check.
-- When the marks need the equal-piles assumption, the two estimates are compared by a **Hausman
-  (1978) test**, at the 10% level: wrongly trusting the marks when piles differed costs several points,
-  while wrongly preferring the answers costs a little precision:
-  - If they agree, the answers have confirmed the assumption, and the more precise marks
-    estimate is used.
-  - If they disagree, the piles were not alike, and the answers' estimate is used. The report
-    says how far the marks alone would have misled.
+- When the marks need the equal-piles assumption, the answers test it directly (`PileBalance`).
+  Each answer's content score is learned within piles and applied out of sample, so no TA's
+  severity enters it. Each pile's mean score, weighted by marks available, is compared with the
+  others, resampling whole students, at the **10% level**: wrongly trusting the marks when piles
+  differed costs several points, while a needless adjustment costs a little precision.
+  - **If the piles do not differ**, the marks estimate is used. The report says this supports
+    the assumption and does not prove it.
+  - **If they differ**, each TA's severity becomes *marks estimate + gap / R²*. Here *gap* is
+    the pile's content-score gap, and *R²* is the squared correlation of content score and mark
+    across scripts within piles, floored at 0.15 so that answers which say little cannot blow
+    the adjustment up. This treats what the answers cannot see about a script as differing
+    between piles in proportion to what they can (Altonji, Elder and Taber 2005; Oster 2019,
+    with δ = 1 and maximum R² = 1). That proportion is an assumption the data cannot check,
+    and the report says so.
+  - **The interval spans Oster's bounds.** Its low end takes out only the gap the answers show
+    (δ = 0), its high end the full proportional adjustment (δ = 1), each with its own bootstrap
+    interval, and a difference is reported only if it holds at both ends. On the development
+    data the truth lay between the two in every deal checked, at neither end consistently.
+  - **The draws are paired.** The pile gap is recomputed on the very resamples of students the
+    marks' severity draws were fitted on (`SeverityEstimator.resampleCounts`). The two move
+    against each other, so drawing them separately would add their variances and make every
+    interval several times too wide. The 1.5-point allowance applies as before.
+  - A p-value between 0.05 and 0.20 is reported as a close call.
+- This replaced a Hausman (1978) test between the marks' and the answers' estimates. On real
+  data whose answers explain only about a fifth of the marks, the two estimates shared most of
+  the same bias, the test could not tell them apart, and the app reported TAs as differing in
+  80 to 99% of deals in which they did not. A pretest with little power is known to behave this
+  way (Guggenberger 2010). The failure and the fix are recorded in
+  [PREREGISTRATION.md](PREREGISTRATION.md).
+
+**Size.** The audit's exact rank works on square matrices over every student, question and TA, so
+its memory grows with the square of the class (317 MB for 5,040 students). A class too large for
+the memory Java has is refused at the start, with what to do.
+
+**No correction without evidence.** Unless the no-effect test rejects at 5%, the corrected marks
+are the marks as written, and no grade changes. Otherwise, on marks with many ties, a correction of
+a hundredth of a point would decide which side of a grade boundary each tied script falls.
 
 ## 4. Why the conclusion can be trusted, or not
 
@@ -129,9 +160,12 @@ against the marking order (when the file records it):
 - Armstrong, T. and Kolesár, M. (2020). Simple and honest confidence intervals in nonparametric regression. *Quantitative Economics* 11(1).
 - Chernozhukov, V. et al. (2018). Double/debiased machine learning for treatment and structural parameters. *Econometrics Journal* 21(1).
 - Hansen, B. (2008). The prognostic analogue of the propensity score. *Biometrika* 95(2).
+- Altonji, J., Elder, T. and Taber, C. (2005). Selection on observed and unobserved variables: assessing the effectiveness of Catholic schools. *Journal of Political Economy* 113(1).
+- Guggenberger, P. (2010). The impact of a Hausman pretest on the size of a hypothesis test: the panel data case. *Econometric Theory* 26(2).
 - Hausman, J. (1978). Specification tests in econometrics. *Econometrica* 46(6).
 - Imbens, G. and Rubin, D. (2015). *Causal Inference for Statistics, Social, and Biomedical Sciences.* Cambridge.
 - Lipsitch, M., Tchetgen Tchetgen, E. and Cohen, T. (2010). Negative controls. *Epidemiology* 21(3).
+- Oster, E. (2019). Unobservable selection and coefficient stability: theory and evidence. *Journal of Business & Economic Statistics* 37(2).
 - Mohler, M., Bunescu, R. and Mihalcea, R. (2011). Learning to grade short answer questions using semantic similarity measures and dependency graph alignments. *ACL*.
 - Reimers, N. and Gurevych, I. (2019). Sentence-BERT. *EMNLP*.
 - Rosenbaum, P. (2002). *Observational Studies*, 2nd ed. Springer.

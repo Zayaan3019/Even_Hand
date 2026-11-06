@@ -101,6 +101,23 @@ class OutcomeTest {
     }
 
     @Test
+    @DisplayName("differences within chance: nothing is corrected, so no grade changes, even on tied marks")
+    void correctsNothingWhenTheNoEffectTestDoesNot() {
+        // The same 5-point gap that moves grades when it is clear moves none when it is within chance.
+        Outcome.Result clear = Outcome.assess(fit(new double[] { 5, -5 }, 0.01), responses, design,
+                new double[] { 1 }, ABSOLUTE, Outcome.Gate.standard());
+        Outcome.Result chance = Outcome.assess(fit(new double[] { 5, -5 }, 0.30), responses, design,
+                new double[] { 1 }, ABSOLUTE, Outcome.Gate.standard());
+
+        assertThat(clear.changed()).isPositive();
+        assertThat(chance.changed()).isZero();
+        assertThat(chance.changedLow()).isZero();
+        assertThat(chance.changedHigh()).isZero();
+        assertThat(chance.gradesCorrected()).isEqualTo(chance.gradesAsMarked());
+        assertThat(chance.totalsCorrected()).isEqualTo(chance.totalsAsMarked());
+    }
+
+    @Test
     @DisplayName("no uncertainty computed: no list, rather than one with made-up confidence")
     void refusesWithoutDraws() {
         FittedModel noDraws = fit(new double[] { 5, -5 }, 0.01);

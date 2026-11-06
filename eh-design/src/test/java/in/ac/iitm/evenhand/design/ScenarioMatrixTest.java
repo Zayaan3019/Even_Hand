@@ -207,6 +207,24 @@ class ScenarioMatrixTest {
     }
 
     @Test
+    @DisplayName("script-wise where one student has no mark on one question: still measurable, less weight is not another TA")
+    void aSkippedQuestionIsNotAnotherTa() {
+        MarkingDesign full = DesignGenerator.scriptWiseRandom(60, 5, 3, 7L);
+        List<DesignCell> cells = full.cells().stream()
+                .filter(c -> !(c.student() == 0 && c.question() == 0))
+                .toList();
+        MarkingDesign design = MarkingDesign.of(cells,
+                full.studentLabels(), full.questionLabels(), full.graderLabels());
+
+        AuditVerdict verdict = IdentifiabilityAudit.audit(design);
+
+        // Regression: on real answers, 5% of rows going missing suppressed the re-check list with "this
+        // arrangement cannot measure what that did to them", though every TA was on one scale. The missing
+        // mark leaves that student less weight overall, which meets only the level all TAs share.
+        assertThat(verdict.exposure().status()).isEqualTo(Exposure.Status.UNDER_EXCHANGEABILITY);
+    }
+
+    @Test
     @DisplayName("one marker: refused, because there is no severity to be about")
     void singleMarkerIsRefused() {
         MarkingDesign design = DesignGenerator.singleMarker(60, 5);

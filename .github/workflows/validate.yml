@@ -1,0 +1,92 @@
+name: validate on real data
+
+# Measures the whole product on real, double-graded answers from public datasets, away from any laptop's memory limits.
+# Anyone can run it from the Actions tab and download the same tables. Nothing here is part of the product.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['validation/**']
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: unt-estimators,  main: UntValidation,      data: unt,  args: '--runs 100' }
+          - { name: unt-accuracy,    main: EndToEndValidation, data: unt,  args: '--only accuracy --runs 100' }
+          - { name: unt-stability,   main: EndToEndValidation, data: unt,  args: '--only stability --stability-deals 10 --stability-salts 30' }
+          - { name: unt-robustness,  main: EndToEndValidation, data: unt,  args: '--only robustness' }
+          - { name: asap-accuracy-random, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios random' }
+          - { name: asap-accuracy-null, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios null' }
+          - { name: asap-accuracy-null-unfair, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios null-unfair' }
+          - { name: asap-accuracy-planted-unfair, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios planted-unfair' }
+          - { name: asap-accuracy-four, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios four' }
+          - { name: asap-accuracy-four-unfair, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios four-unfair' }
+          - { name: asap-accuracy-small-gap, main: EndToEndValidation, data: asap, args: '--dataset asap --only accuracy --runs 40 --scripts 400 --scenarios small-gap' }
+          - { name: asap-stability-random, main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10 --scripts 400 --scenarios random' }
+          - { name: asap-stability-null, main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10 --scripts 400 --scenarios null' }
+          - { name: asap-stability-null-unfair, main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10 --scripts 400 --scenarios null-unfair' }
+          - { name: asap-stability-planted-unfair, main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10 --scripts 400 --scenarios planted-unfair' }
+          - { name: asap-stability-four, main: EndToEndValidation, data: asap, args: '--dataset asap --only stability --stability-deals 5 --stability-salts 10 --scripts 400 --scenarios four' }
+          - { name: asap-robustness, main: EndToEndValidation, data: asap, args: '--dataset asap --only robustness --scripts 400' }
+          - { name: aes-accuracy-random, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios random' }
+          - { name: aes-accuracy-null, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios null' }
+          - { name: aes-accuracy-null-unfair, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios null-unfair' }
+          - { name: aes-accuracy-planted-unfair, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios planted-unfair' }
+          - { name: aes-accuracy-four, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios four' }
+          - { name: aes-accuracy-four-unfair, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios four-unfair' }
+          - { name: aes-accuracy-small-gap, main: EndToEndValidation, data: aes, args: '--dataset aes --only accuracy --runs 20 --scripts 400 --scenarios small-gap' }
+          - { name: aes-stability-random, main: EndToEndValidation, data: aes, args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8 --scripts 400 --scenarios random' }
+          - { name: aes-stability-null, main: EndToEndValidation, data: aes, args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8 --scripts 400 --scenarios null' }
+          - { name: aes-stability-null-unfair, main: EndToEndValidation, data: aes, args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8 --scripts 400 --scenarios null-unfair' }
+          - { name: aes-stability-planted-unfair, main: EndToEndValidation, data: aes, args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8 --scripts 400 --scenarios planted-unfair' }
+          - { name: aes-stability-four, main: EndToEndValidation, data: aes, args: '--dataset aes --only stability --stability-deals 3 --stability-salts 8 --scripts 400 --scenarios four' }
+          - { name: jorgpt-accuracy, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only accuracy --runs 100' }
+          - { name: jorgpt-stability, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only stability --stability-deals 10 --stability-salts 30' }
+          - { name: jorgpt-robustness, main: EndToEndValidation, data: jorgpt-en, args: '--dataset jorgpt --only robustness' }
+          - { name: jorgpt-spanish,  main: EndToEndValidation, data: jorgpt-es, args: '--dataset jorgpt --only accuracy --runs 100' }
+          - { name: cityu-accuracy,  main: EndToEndValidation, data: cityu, args: '--dataset cityu --only accuracy --runs 100' }
+          - { name: cityu-stability, main: EndToEndValidation, data: cityu, args: '--dataset cityu --only stability --stability-deals 10 --stability-salts 30' }
+    # ASAP runs one scenario per job, on 400 whole scripts per question drawn afresh for each deal: at full size
+    # (about 1,700 per question) two scenarios took the whole 350 minutes. 400 is the size of a large course.
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ~/.even-hand/models
+          key: minilm-1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+
+      - name: Fetch the embedding model
+        run: sh scripts/fetch-model.sh
+
+      - name: Fetch the dataset
+        run: sh scripts/fetch-validation-data.sh "${{ matrix.data }}" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          ./mvnw -q -B install -DskipTests
+          ./mvnw -q -B -pl eh-validation dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+
+      - name: Measure
+        run: |
+          java --add-modules jdk.incubator.vector -Xmx12g \
+            -cp "eh-validation/target/classes:$(cat eh-validation/target/cp.txt)" \
+            in.ac.iitm.evenhand.validation.${{ matrix.main }} "$DATA" ${{ matrix.args }} --out results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.name }}
+          path: results
+          if-no-files-found: warn

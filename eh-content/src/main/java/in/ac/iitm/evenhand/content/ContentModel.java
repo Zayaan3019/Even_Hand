@@ -38,6 +38,10 @@ final class ContentModel {
     /** The two sums {@link #signal} is made of, so questions can be pooled: residual and within-pile. */
     final double sse, withinSs;
     final double penalty;
+    /** Per fold and answer, {@code beta[fold] . x[answer]}, so a matched pair costs no dot product. */
+    private double[][] foldScore;
+    /** The repeated fits this model averages, each on its own split of the students; null for one fit. */
+    private ContentModel[] parts;
 
     private ContentModel(double[] predicted, double[] contentScore, double[][] beta, int[] foldOf, double[] offset,
                          double sse, double withinSs, double penalty) {
@@ -59,11 +63,13 @@ final class ContentModel {
      * held {@code i} out.
      */
     double contentDifference(float[][] x, int i, int j) {
-        double[] b = beta[foldOf[i]];
-        double s = offset[i] - offset[j];
-        float[] xi = x[i], xj = x[j];
-        for (int c = 0; c < b.length; c++) s += b[c] * (xi[c] - xj[c]);
-        return s;
+        if (parts != null) {
+            double s = 0;
+            for (ContentModel m : parts) s += m.contentDifference(x, i, j);
+            return s / parts.length;
+        }
+        double[] scores = foldScore[foldOf[i]];
+        return offset[i] - offset[j] + scores[i] - scores[j];
     }
 
     /**
@@ -123,8 +129,36 @@ final class ContentModel {
         double[][] beta = betaByPenalty[best];
         double[] score = new double[n];
         for (int i = 0; i < n; i++) score[i] = offset[i] + dot(beta[foldOf[i]], x[i]);
-        return new ContentModel(predByPenalty[best], score, beta, foldOf, offset.clone(), bestSse, withinSs,
+        ContentModel out = new ContentModel(predByPenalty[best], score, beta, foldOf, offset.clone(), bestSse, withinSs,
                 PENALTY_GRID[best]);
+        out.foldScore = new double[folds][n];
+        for (int f = 0; f < folds; f++) {
+            for (int i = 0; i < n; i++) out.foldScore[f][i] = dot(beta[f], x[i]);
+        }
+        return out;
+    }
+
+    /**
+     * The average of fits on different splits of the students (Chernozhukov et al. 2018, section 3.4): each
+     * prediction stays out of sample, and no single random split can decide a finding. The signal stays the
+     * mean of the fits' own, so that it keeps its meaning against the minimum the settings ask for.
+     */
+    static ContentModel average(ContentModel[] fits) {
+        ContentModel first = fits[0];
+        int n = first.predicted.length;
+        double[] predicted = new double[n], score = new double[n];
+        double sse = 0;
+        for (ContentModel m : fits) {
+            sse += m.sse / fits.length;
+            for (int i = 0; i < n; i++) {
+                predicted[i] += m.predicted[i] / fits.length;
+                score[i] += m.contentScore[i] / fits.length;
+            }
+        }
+        ContentModel out = new ContentModel(predicted, score, first.beta, first.foldOf, first.offset, sse, first.withinSs,
+                first.penalty);
+        out.parts = fits.clone();
+        return out;
     }
 
     /** The cross-fitting fold of a student: the same in every question and in the pooled model. */

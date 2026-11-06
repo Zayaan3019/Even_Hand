@@ -12,15 +12,23 @@ const VERDICT_BADGE: Record<Result['verdict']['kind'], { tone: 'green' | 'amber'
   'not-estimable': { tone: 'red', text: 'Not checkable' },
 };
 
+/** Whether the no-effect test supports a TA difference; below it, a count of changed grades is only noise. */
+export function taDifferenceShown(r: Result): boolean {
+  const p = r.noEffect?.p;
+  return p != null && p < 0.05;
+}
+
 export function Overview({ r, go }: { r: Result; go: (section: string) => void }) {
   const name = useName();
   const named = useNamedText();
-  const badge = r.confirmedByAnswers ? { tone: 'green' as const, text: 'Checkable: answers confirm the piles were alike' }
+  const badge = r.pilesAdjusted ? { tone: 'amber' as const, text: 'Piles differed: gap adjusted for them' }
+    : r.confirmedByAnswers ? { tone: 'green' as const, text: 'Checkable: answers show no gap between piles' }
     : VERDICT_BADGE[r.verdict.kind];
   const tas = r.tas ?? [];
   const spread = tas.length ? (Math.max(...tas.map((t) => t.severity)) - Math.min(...tas.map((t) => t.severity))) / 10 : null;
   const causal = r.content?.causal;
   const recheck = r.outcome?.recheck?.length ?? 0;
+  const differ = taDifferenceShown(r);
 
   return (
     <div className="panel">
@@ -35,7 +43,7 @@ export function Overview({ r, go }: { r: Result; go: (section: string) => void }
 
       <div className="tiles">
         {spread != null && <Tile value={spread.toFixed(1)} label="marks between the harshest and most lenient TA on a 10-mark question" tone="accent" />}
-        {r.outcome && <Tile value={r.outcome.changed} label="letter grades that depend on who marked" />}
+        {r.outcome && <Tile value={differ ? r.outcome.changed : 0} label="letter grades a consistent TA difference would change" />}
         {r.outcome && <Tile value={recheck} label="scripts recommended for a second look" />}
         {causal && <Tile value={`${Math.round(causal.variance.content)}%`} label="of the variation in marks explained by what students wrote" tone="hl" />}
         {r.content && <Tile value={pct(r.content.textCoverage)} label="of responses had written answers" />}

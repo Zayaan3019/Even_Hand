@@ -25,7 +25,7 @@ import java.util.Optional;
  * @param content      what the written answers said, when the file carried any
  * @param marksOnly    the estimate from the marks alone, when the answers supplied the main one,
  *                     so the two can be set side by side
- * @param choiceNote   which estimate corrects the grades and why (the Hausman test), or empty
+ * @param choiceNote   which estimate corrects the grades and why, or empty
  */
 public record ReportInput(String courseLabel,
                           MarkingDesign design,

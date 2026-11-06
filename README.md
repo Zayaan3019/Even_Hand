@@ -78,34 +78,42 @@ the report shows the checks that say how far it can be trusted:
 - **Rosenbaum sensitivity Γ**: how much hidden quality difference would overturn the conclusion.
 - **Mechanism**: consistent severity, a different reading of one question's rubric, drift, isolated slips, or chance.
 
-When the marks alone can compare the TAs only by assuming their piles were alike, a **Hausman test**
-compares the marks-only and the answer-based estimates:
+When the marks alone can compare the TAs only by assuming their piles were alike, the **answers test
+that assumption**: is one TA's pile stronger, judged only by what the students wrote?
 
-- If they agree, the answers confirm the assumption, and the more precise marks estimate is used.
-- If they disagree, the piles were not alike, and the answers' estimate is used.
+- If not, the marks estimate is used. That supports the assumption; it does not prove it.
+- If so, the part of each TA's gap that the stronger pile explains is taken out (Oster 2019). How
+  much to take out rests on an assumption the data cannot check. So each interval runs from taking
+  out only the gap the answers show to assuming that what they cannot show differs between the
+  piles in the same proportion as what they can, and a difference is reported only if it holds
+  across that whole range. The report says so.
+
+Nothing is corrected unless the TAs are shown to differ.
 
 The full method, with references, is in [docs/METHOD.md](docs/METHOD.md).
 
 ## How accurate it is
 
-Measured on **real** student answers that two people graded independently: the UNT short-answer
-dataset (Mohler, Bunescu & Mihalcea, ACL 2011; 2,273 answers, 81 questions). Because both graders
-marked everything, the true difference between them is known. Each run deals every script to one
-grader only, as a course does, and asks Even Hand to recover what the double grading shows.
-Settings were tuned on half the questions and every figure below is measured on the other half.
+Tested end to end on five public datasets of real answers that two or more people graded independently, against
+pass marks written down before the results were read ([docs/PREREGISTRATION.md](docs/PREREGISTRATION.md)). Each
+test deals every script to one TA only, as a course does, sends the file through the product, and checks what comes
+out against the true difference. ASAP was held out: nothing was tuned on it.
 
-| Scenario | Pile averages | Marks only | **Even Hand** | 95% intervals contain the truth | False alarms / found |
-|---|---|---|---|---|---|
-| Two real graders, random deal | 0.67 | 0.68 | **0.76** | 100% | finds the real gap in 97% |
-| No difference, unfair piles | 5.28 | 4.94 | **1.53** | 99% | **0%** false alarms |
-| Planted 10-point gap, unfair piles | 4.98 | 4.53 | **1.61** | 96% | finds it in 100% |
-| Four TAs, unfair piles | 5.21 | 4.08 | **2.05** | 93% | finds them in 99% |
+| Dataset | False alarms (limit 10%) | 95% intervals contain the truth (limit 90%) | Planted gap on unfair piles found (limit 90%) | Grades right, before and after correction |
+|---|---|---|---|---|
+| UNT short answers | 0–1% | 99–100% | **57%** | 70.6% → 78.6% |
+| JorGPT, English | 1–2% | **85–100%** | 100% | 79.8% → 96.4% |
+| JorGPT, Spanish | 1–4% | **81–100%** | 100% | 79.9% → 96.0% |
+| CityU Operating Systems (40 students) | 7–8% | 96–100% | 16% (not judged) | unchanged |
+| ASAP short answers (held out) | 3–5% | 100% | **0%** | unchanged |
+| ASAP essays (held out) | 0% | 100% | 100% | 90.8% → 96.5% |
 
-Error in percentage points of a question's maximum (RMSE). When piles differ in quality, comparing
-pile averages, or the marks alone, is off by about 5 points; comparing answers that say the same thing
-brings it to about 1.5–2. When piles were dealt at random the marks alone are already good and are kept.
+Failures are in bold. Even Hand does not raise false alarms. On JorGPT and the ASAP essays it found a planted gap
+on unfair piles every time, and correction got more letter grades right. On UNT and ASAP short answers it often found
+nothing, and then left the marks as they were rather than guess. "Unfair piles"
+deal the stronger scripts mostly to one TA, as when piles follow sections.
 
-Full tables, scenarios and the reproduction script (`sh scripts/validate.sh`) are in
+Every scenario, the stability checks, the robustness checks, what was fixed along the way and the limits are in
 [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Privacy and security
@@ -135,7 +143,7 @@ flowchart LR
         D --> E["3 eh-estimate<br/>severity from marks"]
         I --> M["eh-embed<br/>answers → vectors"]
         M --> C["3b eh-content<br/>matched answers, causal checks"]
-        E --> H{{"Hausman choice"}}
+        E --> H{{"Did the piles differ?"}}
         C --> H
         H --> O["4 eh-outcome<br/>grades, re-check list"]
         O --> R["5 eh-report<br/>saved HTML reports"]
@@ -149,7 +157,7 @@ flowchart LR
 | `eh-design` | The audit: can TA severity be separated from student ability (exact integer rank), and could it have moved anyone |
 | `eh-estimate` | Severity from the marks: additive model by backfitting, student bootstrap, design-preserving no-effect test |
 | `eh-embed` | Answer text to vectors: BERT tokenizer and forward pass in Java (SIMD via the Vector API), matching sentence-transformers to cosine > 0.99999; lexical fallback |
-| `eh-content` | Matched-answer severity, pooled quality model, bias-aware intervals, Hausman choice, and the causal checks |
+| `eh-content` | Matched-answer severity, pooled quality model, bias-aware intervals, the pile-balance test and adjustment, and the causal checks |
 | `eh-outcome` | Grades under the course's own rule, as marked and corrected; the gated re-check list |
 | `eh-report` | Self-contained HTML reports: instructor, and Class Committee (aggregates only) |
 | `eh-web` | The web app: React 18 + TypeScript + Vite; built by Maven with a pinned Node, served from the jar |
@@ -179,7 +187,7 @@ The tests include:
 
 - the Java forward pass against reference vectors from sentence-transformers;
 - the statistics against courses with known answers;
-- the Hausman choice;
+- the pile-balance test, its adjustment and its close calls;
 - the server's security rules (Origin, Host, path traversal, CSP);
 - every file layout, Excel included, with zip-bomb and XXE attempts;
 - the web app's components rendering the server's exact JSON.

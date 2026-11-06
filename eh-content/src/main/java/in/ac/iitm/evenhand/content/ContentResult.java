@@ -53,7 +53,8 @@ public record ContentResult(Status status,
                             List<PairEvidence> sameAssistantInconsistent,
                             List<OutOfLine> outOfLine,
                             java.util.Optional<CausalFindings> causal,
-                            List<String> notes) {
+                            List<String> notes,
+                            PileBalance balance) {
 
     public enum Status {
         /** The answers compare every linked assistant, and predict the marks well enough to trust it. */

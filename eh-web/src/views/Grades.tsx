@@ -4,6 +4,7 @@ import { Card, Empty, HowToRead, SortHeader } from '../components/ui';
 import { GradeChart } from '../components/charts';
 import { useName } from '../names';
 import { naturalCompare } from '../format';
+import { taDifferenceShown } from './Overview';
 
 type Key = 'student' | 'total' | 'probability' | 'points';
 
@@ -23,9 +24,17 @@ export function Grades({ r }: { r: Result }) {
   return (
     <div className="panel">
       <Card title="What did it do to grades?">
-        <p style={{ marginTop: 0 }}>
-          <b>{o.share.toFixed(1)}%</b> of the spread in course totals came from who marked the script rather than what was
-          written. Correcting for it would change <b>{o.changed}</b> letter grade{o.changed === 1 ? '' : 's'} (90% range {o.low}–{o.high}).
+        {taDifferenceShown(r) ? (
+          <p style={{ marginTop: 0 }}>
+            <b>{o.share.toFixed(1)}%</b> of the spread in course totals came from who marked the script rather than what was
+            written. Correcting for it would change <b>{o.changed}</b> letter grade{o.changed === 1 ? '' : 's'} (90% range {o.low}–{o.high}).
+          </p>
+        ) : (
+          <p style={{ marginTop: 0 }}>The TAs' differences are within what chance alone produces, so no grade is attributed to them.</p>
+        )}
+        <p className="muted small">
+          This counts only consistent differences between TAs. One-off disagreements on individual answers also move grades, and on
+          real double-graded answers they move more; only double-marking a sample can measure them.
         </p>
         <HowToRead>
           Grey bars are the letter grades as marked. Red bars are the grades the course's own rule would give if every script had

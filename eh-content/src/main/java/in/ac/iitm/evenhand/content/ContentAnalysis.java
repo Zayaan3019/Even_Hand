@@ -74,6 +74,8 @@ public final class ContentAnalysis {
     static final int SHOWN_INCONSISTENT = 8;
     static final int SHOWN_OUT_OF_LINE = 20;
     static final int PLACEBO_SHUFFLES = 99;
+    /** Splits of the students the content model is averaged over: real answers flipped findings on one split. */
+    static final int CROSS_FIT_REPEATS = 20;
 
     private ContentAnalysis() {
     }
@@ -184,7 +186,8 @@ public final class ContentAnalysis {
 
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, summaries, labels, severity, se,
                 sampling, pairCount, groups, draws, pValue, observed, signal, matchedShare, sameDifferent, inconsistent,
-                outOfLine, causal, notes);
+                outOfLine, causal, notes,
+                PileBalance.of(questions, graders, students, s.bootstrapDraws(), s.seed()));
     }
 
     // ---------------------------------------------------------------- building the questions
@@ -222,11 +225,17 @@ public final class ContentAnalysis {
             out.add(new Matching(e.getKey(), label, first.maxMarks(), resp, x, y, g, st, text));
         }
         // What every question shares first (key, consensus, length), then what each one's embedding adds.
-        Map<Matching, double[]> offsets = out.isEmpty() ? Map.of()
-                : PooledQuality.offsets(out, in.references(), s.folds(), s.seed());
+        Map<Matching, ContentModel[]> fits = new LinkedHashMap<>();
+        for (Matching m : out) fits.put(m, new ContentModel[CROSS_FIT_REPEATS]);
+        for (int repeat = 0; repeat < CROSS_FIT_REPEATS && !out.isEmpty(); repeat++) {
+            int r = repeat;
+            long seed = s.seed() + repeat * 1_000_003L;
+            Map<Matching, double[]> offsets = PooledQuality.offsets(out, in.references(), s.folds(), seed);
+            out.parallelStream().forEach(m -> fits.get(m)[r] = ContentModel.fit(m.x, m.y, m.grader, m.student,
+                    in.design().graderCount(), s.folds(), seed, offsets.get(m)));
+        }
         for (Matching m : out) {
-            m.model = ContentModel.fit(m.x, m.y, m.grader, m.student, in.design().graderCount(), s.folds(), s.seed(),
-                    offsets.get(m));
+            m.model = ContentModel.average(fits.get(m));
             m.findNeighbours(caliper);
         }
         if (!in.references().isEmpty()) {
@@ -279,7 +288,7 @@ public final class ContentAnalysis {
      * comes within {@code margin} of the estimate's: the test that the assistants differ by more than the
      * smallest difference worth reporting.
      */
-    private static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed,
+    static double recentredP(double[][] draws, double[] est, List<List<Integer>> groups, double observed,
                                      double margin) {
         if (draws.length == 0) return Double.NaN;
         int count = 0;
@@ -731,7 +740,7 @@ public final class ContentAnalysis {
         int g = labels.size();
         return new ContentResult(status, in.embedder(), in.semantic(), coverage, List.of(), labels, new double[g],
                 new double[g], new double[g], new int[g], List.of(), new double[0][], Double.NaN, 0, 0, 0, List.of(), List.of(),
-                List.of(), Optional.empty(), notes);
+                List.of(), Optional.empty(), notes, PileBalance.none(g));
     }
 
     private static double[] interval(double[][] draws, int j, double estimate) {

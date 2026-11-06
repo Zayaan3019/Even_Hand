@@ -88,6 +88,13 @@ public final class Pseudonymiser {
         }
     }
 
+    /** Label to real identifier, for {@link CsvIngest#pseudonymiserFor}; it never leaves ingest. */
+    Map<String, String> identifiersByLabel() {
+        Map<String, String> out = new LinkedHashMap<>();
+        labels.forEach((raw, label) -> out.put(label, raw));
+        return out;
+    }
+
     /** A pseudonymiser under a fresh random salt. */
     public static Pseudonymiser withRandomSalt() {
         byte[] salt = new byte[32];

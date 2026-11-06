@@ -53,6 +53,17 @@ class HtmlReportTest {
     }
 
     @Test
+    @DisplayName("when the TAs are within chance, no sheet attributes any grade to them")
+    void noGradeIsAttributedWithoutAnEffect() {
+        ReportInput noTestRun = estimatedCourse(0);
+
+        assertThat(HtmlReport.instructor(noTestRun)).contains("no grade is attributed to them")
+                .doesNotContain("Correcting for it would change");
+        assertThat(HtmlReport.committee(noTestRun)).contains("no grade is attributed to them")
+                .doesNotContain("Letter grades that would change on correction");
+    }
+
+    @Test
     @DisplayName("the Class Committee sheet names no assistant and no student")
     void committeeSheetIsAggregateOnly() {
         String html = HtmlReport.committee(estimatedCourse());

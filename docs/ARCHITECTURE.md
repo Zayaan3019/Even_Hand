@@ -24,8 +24,9 @@ is one Maven module and one entry point. The audit can stop the pipeline after s
 ```
 
 `Pipeline.run` (in `eh-app`) is exactly this diagram, one line per stage, plus stage 3b: the written
-answers are embedded (`eh-embed`) and compared across TAs (`eh-content`), and a Hausman test decides
-which estimate corrects the grades (`ContentFit.choose`; see [METHOD.md](METHOD.md)). Two front ends
+answers are embedded (`eh-embed`) and compared across TAs (`eh-content`), and a test of whether the
+TAs' piles differed in strength decides how the marks' estimate is used (`ContentFit.choose`; see
+[METHOD.md](METHOD.md)). Two front ends
 call it:
 
 | Front end | Class | For |
@@ -105,9 +106,10 @@ on any later stage.
 6. **Per-TA figures reach only the instructor**; the committee sheet names no TA or student
    (`HtmlReportTest.committeeSheetIsAggregateOnly`).
 7. **Reproducible:** every random draw is seeded per draw, so parallel threads give identical
-   results (`SeverityEstimatorTest.reproducible`), and the pseudonym salt is derived from the input
-   file, so the same file always numbers people the same way and gives the same report to the last
-   digit (`LocalServerTest.analysisReproduces`, `PseudonymiserTest`).
+   results (`SeverityEstimatorTest.reproducible`), and the pseudonym salt is derived from what the
+   input file says (who gave what to whom), not how it is laid out, so renaming a column, re-sorting
+   rows or re-saving from Excel changes nothing: the same data gives the same report to the last
+   digit (`LocalServerTest.analysisReproduces`, `ContentSaltTest`).
 
 ## Where this departs from the design document, and why
 

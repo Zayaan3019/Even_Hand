@@ -22,6 +22,11 @@ import java.util.List;
  * average. Doing the second once per bootstrap draw turns "this grade would change" into
  * "this grade changes in 64% of plausible corrections".
  *
+ * <p><b>Nothing is corrected that the evidence does not support.</b> Unless the no-effect test rejects at the
+ * gate's level, the corrected marks are the marks as written and no grade changes. A difference within chance
+ * is not applied: on marks with many ties (a 3-mark quiz, say), a correction of a hundredth of a point would
+ * otherwise decide which side of a grade boundary each tied script falls, and report noise as changed grades.
+ *
  * <p><b>No corrected mark ever becomes a grade.</b> The only per-student output is a
  * recommendation to look at a script again; a grade changes only by a human re-mark.
  */
@@ -60,10 +65,11 @@ public final class Outcome {
 
     /**
      * @param gradesAsMarked     the letters the rule gives the marks as written
-     * @param gradesCorrected    the letters it gives the corrected marks (point estimate)
+     * @param gradesCorrected    the letters it gives the corrected marks (point estimate); the same letters as
+     *                           marked when the TAs were not shown to differ
      * @param changed            how many letters differ between the two
-     * @param changedLow         5th percentile of that count across bootstrap draws
-     * @param changedHigh        95th percentile
+     * @param changedLow         5th percentile of that count across bootstrap draws (0 when nothing is corrected)
+     * @param changedHigh        95th percentile (0 when nothing is corrected)
      * @param assistantShare     share of the variance in course totals that came from who
      *                           marked the script, in percent
      */
@@ -79,7 +85,8 @@ public final class Outcome {
                                 double[] assessmentWeights, CutoffPolicy policy, Gate gate) {
         Composite composite = new Composite(responses, design, assessmentWeights);
         double[] marked = composite.asMarked();
-        double[] corrected = composite.corrected(model.graders().estimates());
+        boolean differ = model.noEffect().rejectsAt(gate.alpha());
+        double[] corrected = differ ? composite.corrected(model.graders().estimates()) : marked.clone();
         LetterGrade[] gradesMarked = GradingRule.grade(policy, marked);
         LetterGrade[] gradesCorrected = GradingRule.grade(policy, corrected);
 
@@ -105,8 +112,8 @@ public final class Outcome {
         for (int i = 0; i < n; i++) if (gradesCorrected[i] != gradesMarked[i]) changed++;
         int[] sortedChanges = changesPerDraw.clone();
         Arrays.sort(sortedChanges);
-        int low = draws.length == 0 ? changed : sortedChanges[(int) Math.floor(0.05 * (draws.length - 1))];
-        int high = draws.length == 0 ? changed : sortedChanges[(int) Math.ceil(0.95 * (draws.length - 1))];
+        int low = !differ ? 0 : draws.length == 0 ? changed : sortedChanges[(int) Math.floor(0.05 * (draws.length - 1))];
+        int high = !differ ? 0 : draws.length == 0 ? changed : sortedChanges[(int) Math.ceil(0.95 * (draws.length - 1))];
 
         double[] difference = new double[n];
         for (int i = 0; i < n; i++) difference[i] = marked[i] - corrected[i];

@@ -5,6 +5,7 @@ import in.ac.iitm.evenhand.content.ContentResult;
 import in.ac.iitm.evenhand.core.FittedModel;
 import in.ac.iitm.evenhand.embed.Embedders;
 import in.ac.iitm.evenhand.ingest.PseudonymKey;
+import in.ac.iitm.evenhand.ingest.CsvIngest;
 import in.ac.iitm.evenhand.ingest.Pseudonymiser;
 import in.ac.iitm.evenhand.ingest.XlsxReader;
 import in.ac.iitm.evenhand.outcome.Outcome;
@@ -103,7 +104,7 @@ public final class Main {
 
         byte[] bytes = Files.readAllBytes(csv);
         String text = XlsxReader.looksLikeXlsx(bytes) ? XlsxReader.toCsv(bytes) : new String(bytes, StandardCharsets.UTF_8);
-        Pipeline.Run result = Pipeline.run(text, Pseudonymiser.forInput(text), config, Pipeline.Options.defaults(),
+        Pipeline.Run result = Pipeline.run(text, CsvIngest.pseudonymiserFor(text), config, Pipeline.Options.defaults(),
                 (stage, fraction) -> System.err.printf(Locale.ROOT, "\r%3.0f%%  %-70s", 100 * fraction, stage));
         System.err.println();
 
@@ -138,8 +139,12 @@ public final class Main {
         }
         System.out.printf(Locale.ROOT, "          no-effect test p = %.3f%n", m.noEffect().pValue());
         Outcome.Result o = r.outcome().orElseThrow();
-        System.out.printf(Locale.ROOT, "OUTCOME   %.1f%% of the spread in totals came from who marked; %d grade(s) "
-                + "would change (90%% range %d-%d)%n", o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh());
+        if (m.noEffect().rejectsAt(0.05)) {
+            System.out.printf(Locale.ROOT, "OUTCOME   %.1f%% of the spread in totals came from who marked; correcting for "
+                    + "it would change %d grade(s) (90%% range %d-%d)%n", o.assistantShare(), o.changed(), o.changedLow(), o.changedHigh());
+        } else {
+            System.out.println("OUTCOME   The TAs' differences are within what chance alone produces, so no grade is attributed to them.");
+        }
         switch (o.shortlist()) {
             case Outcome.Refused ref -> System.out.println("RE-CHECK  none: " + ref.reason());
             case Outcome.Emitted e -> {

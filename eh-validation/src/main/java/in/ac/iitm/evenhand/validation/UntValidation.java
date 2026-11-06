@@ -38,7 +38,7 @@ import java.util.function.IntPredicate;
  * deals every <em>script</em> (one student's answers to one assignment) to one grader, the way an
  * IITM course splits its scripts, keeps only that grader's marks, and asks Even Hand to recover the
  * difference it can no longer see directly. Over many random deals that measures, for the estimate
- * Even Hand actually uses (marks-only or answer-anchored, chosen by the Hausman test), the error,
+ * Even Hand actually uses (the marks', adjusted for pile strength when the answers show the piles differ), the error,
  * interval coverage, false alarms and power, on real text and real grading behaviour:
  *
  * <ul>
@@ -59,7 +59,15 @@ import java.util.function.IntPredicate;
 public final class UntValidation {
 
     /** One TA in a scenario: which real grader's marks they carry, plus a planted offset in points. */
-    record Ta(String name, boolean usesTa, double offsetPoints) {}
+    record Ta(String name, boolean usesTa, double offsetPoints, boolean usesThird) {
+        Ta(String name, boolean usesTa, double offsetPoints) {
+            this(name, usesTa, offsetPoints, false);
+        }
+
+        double base(UntDataset.Answer a) {
+            return usesThird ? a.third() : usesTa ? a.ta() : a.second();
+        }
+    }
 
     record Scenario(String name, String story, List<Ta> tas, boolean unfair, double slipRate) {}
 
@@ -103,7 +111,7 @@ public final class UntValidation {
     }
 
     static final String HEADER = "| Scenario | Runs | True severity, first TA | Content signal | RMSE pile averages | "
-            + "RMSE marks-only | RMSE answers | **RMSE Even Hand** | Bias, first TA | Answers' estimate chosen | "
+            + "RMSE marks-only | RMSE answers | **RMSE Even Hand** | Bias, first TA | Piles found to differ | "
             + "95% interval coverage | Differences found (p < 0.05) | Placebo flagged | Slips |\n"
             + "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
 
@@ -223,13 +231,15 @@ public final class UntValidation {
                     : Optional.empty();
             ContentFit.Choice choice = ContentFit.choose(verdict, marks, r);
             boolean answers = choice.useAnswers() || marks.isEmpty();
-            if (!answers && Double.isFinite(choice.pValue())) {
-                marks = Optional.of(ContentFit.withAllowance(marks.get(), settings.margin()));   // as the pipeline does
+            if (!answers && choice.adjustForPiles()) {   // as the pipeline does
+                marks = Optional.of(ContentFit.adjustedForPiles(marks.get(), r, settings.minSignal(), settings.margin()));
+            } else if (!answers && Double.isFinite(choice.pValue())) {
+                marks = Optional.of(ContentFit.withAllowance(marks.get(), settings.margin()));
             }
             Optional<FittedModel> chosenMarks = marks;
 
             t.runs++;
-            if (answers) t.answersChosen++;
+            if (answers || choice.adjustForPiles()) t.answersChosen++;
             t.signal += r.signal();
             t.truthFirst += c.truth[0];
             if (r.pValue() < 0.05) t.rejected++;
@@ -388,16 +398,17 @@ public final class UntValidation {
         return c;
     }
 
-    private static String script(UntDataset.Question q, int z) {
-        return q.id().substring(0, q.id().indexOf('.')) + "-" + z;
+    static String script(UntDataset.Question q, int z) {
+        int student = q.answers().get(z).student();
+        return q.id().substring(0, q.id().indexOf('.')) + "-" + (student >= 0 ? student : z);
     }
 
-    private static String assignmentOf(String script) {
+    static String assignmentOf(String script) {
         return script.substring(0, script.indexOf('-'));
     }
 
     /** Random, or unfair: strong scripts go to the first half of the TAs with probability 0.8. */
-    private static int allocate(Scenario sc, boolean strong, SplittableRandom rng) {
+    static int allocate(Scenario sc, boolean strong, SplittableRandom rng) {
         int g = sc.tas().size();
         if (!sc.unfair()) return rng.nextInt(g);
         int half = Math.max(1, g / 2);
@@ -406,13 +417,12 @@ public final class UntValidation {
     }
 
     /** The TA's mark for an answer: their grader's, shifted by the planted offset, in half marks. */
-    private static double mark(Ta ta, UntDataset.Answer a, UntDataset.Question q) {
-        double base = ta.usesTa() ? a.ta() : a.second();
-        double shifted = base + ta.offsetPoints() / 100.0 * q.maxMarks();
+    static double mark(Ta ta, UntDataset.Answer a, UntDataset.Question q) {
+        double shifted = ta.base(a) + ta.offsetPoints() / 100.0 * q.maxMarks();
         return Math.max(0, Math.min(q.maxMarks(), Math.round(shifted * 2) / 2.0));
     }
 
-    private static double median(double[] v) {
+    static double median(double[] v) {
         double[] s = v.clone();
         Arrays.sort(s);
         int n = s.length;
