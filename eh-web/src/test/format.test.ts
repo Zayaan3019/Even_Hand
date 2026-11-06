@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { displayName, escapeHtml, fileStem, inMarks, marks, naturalCompare, pValue, pct, signed, withNames } from '../format';
+import { csvCell, displayName, escapeHtml, fileStem, toCsv, inMarks, marks, naturalCompare, pValue, pct, signed, withNames } from '../format';
 import { fileProblem, stageIndex } from '../views/Wizard';
 
 describe('names stay on screen only when switched on', () => {
@@ -75,5 +75,25 @@ describe('progress stages follow the pipeline', () => {
     expect(stageIndex('Comparing answers across TAs, and the causal checks')).toBe(4);
     expect(stageIndex('Writing the report')).toBe(6);
     expect(stageIndex('Done')).toBe(7);
+  });
+});
+
+describe('the re-check list as a spreadsheet', () => {
+  it('quotes commas, quotes and line breaks', () => {
+    expect(csvCell('Kumar, Ravi')).toBe('"Kumar, Ravi"');
+    expect(csvCell('say "hi"')).toBe('"say ""hi"""');
+    expect(csvCell('two\nlines')).toBe('"two\nlines"');
+    expect(csvCell(12.5)).toBe('12.5');
+  });
+
+  it('never lets a cell run as a formula in Excel or Google Sheets', () => {
+    for (const bad of ['=HYPERLINK("http://x")', '+1', '-2+3', '@SUM(A1)', '\tx']) {
+      expect(csvCell(bad).replace(/^"/, '').startsWith("'")).toBe(true);
+    }
+    expect(csvCell('CE23B092')).toBe('CE23B092');
+  });
+
+  it('opens in Excel as UTF-8, one row per line', () => {
+    expect(toCsv([['Student', 'Grade'], ['Rāvi', 'A']])).toBe('﻿Student,Grade\r\nRāvi,A\r\n');
   });
 });

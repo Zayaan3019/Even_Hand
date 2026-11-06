@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as api from './api';
 import type { AnalysisSettings, Inspection, Result, Status } from './api';
 import { NamesContext } from './names';
-import { fileStem, withNames } from './format';
+import { fileStem, saveFile, withNames } from './format';
 import { ProgressStep, ReviewStep, UploadStep, fileProblem } from './views/Wizard';
 import { Overview } from './views/Overview';
 import { Tas } from './views/Tas';
@@ -171,9 +171,9 @@ function Dashboard({ result, onNew }: { result: Result; onNew: () => void }) {
           <label className="switch"><input type="checkbox" checked={showNames} onChange={(e) => setShowNames(e.target.checked)} />
             Show roll numbers and TA names</label>
           <button className="btn small" title="With pseudonyms only: safe to file or forward"
-                  onClick={() => download(result.instructorHtml, `${stem}-even-hand-report.html`)}>Save report</button>
+                  onClick={() => saveFile(result.instructorHtml, `${stem}-even-hand-report.html`, 'text/html')}>Save report</button>
           <button className="btn small" title="Aggregates only: no TA, no student and no answer appears"
-                  onClick={() => download(result.committeeHtml, `${stem}-class-committee.html`)}>Save Class Committee sheet</button>
+                  onClick={() => saveFile(result.committeeHtml, `${stem}-class-committee.html`, 'text/html')}>Save Class Committee sheet</button>
           <button className="btn small" onClick={() => printHtml(withNames(result.instructorHtml, result.names, showNames))}>Print</button>
           <button className="btn small" onClick={onNew}>Check another file</button>
         </div>
@@ -200,16 +200,6 @@ function Dashboard({ result, onNew }: { result: Result; onNew: () => void }) {
   );
 }
 
-function download(html: string, filename: string) {
-  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
 
 function printHtml(html: string) {
   const frame = document.createElement('iframe');

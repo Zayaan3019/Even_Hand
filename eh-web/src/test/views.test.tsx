@@ -95,6 +95,8 @@ describe('the dashboard shows what the server computed', () => {
     expect(screen.getByText('Student 7')).toBeTruthy();
     expect(screen.getByText('80%')).toBeTruthy();
     expect(screen.getByText('probably marked down')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save re-check list (CSV)' })).toBeTruthy();
+    expect(screen.getByText(/With pseudonyms, as on screen/)).toBeTruthy();
   });
 });
 
