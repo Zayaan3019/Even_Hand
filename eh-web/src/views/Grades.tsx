@@ -1,14 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import type { RecheckRow, Result } from '../api';
 import { Card, Empty, HowToRead, SortHeader } from '../components/ui';
 import { GradeChart } from '../components/charts';
-import { useName } from '../names';
-import { naturalCompare } from '../format';
+import { NamesContext, useName } from '../names';
+import { fileStem, naturalCompare, saveFile, toCsv } from '../format';
 import { taDifferenceShown } from './Overview';
 
 type Key = 'student' | 'total' | 'probability' | 'points';
 
 export function Grades({ r }: { r: Result }) {
+  const { show } = useContext(NamesContext);
   const name = useName();
   const o = r.outcome;
   const [sort, setSort] = useState<{ key: Key; dir: 1 | -1 }>({ key: 'points', dir: -1 });
@@ -19,6 +20,12 @@ export function Grades({ r }: { r: Result }) {
     return list;
   }, [o, sort, name]);
   if (!o) return <div className="panel"><Empty>No grades were recomputed: the marking arrangement cannot support a severity estimate.</Empty></div>;
+  const saveList = () => saveFile(toCsv([
+    ['Student', 'Total as marked', 'Corrected total', 'Grade as marked', 'Grade if it changes', 'Chance of change (%)',
+      'Expected change (grade points)', 'Direction'],
+    ...rows.map((x) => [name(x.student), x.total.toFixed(1), x.corrected.toFixed(1), x.grade, x.likely,
+      Math.round(100 * x.probability), Math.abs(x.points).toFixed(2), x.points > 0 ? 'probably marked down' : 'probably marked up']),
+  ]), `${fileStem(r.course.name)}-re-check-list.csv`, 'text/csv;charset=utf-8');
   const onSort = (k: Key) => setSort((s) => ({ key: k, dir: s.key === k ? (-s.dir as 1 | -1) : -1 }));
 
   return (
@@ -55,6 +62,13 @@ export function Grades({ r }: { r: Result }) {
               {(o.expectedFalseFlags ?? 0).toFixed(1)} of these {rows.length} to turn out unchanged: the price of catching the others.
               {' '}When grading is relative, the cut-offs are worked out again from the corrected totals, so a grade can change even
               where a script's own total barely moves.
+            </p>
+            <p className="small">
+              <button className="btn small" onClick={saveList}>Save re-check list (CSV)</button>{' '}
+              <span className="muted">
+                {show ? 'With real roll numbers, as on screen: keep it within the course team.'
+                  : 'With pseudonyms, as on screen. Switch on roll numbers above to save them instead.'}
+              </span>
             </p>
             <div className="table-wrap">
               <table className="data">

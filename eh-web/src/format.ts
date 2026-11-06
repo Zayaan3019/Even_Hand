@@ -63,3 +63,30 @@ export function fileStem(name: string): string {
   const stem = name.trim().replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '');
   return stem || 'course';
 }
+
+/**
+ * One spreadsheet cell, quoted when it must be. A cell starting with =, +, -, @, a tab or a carriage return gets a
+ * leading apostrophe, so that Excel and Google Sheets show it as text and never run it as a formula.
+ */
+export function csvCell(value: string | number): string {
+  let s = String(value);
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+/** Rows of cells as a CSV file that Excel opens as UTF-8 (byte-order mark, CRLF line ends). */
+export function toCsv(rows: (string | number)[][]): string {
+  return '﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+
+/** Saves text as a file in the browser's downloads; nothing leaves this computer. */
+export function saveFile(text: string, filename: string, type: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}

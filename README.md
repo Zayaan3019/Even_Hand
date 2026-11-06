@@ -39,7 +39,8 @@ Even Hand answers five questions:
    **bottom line**, with sections for the TAs, why marks differed, the evidence from the answers,
    grades and the re-check list. Every chart has a *How to read this* note. Real roll numbers and TA
    names appear on your screen only. **Save report** and **Save Class Committee sheet** save copies
-   with pseudonyms only, safe to file or forward; **Print** prints the full report.
+   with pseudonyms only, safe to file or forward; **Print** prints the full report. **Save re-check
+   list (CSV)** gives the scripts to re-mark as a spreadsheet, with roll numbers if they are shown.
 
 Java 21 or newer is the only requirement (<https://adoptium.net>).
 
