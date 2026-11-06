@@ -85,7 +85,7 @@ public final class EndToEndValidation {
         double seconds;
         // Where intervals miss, and why (diagnostic only): signed errors of the marks-only, low-end (marks + gap) and
         // reported estimates, the side each miss falls on, and the interval's width.
-        double errMarks, errLow, errFinal, width, signal;
+        double errMarks, errLow, errFinal, width, signal, missMarks, missLow, missFinal, missLo, missHi;
         int diagCount, signalCount, missBelow, missAbove;
 
         double rmse() {
@@ -152,16 +152,20 @@ public final class EndToEndValidation {
             System.out.println(row);
             md.append(row).append('\n');
             double k = Math.max(1, t.diagCount);
-            String d = String.format(Locale.ROOT, "| %s | %+.2f | %+.2f | %+.2f | %.2f | %s | %d below, %d above |",
+            int misses = t.missBelow + t.missAbove;
+            double mk = Math.max(1, misses);
+            String d = String.format(Locale.ROOT, "| %s | %+.2f | %+.2f | %+.2f | %.2f | %s | %d below, %d above | %s |",
                     sc.name(), t.errMarks / k, t.errLow / k, t.errFinal / k, t.width / k,
-                    t.signalCount == 0 ? "-" : String.format(Locale.ROOT, "%.2f", t.signal / t.signalCount), t.missBelow, t.missAbove);
+                    t.signalCount == 0 ? "-" : String.format(Locale.ROOT, "%.2f", t.signal / t.signalCount), t.missBelow, t.missAbove,
+                    misses == 0 ? "-" : String.format(Locale.ROOT, "marks %+.2f, low end %+.2f, reported %+.2f, interval [%+.2f, %+.2f]",
+                            t.missMarks / mk, t.missLow / mk, t.missFinal / mk, t.missLo / mk, t.missHi / mk));
             System.out.println(d);
             diag.append(d).append('\n');
             flush(flags, md);
         }
         md.append("\n## Where the intervals miss (diagnostic)\n\n")
-          .append("Mean signed error over every TA in every deal, in points (estimate minus truth): from the marks alone, at the low end of the pile adjustment (marks plus the gap the answers show), and as reported. Misses: the truth below or above the reported 95% interval. R² is the share of how scripts' marks vary that the answers explain, averaged over deals where the pile adjustment was used.\n\n")
-          .append("| Scenario | Marks alone | Low end | Reported | Mean interval width | R² | Misses |\n|---|---|---|---|---|---|---|\n")
+          .append("The first TA (on unfair piles, the one dealt the stronger scripts), in points, estimate minus truth, averaged over deals: from the marks alone, at the low end of the pile adjustment (marks plus the gap the answers show), and as reported. Misses: the truth below or above the reported 95% interval, and the same errors averaged over those deals only, with the interval's ends relative to the truth. R² is the share of how scripts' marks vary that the answers explain, averaged over deals where the pile adjustment was used.\n\n")
+          .append("| Scenario | Marks alone | Low end | Reported | Mean interval width | R² | Misses | In the deals that missed |\n|---|---|---|---|---|---|---|---|\n")
           .append(diag);
         md.append("\n- *Grades truly moved*: share of scripts whose letter as marked differs from the letter their average-of-TAs marks earn.\n");
         md.append("- *Precision*: of the scripts listed, the share truly moved. *Nearest-boundary*: the same number of scripts chosen by closeness to a grade boundary, as moderation is done today. Both pooled over runs that issued a list.\n");
@@ -314,22 +318,32 @@ public final class EndToEndValidation {
             t.sse += Math.pow(m.severity(j) - truth, 2);
             t.count++;
             double[] ci = m.interval95(j);
-            if (ci[0] <= truth && truth <= ci[1]) t.covered++;
-            else if (truth < ci[0]) t.missBelow++;
-            else t.missAbove++;
+            boolean hit = ci[0] <= truth && truth <= ci[1];
+            if (hit) t.covered++;
             t.intervals++;
-            t.errFinal += m.severity(j) - truth;
-            t.width += ci[1] - ci[0];
+            if (g != 0) continue;
+            // Diagnostic, first TA only: severities are centred, so errors summed over every TA cancel.
+            if (!hit && truth < ci[0]) t.missBelow++;
+            else if (!hit) t.missAbove++;
             final int jj = j;
             double marksOnly = r.marksModel().map(mm -> mm.severity(jj)).orElse(m.severity(j));
-            t.errMarks += marksOnly - truth;
             double low = marksOnly;
             if (adjustedNow) {
                 double[] gap = r.content().get().balance().gap();
                 if (j < gap.length) low += gap[j];
             }
+            t.errFinal += m.severity(j) - truth;
+            t.width += ci[1] - ci[0];
+            t.errMarks += marksOnly - truth;
             t.errLow += low - truth;
             t.diagCount++;
+            if (!hit) {
+                t.missMarks += marksOnly - truth;
+                t.missLow += low - truth;
+                t.missFinal += m.severity(j) - truth;
+                t.missLo += ci[0] - truth;
+                t.missHi += ci[1] - truth;
+            }
         }
         if (m.noEffect().rejectsAt(0.05)) t.differ++;
 
