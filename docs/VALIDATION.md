@@ -15,8 +15,8 @@ dataset itself, checks its SHA-256, and keeps nothing in the repository.
   deals on every dataset, with random piles and with piles of unequal strength. The limit was 10%.
 - **Its intervals hold, with one exception.** At least 96% of 95% intervals contained the true difference in every
   scenario on every dataset but one: on JorGPT, with no difference and piles of unequal strength, 85% did in English
-  and 81% in Spanish, short of the 90% limit. Those misses were too small to be reported as differences: false
-  alarms there were 2% and 4%.
+  and 81% in Spanish, short of the 90% limit. There the correction for pile strength stops short of the truth.
+  The shortfall was too small to be reported as a difference: false alarms there were 2% and 4%.
 - **A planted gap on piles of unequal strength is found on some datasets and not others.** It was
   found in every deal on JorGPT (English and Spanish) and on the held-out ASAP essays, with errors of 0.3 to 1.1
   points. It was found in 57% of deals on UNT, 16% on CityU and none on ASAP short answers, against a limit of 90%.
@@ -86,8 +86,20 @@ unfair piles at 0 to 7%, and costs power: a real gap is found only when it is la
 pile strength. On JorGPT and the essays it was, every time. On ASAP short answers, marked out of 2 or 3, a 10-point
 gap is a third of a mark or less, and none was found.
 
-**Why criterion 2 fails on JorGPT.** Not yet explained. It is in one scenario only, no difference on unfair piles,
-and the intervals that missed did not lead to a reported difference.
+**Why criterion 2 fails on JorGPT.** The correction for pile strength does not go far enough there. A diagnostic
+run ([42177788388](https://github.com/Zayaan3019/Even_Hand/actions/runs/42177788388), commit `274678d`, which adds
+measurements to the validation code and changes nothing in the product) followed the TA dealt the stronger scripts,
+with no real difference between TAs. From the marks alone, that TA's severity was 4.5 points off the truth on
+average. The gap the answers show took out 1.8 points of it. The far end of the interval, which assumes that what
+the answers cannot show differs between the piles in the same proportion as what they can, took out 1.1 more
+(0.9 in Spanish), leaving 1.6 points (1.8 in Spanish). In the 15 deals that missed (19 in Spanish), 2.4 to 2.6
+points were left, and the interval stopped 0.3 points short of the truth on average. On UNT, ASAP short answers and
+the essays the same far end reached the truth or went past it (+1.3, +1.5 and -0.4 points left), and no interval
+missed. So on JorGPT more of the difference in pile strength lies in what the answers cannot show than the interval
+allows for. The misses did not become false alarms because what was left is small next to what the test needs: it
+allows 1.5 points per TA, and the intervals are about 7 points wide. Allowing a wider range would close the gap at
+some cost in power. That would be a change made after reading these results, so it has not been made: it would need
+a dated note in [PREREGISTRATION.md](PREREGISTRATION.md) and a full rerun.
 
 ## Full figures
 
