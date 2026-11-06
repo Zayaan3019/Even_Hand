@@ -27,9 +27,14 @@ if errorlevel 1 (
   powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8642 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue } | Where-Object { $_.ProcessName -like 'java*' } | Stop-Process -Force"
   call "%~dp0mvnw.cmd" -q clean package -DskipTests
   if errorlevel 1 (
-    echo The build failed. The messages above say why.
-    pause
-    exit /b 1
+    rem An open editor, such as VS Code's Java extension, can lock old build files so they cannot be deleted.
+    echo Could not clear the old build, perhaps because an editor has the project open. Building over it instead.
+    call "%~dp0mvnw.cmd" -q package -DskipTests
+    if errorlevel 1 (
+      echo The build failed. The messages above say why.
+      pause
+      exit /b 1
+    )
   )
 )
 
