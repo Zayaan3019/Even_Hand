@@ -104,7 +104,8 @@
           <p class="muted">
             When the marks alone can compare TAs only by assuming their piles were alike, the answers test that
             assumption. If one pile looks stronger from what its students wrote, the part of the gap it explains is
-            taken out; if not, the marks estimate is kept. Nothing is corrected unless the TAs are shown to differ. <a href="https://github.com/Zayaan3019/Even_Hand/blob/main/docs/METHOD.md">The full method, with references</a>.
+            taken out, and a difference is reported only if it holds however much of that part is taken out; if
+            not, the marks estimate is kept. Nothing is corrected unless the TAs are shown to differ. <a href="https://github.com/Zayaan3019/Even_Hand/blob/main/docs/METHOD.md">The full method, with references</a>.
           </p>
         </div>
         <div class="stack">
@@ -126,30 +127,31 @@
   <section id="accuracy" class="wrap" aria-labelledby="acc-h">
     <h2 id="acc-h">How accurate it is, on real answers</h2>
     <p class="narrow">
-      Measured on the UNT short-answer dataset (Mohler, Bunescu &amp; Mihalcea, ACL 2011): 2,273 real student
-      answers to 81 questions, each graded independently by two people, so the true difference between graders is
-      known. Each run deals every script to one grader only, as a course does, and asks Even Hand to recover what
-      the double grading shows. Settings were tuned on half the questions; every figure below is measured on the
-      other half.
+      Tested end to end on five public datasets of real answers that two or more people graded independently,
+      against pass marks written down before the results were read. Each test deals every script to one TA only,
+      as a course does, and checks what Even Hand reports against the true difference. ASAP was held out: nothing
+      was tuned on it.
     </p>
     <div class="table-wrap">
       <table>
-        <caption>Error in percentage points of a question's maximum (RMSE; lower is better)</caption>
+        <caption>Failures against the pass marks are in bold</caption>
         <thead>
-          <tr><th scope="col">Scenario</th><th scope="col">Pile averages</th><th scope="col">Marks only</th><th scope="col">Even Hand</th><th scope="col">95% intervals contain the truth</th><th scope="col">Detection</th></tr>
+          <tr><th scope="col">Dataset</th><th scope="col">False alarms (limit 10%)</th><th scope="col">95% intervals contain the truth (limit 90%)</th><th scope="col">Planted gap on unfair piles found (limit 90%)</th><th scope="col">Grades right, before and after correction</th></tr>
         </thead>
         <tbody>
-          <tr><th scope="row">Two real graders, random deal</th><td>0.67</td><td>0.68</td><td class="hl">0.76</td><td>100%</td><td>finds the real gap in 97%</td></tr>
-          <tr><th scope="row">No difference, unfair piles</th><td>5.28</td><td>4.94</td><td class="hl">1.53</td><td>99%</td><td><b>0%</b> false alarms</td></tr>
-          <tr><th scope="row">Planted 10-point gap, unfair piles</th><td>4.98</td><td>4.53</td><td class="hl">1.61</td><td>96%</td><td>finds it in 100%</td></tr>
-          <tr><th scope="row">Four TAs, unfair piles</th><td>5.21</td><td>4.08</td><td class="hl">2.05</td><td>93%</td><td>finds them in 99%</td></tr>
+          <tr><th scope="row">UNT short answers</th><td>0–1%</td><td>99–100%</td><td><b>57%</b></td><td>70.6% → 78.6%</td></tr>
+          <tr><th scope="row">JorGPT, English</th><td>1–2%</td><td><b>85–100%</b></td><td>100%</td><td>79.8% → 96.4%</td></tr>
+          <tr><th scope="row">JorGPT, Spanish</th><td>1–4%</td><td><b>81–100%</b></td><td>100%</td><td>79.9% → 96.0%</td></tr>
+          <tr><th scope="row">CityU Operating Systems (40 students)</th><td>7–8%</td><td>96–100%</td><td>16% (not judged)</td><td>unchanged</td></tr>
+          <tr><th scope="row">ASAP short answers (held out)</th><td>3–5%</td><td>100%</td><td><b>0%</b></td><td>unchanged</td></tr>
+          <tr><th scope="row">ASAP essays (held out)</th><td>0%</td><td>100%</td><td>100%</td><td>90.8% → 96.5%</td></tr>
         </tbody>
       </table>
     </div>
     <p class="narrow muted">
-      When piles differ in quality, comparing pile averages, or the marks alone, is off by about 5 points;
-      comparing answers that say the same thing brings it to about 1.5–2. When piles were dealt at random the marks
-      alone are already good, and are kept. Full tables and the one-command reproduction:
+      Even Hand does not raise false alarms. On JorGPT and the ASAP essays it found a planted gap on unfair piles
+      every time, and correction got more letter grades right. On UNT and ASAP short answers it often found nothing,
+      and then left the marks as they were rather than guess. Every scenario, the failures and the limits:
       <a href="https://github.com/Zayaan3019/Even_Hand/blob/main/docs/VALIDATION.md">VALIDATION.md</a>.
     </p>
   </section>

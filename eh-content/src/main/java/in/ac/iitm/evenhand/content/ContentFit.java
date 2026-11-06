@@ -85,8 +85,8 @@ public final class ContentFit {
                     + "not alike (p = %.3f), so part of the gap in marks is the piles, not the TAs. The severities are "
                     + "reduced by that part. How much to take out depends on what the answers cannot show, which is an "
                     + "assumption they cannot check, so each interval runs from removing only the gap the answers show "
-                    + "to removing as much again in proportion, and a difference is reported only if it holds across "
-                    + "that range.", p) + close);
+                    + "to assuming that what they cannot show differs between the piles in the same proportion as what "
+                    + "they can, and a difference is reported only if it holds across that range.", p) + close);
         }
         return new Choice(false, false, spread, p, String.format(Locale.ROOT, "The answers show no clear difference "
                 + "in strength between the TAs' piles (p = %.2f), so the marks estimate is used. That supports the "
@@ -132,7 +132,7 @@ public final class ContentFit {
             gapDraws = balance.on(counts).orElse(gapDraws);
         }
         // Two ends of what the answers allow (Oster 2019's bounds). The low end takes out only the gap the answers
-        // show; the high end, the estimate, takes out as much again of what they cannot show, in proportion. On real
+        // show (gap); the high end, the estimate, assumes what they cannot show differs in proportion (gap / R²). On real
         // data the truth fell between the two, at neither end consistently, so the interval spans both and a
         // difference is reported only if it holds at both.
         double[] low = m.graders().estimates().clone();
