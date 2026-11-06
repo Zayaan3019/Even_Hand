@@ -74,6 +74,8 @@ jobs:
             --add-modules "$modules" \
             --jlink-options '--strip-debug --no-header-files --no-man-pages' \
             --dest dist "${extra[@]}"
+          # Apple Silicon refuses to open unsigned code at all; an ad-hoc signature lets macOS offer "Open Anyway".
+          if [[ "${{ matrix.platform }}" == macos ]]; then codesign --force --deep --sign - dist/EvenHand.app; fi
 
       - name: Check the packaged app before publishing it
         working-directory: dist
@@ -111,7 +113,9 @@ jobs:
           Open it
             Windows: open the EvenHand folder and double-click EvenHand.exe. Windows may say it
                      protected your PC, because this app is not signed: choose "More info", then "Run anyway".
-            macOS:   right-click EvenHand.app and choose Open, then Open again (the app is not notarised).
+            macOS:   move EvenHand.app to Applications and open it. The app is not notarised by Apple, so the
+                     first time macOS will refuse: open System Settings, Privacy & Security, and choose
+                     "Open Anyway" beside Even Hand.
             Linux:   run EvenHand/bin/EvenHand.
           Your browser opens Even Hand at http://127.0.0.1:8642. Nothing is sent anywhere; no internet is
           needed. Close the window it runs in to stop it.
