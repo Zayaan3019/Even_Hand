@@ -47,7 +47,7 @@ The simulator and the benchmarks are not part of the product: the simulator is t
 | 4 | `eh-outcome` · `Outcome.assess` | `FittedModel` + course rule → `Outcome.Result` | Grade the course twice under its own rule: as marked, and with each mark given back its TA's severity. Repeat over bootstrap draws to get the chance each grade changes. |
 | 5 | `eh-report` · `HtmlReport` | everything → two HTML files | Instructor report (per-TA, with intervals, and the re-check list); Class Committee sheet (aggregates only). |
 
-### Stage 2's four verdicts, and what happens next
+### Stage 2's four verdicts, the answers' fifth, and what happens next
 
 | Verdict | Meaning | Pipeline |
 | --- | --- | --- |
@@ -55,6 +55,7 @@ The simulator and the benchmarks are not part of the product: the simulator is t
 | `EstimableUnderExchangeability` | Each student had one TA (script-wise piles): comparable only if the piles were alike | Estimate, with student shrinkage as the stated assumption; **refuse** the list if piles follow department codes |
 | `PartiallyEstimable` | TAs fall into groups comparable within, not across | Estimate within groups |
 | `NotEstimable` | E.g. one TA per question | Stop. If exposure is `NONE`, the course is **safe by design**: a harsh TA is indistinguishable from a harder question and moved nobody relative to anybody |
+| `EstimableFromContent` | Not from the marking: reached after stage 3b only when the marking alone gives no estimate, the written answers carry enough signal, every TA is linked to the others by matched answers, and someone could have been moved. It keeps the marking's own verdict, so the report says what the answers added | Estimate from the answers: answers that say the same thing, marked by different TAs, compare the TAs directly, with no assumption about who got which scripts |
 
 ## The estimator, for the whiteboard
 
