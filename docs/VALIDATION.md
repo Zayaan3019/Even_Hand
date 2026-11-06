@@ -193,6 +193,11 @@ different keys (10 deals per scenario; 5 on ASAP short answers and 3 on essays, 
 | UNT short answers | No difference, unfair piles | 0 of 10 | 0.52 | 0.66 | 0 of 10 |
 | UNT short answers | Planted 10-point gap, unfair piles | 0 of 10 | 0.49 | 0.57 | 4 of 10 |
 | UNT short answers | Four TAs, random deal | 1 of 10 | 0.27 | 2.69 | 0 of 10 |
+| JorGPT, English | Two real graders, random deal | 1 of 10 | 0.16 | 1.55 | 2 of 10 |
+| JorGPT, English | No difference, random deal | 1 of 10 | 0.16 | 1.63 | 0 of 10 |
+| JorGPT, English | No difference, unfair piles | 1 of 10 | 0.64 | 1.59 | 3 of 10 |
+| JorGPT, English | Planted 10-point gap, unfair piles | 1 of 10 | 0.61 | 1.50 | 0 of 10 |
+| JorGPT, English | Four TAs, random deal | 3 of 10 | 0.31 | 1.43 | 5 of 10 |
 | CityU Operating Systems | Two real graders, random deal | 1 of 10 | 0.94 | 6.49 | 2 of 10 |
 | CityU Operating Systems | No difference, random deal | 4 of 10 | 2.52 | 7.70 | 2 of 10 |
 | CityU Operating Systems | No difference, unfair piles | 0 of 10 | 3.50 | 7.52 | 2 of 10 |
@@ -209,11 +214,9 @@ different keys (10 deals per scenario; 5 on ASAP short answers and 3 on essays, 
 | ASAP essays | Planted 10-point gap, unfair piles | 0 of 3 | 0.18 | 0.24 | 0 of 3 |
 | ASAP essays | Four TAs, random deal | 0 of 3 | 0.00 | 0.00 | 0 of 3 |
 
-JorGPT's stability job was still running when this page was written, so it is not included.
-
 Where the evidence sits near the line, a different key can tip "the piles differ" one way or the other. On UNT and
-the ASAP sets a different key moves a TA's severity by 0.0 to 0.5 points on average; on CityU, with only 40
-students, by 0.9 to 3.5. The report shows close calls as close calls.
+the ASAP sets a different key moves a TA's severity by 0.0 to 0.5 points on average, on JorGPT by 0.2 to
+0.6, and on CityU, with only 40 students, by 0.9 to 3.5. The report shows close calls as close calls.
 
 ## What was wrong, and was fixed
 
