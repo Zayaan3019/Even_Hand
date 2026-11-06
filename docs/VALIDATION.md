@@ -209,6 +209,8 @@ different keys (10 deals per scenario; 5 on ASAP short answers and 3 on essays, 
 | ASAP essays | Planted 10-point gap, unfair piles | 0 of 3 | 0.18 | 0.24 | 0 of 3 |
 | ASAP essays | Four TAs, random deal | 0 of 3 | 0.00 | 0.00 | 0 of 3 |
 
+JorGPT's stability job was still running when this page was written, so it is not included.
+
 Where the evidence sits near the line, a different key can tip "the piles differ" one way or the other. On UNT and
 the ASAP sets a different key moves a TA's severity by 0.0 to 0.5 points on average; on CityU, with only 40
 students, by 0.9 to 3.5. The report shows close calls as close calls.
