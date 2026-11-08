@@ -58,7 +58,7 @@ final class WideSheet {
             "grade", "score", "total_score", "points", "total_points", "marks_obtained", "total_marks");
 
     /** Cell values that mean the question was not answered, or not marked yet. */
-    private static final Set<String> NOT_ANSWERED = Set.of("", "ab", "absent", "-", "na", "n/a", "nil",
+    static final Set<String> NOT_ANSWERED = Set.of("", "ab", "absent", "-", "na", "n/a", "nil",
             "requires grading", "not yet graded", "needs grading");
 
     /** A Google Forms quiz score: "31 / 40". */
