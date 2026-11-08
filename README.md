@@ -59,9 +59,14 @@ once, with internet.
 
 - **Answer key.** A row whose roll number is `KEY` holds your model answers. Even Hand uses it as a
   reference for what a good answer says, never as a student.
-- **Excel** workbooks (`.xlsx`, first sheet) are read directly, as are CSV files (`CSV UTF-8` from Excel).
+- **Excel** workbooks (`.xlsx`) are read directly, as are CSV files (`CSV UTF-8` from Excel). A title above the
+  column headings, or an instructions sheet before the marks sheet, is fine: Even Hand finds the table and says
+  which lines it read as a title.
 - Column names are matched loosely (`Roll No`, `roll-no`, `TA`, `marker`, `evaluator`, `Graded by` …).
-- A blank cell or `AB` means not answered.
+- TA names and roll numbers are matched ignoring capitals and spacing: `Ravi`, `ravi ` and `RAVI` are one TA.
+- A blank cell, `AB`, `absent` or `-` means not answered, in either layout.
+- A mark Even Hand cannot read (`7,5`, `7/10`) is quoted back with its line and how to fix it, and is never
+  left out silently.
 - Roll numbers, e-mails and TA names written *inside* answers are removed before anything reads them.
 
 ## How it decides that the marking, not the answers, caused a difference
@@ -106,12 +111,12 @@ out against the true difference. ASAP was held out: nothing was tuned on it.
 
 | Dataset | False alarms (limit 10%) | 95% intervals contain the truth (limit 90%) | Planted gap on unfair piles found (limit 90%) | Grades right, before and after correction |
 |---|---|---|---|---|
-| UNT short answers | 0–1% | 99–100% | **57%** | 70.6% → 78.7% |
+| UNT short answers | 0–1% | 99–100% | **57%** | 70.6% → 78.6% |
 | JorGPT, English | 1–2% | **85–100%** | 100% | 79.8% → 96.4% |
 | JorGPT, Spanish | 1–4% | **81–100%** | 100% | 79.9% → 96.0% |
-| CityU Operating Systems (40 students) | 7–8% | 96–100% | 16% (not judged) | 88.8% → 89.1% |
+| CityU Operating Systems (40 students) | 7–8% | 96–100% | 16% (not judged) | unchanged |
 | ASAP short answers (held out) | 3–5% | 100% | **0%** | unchanged |
-| ASAP essays (held out) | 0% | 100% | 100% | 90.8% → 96.5% |
+| ASAP essays (held out) | 0% | 100% | 100% | 90.8% → 96.8% |
 
 Failures are in bold. False alarms stayed under the 10% limit everywhere (at most 8%, on CityU's 40 students). On JorGPT and the ASAP essays it found a planted gap
 on unfair piles every time, and correction got more letter grades right. On UNT and ASAP short answers it often found
