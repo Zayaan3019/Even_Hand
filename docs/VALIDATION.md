@@ -6,7 +6,7 @@ change made after a result was read is dated there, with what had been seen firs
 
 All figures on this page come from one run: GitHub Actions run
 [42456429002](https://github.com/Zayaan3019/Even_Hand/actions/runs/42456429002) on commit `d75eda3`, the code as submitted.
-Any later commit changes documents only. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
+Any later commit changes documents and code comments only. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
 dataset itself, checks its SHA-256, and keeps nothing in the repository.
 
 ## In short
