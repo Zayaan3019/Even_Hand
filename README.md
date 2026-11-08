@@ -81,7 +81,7 @@ the report shows the checks that say how far it can be trusted:
 - **Double-marked scripts**: identical content, two TAs.
 - **Placebo**: TA labels shuffled among similar answers; the method must then find nothing.
 - **Rosenbaum sensitivity Γ**: how much hidden quality difference would overturn the conclusion.
-- **Mechanism**: consistent severity, a different reading of one question's rubric, drift, isolated slips, or chance.
+- **Mechanism**: consistent severity, a difference that varies by question (Cochran's Q), drift, isolated slips, or chance.
 
 When the marks alone can compare the TAs only by assuming their piles were alike, the **answers test
 that assumption**: is one TA's pile stronger, judged only by what the students wrote?

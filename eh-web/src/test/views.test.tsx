@@ -93,6 +93,8 @@ describe('the dashboard shows what the server computed', () => {
   it('grades: the re-check list with its chance of change', () => {
     render(withNamesOn(false, <Grades r={fixture()} />));
     expect(screen.getByText('Student 7')).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Marked by' })).toBeTruthy();
+    expect(screen.getByRole('cell', { name: 'Assistant 2' })).toBeTruthy();
     expect(screen.getByText('80%')).toBeTruthy();
     expect(screen.getByText('probably marked down')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Save re-check list (CSV)' })).toBeTruthy();

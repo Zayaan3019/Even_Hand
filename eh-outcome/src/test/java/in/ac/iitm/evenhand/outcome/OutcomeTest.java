@@ -145,6 +145,13 @@ class OutcomeTest {
             assertThat(Math.abs(e.rows().get(k - 1).expectedPoints()))
                     .isGreaterThanOrEqualTo(Math.abs(e.rows().get(k).expectedPoints()));
         }
+        // Each listed script names the TA whose marks it carries, so it can go to someone else for the second look.
+        for (Outcome.Row row : e.rows()) {
+            int s = design.studentLabels().indexOf(row.student());
+            List<String> expected = design.cells().stream().filter(c -> c.student() == s && c.ofRecord())
+                    .map(c -> design.graderLabels().get(c.grader())).distinct().sorted().toList();
+            assertThat(row.markedBy()).isNotEmpty().containsExactlyInAnyOrderElementsOf(expected);
+        }
     }
 
     @Test

@@ -113,6 +113,8 @@ export interface RecheckRow {
   likely: string;
   probability: number;
   points: number;
+  /** The TAs whose marks count for this script (pseudonyms). */
+  markedBy?: string[];
 }
 
 export interface OutcomeData {

@@ -173,9 +173,10 @@ public final class Main {
             case Outcome.Emitted e -> {
                 System.out.println("RE-CHECK  " + e.rows().size() + " script(s), most consequential first:");
                 for (Outcome.Row row : e.rows()) {
-                    System.out.printf(Locale.ROOT, "          %-10s %-13s %s -> %s  %3.0f%%  total %.1f -> %.1f%n",
+                    System.out.printf(Locale.ROOT, "          %-10s %-13s %s -> %s  %3.0f%%  total %.1f -> %.1f  marked by %s%n",
                             key.real(row.student()), row.student(), row.gradeAsMarked(), row.likelyGrade(),
-                            100 * row.probability(), row.totalAsMarked(), row.totalCorrected());
+                            100 * row.probability(), row.totalAsMarked(), row.totalCorrected(),
+                            String.join(", ", row.markedBy().stream().map(key::real).toList()));
                 }
             }
         }
