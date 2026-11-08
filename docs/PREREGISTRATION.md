@@ -175,3 +175,8 @@ response for response (`CsvIngestTest.rowOrderDoesNotMatter`).
 This touches every result, so every dataset is rerun on this commit. Its figures are the ones reported, with no
 other change to the rule. Already read before this note: every d5114ea table except JorGPT's (English and Spanish
 accuracy and stability) and the essay null-unfair, planted-unfair, random and small-gap accuracy rows.
+
+**Result (read 8 November 2026).** Run 42218478712 on 270d837. Criterion 1 passed on every dataset; criterion 2
+passed on every dataset (JorGPT lowest 97% English, 96% Spanish). Criterion 3 failed on the ASAP essays (found 5%,
+was 100%) and fell on UNT (0%, was 57%); JorGPT found 97% and 99%. Condition 3 of the rule is not met, so delta = 1
+stays in the product, and the figures reported remain those of run 42124687822.

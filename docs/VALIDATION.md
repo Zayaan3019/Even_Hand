@@ -101,6 +101,14 @@ allows 1.5 points per TA, and the intervals are about 7 points wide. Allowing a 
 some cost in power. That would be a change made after reading these results, so it has not been made: it would need
 a dated note in [PREREGISTRATION.md](PREREGISTRATION.md) and a full rerun.
 
+**That wider range was tested, and not adopted.** The rule for adopting it was written before its run
+([42218478712](https://github.com/Zayaan3019/Even_Hand/actions/runs/42218478712), commit `270d837`): it had to
+keep criterion 1 everywhere, pass criterion 2 everywhere, and lose criterion 3 nowhere it passed. With the interval
+reaching delta = 2, criteria 1 and 2 passed on every dataset (JorGPT's intervals held the truth in 97% and 96% of
+deals), but the planted gap on unequal piles was found in 5% of deals on the held-out essays (was 100%) and 0% on
+UNT (was 57%), while JorGPT stayed at 97 and 99%. Wider intervals hold the truth more often and find real
+differences less often; on these datasets the price was too high, so the product keeps delta = 1.
+
 ## Full figures
 
 **UNT short answers** (development; 100 deals per scenario)
