@@ -64,8 +64,8 @@ once, with internet.
   which lines it read as a title.
 - Column names are matched loosely (`Roll No`, `roll-no`, `TA`, `marker`, `evaluator`, `Graded by` …).
 - TA names and roll numbers are matched ignoring capitals and spacing: `Ravi`, `ravi ` and `RAVI` are one TA.
-- A blank cell or `AB` means not answered.
-- A mark Even Hand cannot read (`7,5`, `absent`) is quoted back with its line and how to fix it, and is never
+- A blank cell, `AB`, `absent` or `-` means not answered, in either layout.
+- A mark Even Hand cannot read (`7,5`, `7/10`) is quoted back with its line and how to fix it, and is never
   left out silently.
 - Roll numbers, e-mails and TA names written *inside* answers are removed before anything reads them.
 
