@@ -105,4 +105,31 @@ class XlsxReaderTest {
         assertThat(XlsxReader.number("0.30000000000000004")).isEqualTo("0.3");
         assertThat(XlsxReader.column("AB12")).isEqualTo(27);
     }
+
+    @Test
+    @DisplayName("a cover or instructions sheet in front of the marks is passed over; the marks sheet is read")
+    void skipsSheetsThatAreNotMarks() throws IOException {
+        Map<String, String> p = workbook(SHEET);
+        p.put("xl/workbook.xml", "<workbook xmlns='" + NS + "' xmlns:r='" + RNS + "'><sheets>"
+                + "<sheet name='Instructions' sheetId='2' r:id='rId2'/><sheet name='Marks' sheetId='1' r:id='rId1'/>"
+                + "</sheets></workbook>");
+        p.put("xl/_rels/workbook.xml.rels", "<Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'>"
+                + "<Relationship Id='rId1' Type='worksheet' Target='worksheets/sheet1.xml'/>"
+                + "<Relationship Id='rId2' Type='worksheet' Target='worksheets/sheet2.xml'/></Relationships>");
+        p.put("xl/worksheets/sheet2.xml", "<worksheet xmlns='" + NS + "'><sheetData><row r='1'><c r='A1' t='inlineStr'>"
+                + "<is><t>Marks for CE3020. Do not edit the Marks sheet.</t></is></c></row></sheetData></worksheet>");
+
+        String csv = XlsxReader.toCsv(zip(p));
+
+        assertThat(csv).startsWith("roll_no,ta,Q1 (10),Q1 answer").contains("CE23B092").doesNotContain("Do not edit");
+    }
+
+    @Test
+    @DisplayName("with no sheet that looks like marks, the first sheet is read, so its own message is shown")
+    void fallsBackToTheFirstSheet() throws IOException {
+        Map<String, String> p = workbook("<worksheet xmlns='" + NS + "'><sheetData><row r='1'><c r='A1' t='inlineStr'>"
+                + "<is><t>name</t></is></c></row></sheetData></worksheet>");
+
+        assertThat(XlsxReader.toCsv(zip(p))).isEqualTo("name\n");
+    }
 }

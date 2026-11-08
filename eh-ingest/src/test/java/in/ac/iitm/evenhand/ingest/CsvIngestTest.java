@@ -690,4 +690,32 @@ class CsvIngestTest {
                 .hasMessageContaining("semicolons")
                 .hasMessageContaining("CSV UTF-8");
     }
+
+    @Test
+    @DisplayName("title lines above the column headings are read as a title, said so, and every mark below is kept")
+    void titleLinesAboveTheHeadings() throws IOException {
+        CsvIngest.IngestResult result = ingest("""
+                CE3020 Quiz 1 marks,,,
+                Jul-Nov 2026,,,
+
+                roll_no,ta,Q1 (10),Q2 (10)
+                CE23B092,Ravi,7,8
+                ME21B145,Meena,6,9
+                """);
+
+        assertThat(result.responses()).hasSize(4);
+        assertThat(result.diagnostics()).anySatisfy(d ->
+                assertThat(d.message()).contains("headings are on line 4").contains("1-3").contains("title"));
+    }
+
+    @Test
+    @DisplayName("a file whose headings cannot be found anywhere near the top keeps its original message")
+    void noHeadingsStillSaysWhichColumnIsMissing() {
+        assertThatThrownBy(() -> ingest("""
+                name,score
+                Ravi,7
+                """))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("no column found");
+    }
 }
