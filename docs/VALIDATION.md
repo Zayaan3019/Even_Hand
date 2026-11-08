@@ -5,8 +5,8 @@ The pass marks were written down before the results were read, in
 change made after a result was read is dated there, with what had been seen first.
 
 All figures on this page come from one run: GitHub Actions run
-[42456429002](https://github.com/Zayaan3019/Even_Hand/actions/runs/42456429002) on commit `d75eda3`, the code as submitted.
-Any later commit changes documents and code comments only. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
+[42475474572](https://github.com/Zayaan3019/Even_Hand/actions/runs/42475474572) on commit `a250c1a`, the code as submitted.
+Any later commit changes documents, code comments and on-screen wording only. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
 dataset itself, checks its SHA-256, and keeps nothing in the repository.
 
 ## In short
@@ -22,7 +22,7 @@ dataset itself, checks its SHA-256, and keeps nothing in the repository.
   points. It was found in 57% of deals on UNT, 16% on CityU and none on ASAP short answers, against a limit of 90%.
   Where it is not found, the marks are left as they are: Even Hand never corrects without evidence.
 - **When it corrects, grades improve.** On the planted gap, correction took the share of letter grades right from
-  79.8% to 96.4% on JorGPT, 90.8% to 96.5% on the essays and 70.6% to 78.6% on UNT. Its re-check list beat listing
+  79.8% to 96.4% on JorGPT, 90.8% to 96.8% on the essays and 70.6% to 78.6% on UNT. Its re-check list beat listing
   the scripts nearest a grade boundary wherever it issued one.
 - **When piles are dealt at random, it finds real differences.** On UNT it found the two real graders' 4.7-point
   difference in 98% of deals, and four TAs' differences in 98%.
@@ -67,7 +67,7 @@ dataset, the size of a large course.
 | 1. False alarms at most 10% (no difference: random, unfair) | Pass: 1%, 0% | Pass: 1%, 2% | Pass: 1%, 4% | Pass: 8%, 7% | Pass: 5%, 3% | Pass: 0%, 0% |
 | 2. 95% intervals contain the truth at least 90% | Pass: lowest 99% | **Fail**: lowest 85% | **Fail**: lowest 81% | Pass: lowest 96% | Pass: lowest 100% | Pass: lowest 100% |
 | 3. Planted gap on unfair piles found at least 90%, error at most 3 | **Fail**: found 57%, error 1.66 | Pass: found 100%, error 0.95 | Pass: found 100%, error 1.06 | Not judged: found 16%, error 4.14 | **Fail**: found 0%, error 1.64 | Pass: found 100%, error 0.31 |
-| 4. Correction gets more grades right | Pass: 70.6% to 78.7% | Pass: 79.8% to 96.4% | Pass: 79.9% to 96.0% | Not judged: 88.8% to 89.1% | **Fail**: 94.8% to 94.8% | Pass: 90.8% to 96.5% |
+| 4. Correction gets more grades right | Pass: 70.6% to 78.6% | Pass: 79.8% to 96.4% | Pass: 79.9% to 96.0% | Not judged: 88.8% to 88.8% | **Fail**: 94.8% to 94.8% | Pass: 90.8% to 96.8% |
 | 5. Re-check list beats nearest-boundary | Pass: 100% against 37% | Pass: 79% against 37% | Pass: 79% against 37% | Not judged: 95% against 0% | **Not met**: no gap found, so no list | Pass: 100% against 11% |
 | 6. Chance shown within 15 points of the truth | Pass: 89% shown, 100% true | Pass: 85% shown, 79% true | Pass: 86% shown, 79% true | Not judged: 95% shown, 95% true | **Not met**: no gap found, so no list | Pass: 97% shown, 100% true |
 | 7. Robust to damaged and awkward files | Pass: 16 kinds of damage | Pass: 16 kinds of damage | Not run | Not run | Pass: 16 kinds of damage; refused with a reason: ten times the size, new roll numbers | Not run |
@@ -118,7 +118,7 @@ differences less often; on these datasets the price was too high, so the product
 | Two real graders, random deal | -4.7 | **0.73** | 100% | 98% | 55.5%, 56.8% |
 | No difference, random deal | +0.0 | **0.81** | 100% | 1% | 100.0%, 100.0% |
 | No difference, unfair piles | +0.0 | **1.53** | 100% | 0% | 100.0%, 100.0% |
-| Planted 10-point gap, unfair piles | -4.7 | **1.66** | 100% | 57% | 70.6%, 78.7% |
+| Planted 10-point gap, unfair piles | -4.7 | **1.66** | 100% | 57% | 70.6%, 78.6% |
 | Four TAs, random deal | -9.5 | **1.61** | 99% | 98% | 49.9%, 57.0% |
 | Four TAs, unfair piles | -5.0 | **2.50** | 100% | 6% | 74.1%, 74.6% |
 | Small 3-point gap, random deal | -1.4 | **0.80** | 100% | 20% | 86.4%, 88.3% |
@@ -154,7 +154,7 @@ differences less often; on these datasets the price was too high, so the product
 | Two real graders, random deal | -0.5 | **2.35** | 99% | 5% | 92.2%, 91.0% |
 | No difference, random deal | +0.0 | **2.75** | 100% | 8% | 100.0%, 97.9% |
 | No difference, unfair piles | +0.0 | **3.75** | 100% | 7% | 100.0%, 98.6% |
-| Planted 10-point gap, unfair piles | -4.6 | **4.14** | 100% | 16% | 88.8%, 89.1% |
+| Planted 10-point gap, unfair piles | -4.6 | **4.14** | 100% | 16% | 88.8%, 88.8% |
 | Four TAs, random deal | -5.2 | **3.79** | 98% | 58% | 70.7%, 70.3% |
 | Four TAs, unfair piles | -6.0 | **6.76** | 96% | 8% | 86.2%, 84.5% |
 | Small 3-point gap, random deal | -1.4 | **2.11** | 100% | 9% | 82.1%, 81.7% |
@@ -179,7 +179,7 @@ differences less often; on these datasets the price was too high, so the product
 | Two real graders, random deal | +0.1 | **0.29** | 100% | 5% | 80.7%, 80.6% |
 | No difference, random deal | +0.0 | **0.25** | 100% | 0% | 100.0%, 100.0% |
 | No difference, unfair piles | +0.0 | **0.57** | 100% | 0% | 100.0%, 100.0% |
-| Planted 10-point gap, unfair piles | -4.9 | **0.31** | 100% | 100% | 90.8%, 96.5% |
+| Planted 10-point gap, unfair piles | -4.9 | **0.31** | 100% | 100% | 90.8%, 96.8% |
 | Four TAs, random deal | -4.8 | **0.53** | 100% | 100% | 75.6%, 79.3% |
 | Four TAs, unfair piles | -7.2 | **0.68** | 100% | 100% | 84.8%, 96.1% |
 | Small 3-point gap, random deal | -1.5 | **0.24** | 100% | 95% | 94.1%, 98.0% |
@@ -277,8 +277,9 @@ Every one of these was found by this validation, and each is dated in [PREREGIST
 
 ## The software
 
-- **236 Java tests** across 10 modules, and **31 web app tests**, all passing on every build. They cover ingest of
-  every file layout, including Excel with zip-bomb and XXE attempts, the audit's exact rank, the estimators against
+- **246 Java tests** across 10 modules, and **31 web app tests**, all passing on every build. They cover ingest of
+  every file layout, including Excel with zip-bomb and XXE attempts, title lines and cover sheets, and marks it cannot
+  read, the audit's exact rank, the estimators against
   known answers, the pile test and its paired draws, grading rules, the reports, the server's security rules, and
   every screen against the axe accessibility rules.
 
@@ -289,12 +290,13 @@ gh workflow run validate.yml --ref <branch>   # every dataset, on GitHub Actions
 ./mvnw verify                                 # every test, Java and web
 ```
 
-**Run twice, on different machines.** The whole validation was also run on an earlier commit with the same
-calculations (run [42124687822](https://github.com/Zayaan3019/Even_Hand/actions/runs/42124687822), commit
-`a6ef30b`). Every verdict, every figure from the marks alone and every robustness table came out the same, apart from how long each took. Three
-figures read from the answers moved by at most 0.3 points: UNT's correction range 70.6%-78.6% became 70.6%-78.7%,
-CityU's 88.8%-88.8% became 88.8%-89.1%, and the two estimator rows built from them moved with them. The reason is the
-answer-reading model's arithmetic. It adds in as many lanes as the processor's vector unit holds (4 on Apple Silicon, 8 or 16 on Intel and AMD), so two
-CPUs round the last digit of a similarity differently, and an answer near the matching cut-off can fall on the
-other side. The same computer always gives the same result. A different computer can differ in the first decimal
-of an answer-based figure; between these two runs, no verdict changed.
+**Run three times, on different machines.** The whole validation was also run on two earlier commits with the same
+calculations: run [42124687822](https://github.com/Zayaan3019/Even_Hand/actions/runs/42124687822) on `a6ef30b` and
+run [42456429002](https://github.com/Zayaan3019/Even_Hand/actions/runs/42456429002) on `d75eda3`. In all three, every
+verdict, every figure from the marks alone, every robustness table and the benchmark came out the same, apart from how
+long each took. Only figures read from the answers moved, by at most 0.3 points: the top of UNT's correction range was
+78.6%, 78.7%, 78.6%; of CityU's 88.8%, 89.1%, 88.8%; of the ASAP essays' 96.5%, 96.5%, 96.8% (first, second, this run). The
+reason is the answer-reading model's arithmetic. It adds in as many lanes as the processor's vector unit holds (4 on
+Apple Silicon, 8 or 16 on Intel and AMD), so two CPUs round the last digit of a similarity differently, and an answer
+near the matching cut-off can fall on the other side. The same computer always gives the same result. A different
+computer can differ in the first decimal of an answer-based figure; across the three runs, no verdict changed.
