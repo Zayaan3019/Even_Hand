@@ -438,7 +438,7 @@ class CsvIngestTest {
         // error per attempt. All the problems are reported at once, each naming its line.
         assertThat(result.responses()).hasSize(2);
         assertThat(result.diagnostics()).anySatisfy(d ->
-                assertThat(d.message()).contains("line 3").contains("could not read a number"));
+                assertThat(d.message()).contains("line 3").contains("could not read").contains("as a mark"));
         assertThat(result.diagnostics()).anySatisfy(d ->
                 assertThat(d.message()).contains("line 4").contains("outside 0..10"));
         assertThat(result.diagnostics()).anySatisfy(d ->
@@ -661,5 +661,33 @@ class CsvIngestTest {
         CsvIngest.IngestResult result = ingest("﻿" + WELL_FORMED);
 
         assertThat(result.responses()).hasSize(4);
+    }
+
+    @Test
+    @DisplayName("a mark that is not a number is quoted back as written, with the fix for a decimal comma")
+    void unreadableMarkIsQuotedBack() throws IOException {
+        CsvIngest.IngestResult result = ingest("""
+                roll_no,question,ta,marks,max_marks
+                CE23B092,Q1,Ananya Krishnan,7,10
+                ME21B145,Q1,Ananya Krishnan,"7,5",10
+                """);
+
+        assertThat(result.responses()).hasSize(1);
+        assertThat(result.diagnostics()).anySatisfy(d -> {
+            assertThat(d.message()).contains("line 3").contains("'7,5'").doesNotContain("Character");
+            assertThat(d.fixIt()).hasValueSatisfying(f -> assertThat(f).contains("7.5, not 7,5"));
+        });
+    }
+
+    @Test
+    @DisplayName("a file separated by semicolons is refused with the reason and the fix")
+    void semicolonSeparatedFileSaysSo() {
+        assertThatThrownBy(() -> ingest("""
+                roll_no;ta;Q1 (10)
+                CE23B092;Ravi;7
+                """))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("semicolons")
+                .hasMessageContaining("CSV UTF-8");
     }
 }

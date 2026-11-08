@@ -51,4 +51,27 @@ class CliTest {
 
         assertThat(f).containsEntry("rule", "relative").containsEntry("out", "x").hasSize(2);
     }
+
+    @Test
+    @DisplayName("run: rows the reader could not use are listed in the terminal, never dropped silently")
+    void skippedRowsArePrinted() {
+        var d = in.ac.iitm.evenhand.core.Diagnostic.Code.EH007_SCORE_OUT_OF_RANGE;
+        var list = java.util.List.of(
+                in.ac.iitm.evenhand.core.Diagnostic.error(d, "line 3: could not read '7,5' as a mark; row skipped.",
+                        java.util.List.of(), "Write decimals with a point: 7.5, not 7,5."),
+                in.ac.iitm.evenhand.core.Diagnostic.error(d, "line 3: could not read '7,5' as a mark; row skipped.",
+                        java.util.List.of(), "Write decimals with a point: 7.5, not 7,5."),
+                in.ac.iitm.evenhand.core.Diagnostic.note(d, "Read as one row per student.", java.util.List.of()));
+        java.io.PrintStream was = System.out;
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        try {
+            System.setOut(new java.io.PrintStream(out, true, java.nio.charset.StandardCharsets.UTF_8));
+            Main.printSkipped(list);
+        } finally {
+            System.setOut(was);
+        }
+        String printed = out.toString(java.nio.charset.StandardCharsets.UTF_8);
+        assertThat(printed).contains("1 line(s) of the file could not be used in full", "line 3", "'7,5'", "7.5, not 7,5")
+                .doesNotContain("one row per student");
+    }
 }
