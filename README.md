@@ -63,6 +63,7 @@ once, with internet.
   column headings, or an instructions sheet before the marks sheet, is fine: Even Hand finds the table and says
   which lines it read as a title.
 - Column names are matched loosely (`Roll No`, `roll-no`, `TA`, `marker`, `evaluator`, `Graded by` …).
+- TA names and roll numbers are matched ignoring capitals and spacing: `Ravi`, `ravi ` and `RAVI` are one TA.
 - A blank cell or `AB` means not answered.
 - A mark Even Hand cannot read (`7,5`, `absent`) is quoted back with its line and how to fix it, and is never
   left out silently.
