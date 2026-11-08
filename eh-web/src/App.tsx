@@ -97,7 +97,7 @@ export default function App() {
       {phase.kind === 'result'
         ? <Dashboard result={phase.result} onNew={() => setPhase({ kind: 'upload', problem: null, busy: false })} />
         : (
-          <>
+          <main>
             <section className="hero">
               <h2>Check whether the TAs marked alike, and why they did not.</h2>
               <p>
@@ -120,7 +120,7 @@ export default function App() {
                 </>
               )}
             </div>
-          </>
+          </main>
         )}
       <footer className="footer">
         Even Hand {status?.version ? `· ${status.version}` : ''} · CS5013, IIT Madras · works offline · nothing is stored on disk
@@ -159,7 +159,7 @@ function Dashboard({ result, onNew }: { result: Result; onNew: () => void }) {
 
   return (
     <NamesContext.Provider value={{ show: showNames, table: result.names }}>
-      <div className="dash-head">
+      <section className="dash-head" aria-label="Course and report actions">
         <div>
           <h2>{result.course.name}</h2>
           <div className="meta">
@@ -177,7 +177,7 @@ function Dashboard({ result, onNew }: { result: Result; onNew: () => void }) {
           <button className="btn small" onClick={() => printHtml(withNames(result.instructorHtml, result.names, showNames))}>Print</button>
           <button className="btn small" onClick={onNew}>Check another file</button>
         </div>
-      </div>
+      </section>
       <div className="layout">
         <nav className="nav" aria-label="Sections">
           {SECTIONS.map((s) => (

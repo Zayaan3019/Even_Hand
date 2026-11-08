@@ -194,7 +194,7 @@ function CausalView({ causal, r }: { causal: Causal; r: Result }) {
         <div className="checks">
           {checks.map((k) => (
             <div className="check" key={k.name}>
-              <span className={`dot ${k.ok ? 'ok' : 'warn'}`} aria-label={k.ok ? 'passed' : 'look closer'} />
+              <span className={`dot ${k.ok ? 'ok' : 'warn'}`} role="img" aria-label={k.ok ? 'passed' : 'look closer'} />
               <div>
                 <div className="name">{k.name}</div>
                 <div className="q">{k.q}</div>
