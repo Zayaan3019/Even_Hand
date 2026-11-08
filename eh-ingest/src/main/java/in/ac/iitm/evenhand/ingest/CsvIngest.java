@@ -186,6 +186,11 @@ public final class CsvIngest {
             return assessment + SEPARATOR + student + SEPARATOR + question;
         }
 
+        RawRow withIdentities(String newStudent, String newGrader) {
+            return new RawRow(newStudent, question, newGrader, assessment, score, declaredMax, position, role, line,
+                    answer);
+        }
+
         /** Questions belong to their assessment: Q1 of a quiz is not Q1 of the end-semester exam. */
         String questionKey() {
             return assessment + SEPARATOR + question;
@@ -221,6 +226,36 @@ public final class CsvIngest {
         try (BufferedReader reader = Files.newBufferedReader(csv, StandardCharsets.UTF_8)) {
             return read(reader, pseudonymiser);
         }
+    }
+
+    /** An identity as compared: capitals and runs of spaces do not tell two people apart. */
+    static String fold(String identity) {
+        return identity.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /** For each folded identity, the spelling the rows use most often; ties go to the alphabetically first. */
+    private static Map<String, String> spellings(List<RawRow> rows, java.util.function.Function<RawRow, String> of) {
+        Map<String, Map<String, Integer>> counts = new HashMap<>();
+        for (RawRow r : rows) {
+            String s = of.apply(r).strip().replaceAll("\\s+", " ");
+            counts.computeIfAbsent(fold(s), k -> new java.util.TreeMap<>()).merge(s, 1, Integer::sum);
+        }
+        Map<String, String> out = new HashMap<>();
+        counts.forEach((key, bySpelling) -> {
+            String best = null;
+            for (Map.Entry<String, Integer> e : bySpelling.entrySet()) {
+                if (best == null || e.getValue() > bySpelling.get(best)) best = e.getKey();
+            }
+            out.put(key, best);
+        });
+        return out;
+    }
+
+    /** How many identities the rows write in more than one way. */
+    private static long mergedCount(List<RawRow> rows, java.util.function.Function<RawRow, String> of) {
+        Map<String, Set<String>> ways = new HashMap<>();
+        for (RawRow r : rows) ways.computeIfAbsent(fold(of.apply(r)), k -> new java.util.HashSet<>()).add(of.apply(r).strip());
+        return ways.values().stream().filter(s -> s.size() > 1).count();
     }
 
     /** How many lines below the first one the column headings are looked for. */
@@ -345,20 +380,35 @@ public final class CsvIngest {
                 if (parsed.isEmpty()) {
                     continue;
                 }
-                RawRow row = parsed.get();
-                rows.add(row);
+                rows.add(parsed.get());
+            }
+        }
 
-                // A second mark on the same unit is not an error; it is the observation that
-                // links two assistants, and it is what the audit most wants to find.
-                Integer previousLine = firstLineOfUnit.putIfAbsent(row.unitKey(), row.line());
-                if (previousLine != null) {
-                    diagnostics.add(Diagnostic.note(
-                            Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
-                            "line " + row.line() + ": this response was already marked at line "
-                            + previousLine + ". Treated as a second marking, which is what makes the "
-                            + "two TAs comparable.",
-                            List.of()));
-                }
+        // "Ravi", "ravi" and "RAVI" are one TA, and "ce23b092" is CE23B092: identities are matched ignoring capitals
+        // and spacing. Each is written the way the file most often writes it (ties: alphabetical first), so the
+        // same marks in any row order still give the same analysis. Only counts are reported, never names.
+        Map<String, String> studentSpelling = spellings(rows, RawRow::student);
+        Map<String, String> graderSpelling = spellings(rows, RawRow::grader);
+        long tas = mergedCount(rows, RawRow::grader), students = mergedCount(rows, RawRow::student);
+        if (tas > 0 || students > 0) {
+            diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                    (tas > 0 ? tas + " TA name(s)" : "") + (tas > 0 && students > 0 ? " and " : "")
+                    + (students > 0 ? students + " roll number(s)" : "") + " were written in more than one way, "
+                    + "differing only in capitals or spacing, and each was read as one person.", List.of()));
+        }
+        rows.replaceAll(r -> r.withIdentities(studentSpelling.get(fold(r.student())), graderSpelling.get(fold(r.grader()))));
+
+        for (RawRow row : rows) {
+            // A second mark on the same unit is not an error; it is the observation that
+            // links two assistants, and it is what the audit most wants to find.
+            Integer previousLine = firstLineOfUnit.putIfAbsent(row.unitKey(), row.line());
+            if (previousLine != null) {
+                diagnostics.add(Diagnostic.note(
+                        Diagnostic.Code.EH008_DOUBLE_MARK_FOUND,
+                        "line " + row.line() + ": this response was already marked at line "
+                        + previousLine + ". Treated as a second marking, which is what makes the "
+                        + "two TAs comparable.",
+                        List.of()));
             }
         }
 
