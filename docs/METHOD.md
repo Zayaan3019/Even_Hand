@@ -94,7 +94,12 @@ For every question with written answers:
   - **The interval spans Oster's bounds.** Its low end takes out only the gap the answers show
     (δ = 0), its high end the full proportional adjustment (δ = 1), each with its own bootstrap
     interval, and a difference is reported only if it holds at both ends. On the development
-    data the truth lay between the two in every deal checked, at neither end consistently.
+    data the truth lay between the two in every deal checked, at neither end consistently. On
+    held-out JorGPT it sometimes lay beyond the high end: the adjustment took out too little, which
+    is why, with no real difference and piles of unequal strength, intervals there contained the
+    truth in 81-85% of deals rather than 90% (false alarms stayed at 2-4%). Widening
+    the high end to δ = 2 was tried as a pre-registered experiment and not adopted, because it lost
+    the planted gaps on UNT and the ASAP essays ([PREREGISTRATION.md](PREREGISTRATION.md)).
   - **The draws are paired.** The pile gap is recomputed on the very resamples of students the
     marks' severity draws were fitted on (`SeverityEstimator.resampleCounts`). The two move
     against each other, so drawing them separately would add their variances and make every
