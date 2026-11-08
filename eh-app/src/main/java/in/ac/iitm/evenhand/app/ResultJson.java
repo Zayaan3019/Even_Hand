@@ -235,7 +235,8 @@ final class ResultJson {
                     list.add(new Json().str("student", r.student()).num("total", r.totalAsMarked())
                             .num("corrected", r.totalCorrected()).str("grade", r.gradeAsMarked().name())
                             .str("likely", r.likelyGrade().name()).num("probability", r.probability())
-                            .num("points", r.expectedPoints()).toString());
+                            .num("points", r.expectedPoints())
+                            .raw("markedBy", Json.array(r.markedBy().stream().map(Json::quote).toList())).toString());
                 }
                 j.raw("recheck", Json.array(list)).num("expectedFalseFlags", e.expectedFalseFlags());
             }

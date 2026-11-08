@@ -67,7 +67,7 @@ export function fixture(): Result {
     outcome: {
       share: 3.1, changed: 3, low: 1, high: 5,
       grades: [{ grade: 'S', asMarked: 10, corrected: 11 }, { grade: 'A', asMarked: 30, corrected: 29 }],
-      recheck: [{ student: 'Student 7', total: 59.5, corrected: 61.2, grade: 'C', likely: 'B', probability: 0.8, points: 1 }],
+      recheck: [{ student: 'Student 7', total: 59.5, corrected: 61.2, grade: 'C', likely: 'B', probability: 0.8, points: 1, markedBy: ['Assistant 2'] }],
       expectedFalseFlags: 0.2,
     },
     diagnostics: [{ severity: 'note', message: 'An answer key was found for 3 question(s).', fix: '', more: 0 }],

@@ -6,7 +6,7 @@ import { inMarks, pct, pValue, signed } from '../format';
 
 const KIND: Record<MechanismKind, { text: string; tone: 'red' | 'amber' | 'green' }> = {
   CONSISTENT_SEVERITY: { text: 'Consistent severity', tone: 'red' },
-  QUESTION_SPECIFIC: { text: 'Rubric difference', tone: 'red' },
+  QUESTION_SPECIFIC: { text: 'Differs by question', tone: 'red' },
   DRIFT: { text: 'Drift', tone: 'amber' },
   ISOLATED_SLIPS: { text: 'Isolated slips', tone: 'amber' },
   NO_CLEAR_DIFFERENCE: { text: 'No clear difference', tone: 'green' },

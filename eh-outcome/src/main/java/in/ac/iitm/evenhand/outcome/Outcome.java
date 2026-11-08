@@ -47,10 +47,16 @@ public final class Outcome {
      * @param probability      share of plausible corrections in which the letter changes
      * @param expectedPoints   expected change in grade points if corrected; positive means
      *                         the student was probably marked down
+     * @param markedBy         the TAs whose marks count for this script (pseudonyms), so it can go back to
+     *                         someone else for the second look
      */
     public record Row(String student, double totalAsMarked, double totalCorrected,
                       LetterGrade gradeAsMarked, LetterGrade likelyGrade,
-                      double probability, double expectedPoints) {}
+                      double probability, double expectedPoints, List<String> markedBy) {
+        public Row {
+            markedBy = List.copyOf(markedBy);
+        }
+    }
 
     /** The re-check list, or the reason there is none. Refusal is a value, not an exception. */
     public sealed interface Shortlist permits Emitted, Refused {}
@@ -125,6 +131,15 @@ public final class Outcome {
         return new Result(marked, corrected, gradesMarked, gradesCorrected, changed, low, high, share, shortlist);
     }
 
+    /** The TAs whose marks of record make up student {@code i}'s total, in TA order. */
+    static List<String> markers(MarkingDesign design, int i) {
+        java.util.TreeSet<Integer> graders = new java.util.TreeSet<>();
+        for (var c : design.cells()) if (c.student() == i && c.ofRecord()) graders.add(c.grader());
+        List<String> out = new ArrayList<>();
+        for (int g : graders) out.add(design.graderLabels().get(g));
+        return out;
+    }
+
     private static Shortlist shortlist(FittedModel model, MarkingDesign design, Gate gate,
                                        double[] marked, double[] corrected, LetterGrade[] gradesMarked,
                                        int[] timesChanged, double[] pointsSum, int[][] gradeVotes, int draws) {
@@ -158,7 +173,7 @@ public final class Outcome {
             int best = 0;
             for (int g = 1; g < gradeVotes[i].length; g++) if (gradeVotes[i][g] > gradeVotes[i][best]) best = g;
             rows.add(new Row(design.studentLabels().get(i), marked[i], corrected[i], gradesMarked[i],
-                    LetterGrade.values()[best], p, pointsSum[i] / draws));
+                    LetterGrade.values()[best], p, pointsSum[i] / draws, markers(design, i)));
         }
         rows.sort(Comparator.comparingDouble((Row r) -> -Math.abs(r.expectedPoints()))
                 .thenComparing(Row::student));

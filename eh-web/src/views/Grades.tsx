@@ -21,9 +21,9 @@ export function Grades({ r }: { r: Result }) {
   }, [o, sort, name]);
   if (!o) return <div className="panel"><Empty>No grades were recomputed: the marking arrangement cannot support a severity estimate.</Empty></div>;
   const saveList = () => saveFile(toCsv([
-    ['Student', 'Total as marked', 'Corrected total', 'Grade as marked', 'Grade if it changes', 'Chance of change (%)',
+    ['Student', 'Marked by', 'Total as marked', 'Corrected total', 'Grade as marked', 'Grade if it changes', 'Chance of change (%)',
       'Expected change (grade points)', 'Direction'],
-    ...rows.map((x) => [name(x.student), x.total.toFixed(1), x.corrected.toFixed(1), x.grade, x.likely,
+    ...rows.map((x) => [name(x.student), (x.markedBy ?? []).map(name).join(', '), x.total.toFixed(1), x.corrected.toFixed(1), x.grade, x.likely,
       Math.round(100 * x.probability), Math.abs(x.points).toFixed(2), x.points > 0 ? 'probably marked down' : 'probably marked up']),
   ]), `${fileStem(r.course.name)}-re-check-list.csv`, 'text/csv;charset=utf-8');
   const onSort = (k: Key) => setSort((s) => ({ key: k, dir: s.key === k ? (-s.dir as 1 | -1) : -1 }));
@@ -75,6 +75,7 @@ export function Grades({ r }: { r: Result }) {
                 <thead>
                   <tr>
                     <SortHeader k="student" label="Student" sort={sort} onSort={onSort} />
+                    <th>Marked by</th>
                     <SortHeader k="total" label="Total as marked" sort={sort} onSort={onSort} />
                     <th>Corrected</th><th>Grade</th><th>If it changes</th>
                     <SortHeader k="probability" label="Chance of change" sort={sort} onSort={onSort} />
@@ -86,6 +87,7 @@ export function Grades({ r }: { r: Result }) {
                   {rows.map((x) => (
                     <tr key={x.student}>
                       <td>{name(x.student)}</td>
+                      <td>{(x.markedBy ?? []).map(name).join(', ')}</td>
                       <td className="n">{x.total.toFixed(1)}</td>
                       <td className="n">{x.corrected.toFixed(1)}</td>
                       <td>{x.grade}</td>

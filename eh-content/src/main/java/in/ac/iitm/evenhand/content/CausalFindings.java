@@ -107,7 +107,7 @@ public record CausalFindings(List<Decomposition> decomposition,
     public enum Kind {
         /** Harsher or more lenient by a similar amount on every question. */
         CONSISTENT_SEVERITY,
-        /** The difference is concentrated in one or two questions: a different reading of the rubric. */
+        /** The difference is clear and varies between questions (Cochran's Q): start with the rubric of the largest. */
         QUESTION_SPECIFIC,
         /** Marks moved as the assistant worked through the pile. */
         DRIFT,

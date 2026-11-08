@@ -646,14 +646,15 @@ public final class ContentAnalysis {
                 kind = CausalFindings.Kind.QUESTION_SPECIFIC;
                 List<CausalFindings.QuestionEffect> sorted = new ArrayList<>(effects);
                 sorted.sort(Comparator.comparingDouble(e -> -Math.abs(e.severity())));
-                why = String.format(Locale.ROOT, "%s marked %s than the others, but not evenly: mostly on %s "
-                        + "(%+.1f points there), which points to a different reading of that question's rubric "
-                        + "rather than general strictness (heterogeneity p = %.3f).", labels.get(g), direction,
-                        sorted.get(0).question(), sorted.get(0).severity(), heterogeneityP);
+                why = String.format(Locale.ROOT, "%s marked %s than the others, by different amounts on different "
+                        + "questions (Cochran's Q, p = %.3f). The largest difference was on %s (%+.1f points), so "
+                        + "start with how that question's rubric was read.", labels.get(g), direction,
+                        heterogeneityP, sorted.get(0).question(), sorted.get(0).severity());
             } else if (clear) {
                 kind = CausalFindings.Kind.CONSISTENT_SEVERITY;
-                why = String.format(Locale.ROOT, "%s marked %s than the others on answers saying the same thing, by "
-                        + "a similar amount on every question (%+.1f points, 95%% interval %+.1f to %+.1f).",
+                why = String.format(Locale.ROOT, "%s marked %s than the others on answers saying the same thing, "
+                        + "with no clear sign that the amount differed between questions (%+.1f points, 95%% interval "
+                        + "%+.1f to %+.1f).",
                         labels.get(g), direction, severity[g], ci[0], ci[1]);
             } else if (drift.significant()) {
                 kind = CausalFindings.Kind.DRIFT;

@@ -562,13 +562,13 @@ public final class HtmlReport {
                 + "can change even where a script's own total barely moves. "
                 + "Saved copies name students by pseudonym; roll numbers appear only on your screen, and the "
                 + "sealed key file maps them back.</p>\n");
-        b.append("<table><tr><th>Student</th><th>Total as marked</th><th>Corrected</th><th>Grade</th>"
+        b.append("<table><tr><th>Student</th><th>Marked by</th><th>Total as marked</th><th>Corrected</th><th>Grade</th>"
                 + "<th>If it changes</th><th>Chance of change</th><th>Expected change</th><th>Direction</th></tr>\n");
         for (Outcome.Row r : e.rows()) {
             b.append(String.format(Locale.ROOT,
-                    "<tr><td>%s</td><td class=num>%.1f</td><td class=num>%.1f</td><td>%s</td><td>%s</td>"
+                    "<tr><td>%s</td><td>%s</td><td class=num>%.1f</td><td class=num>%.1f</td><td>%s</td><td>%s</td>"
                     + "<td class=num>%.0f%%</td><td class=num>%.2f grade points</td><td>%s</td></tr>%n",
-                    esc(r.student()), r.totalAsMarked(), r.totalCorrected(), r.gradeAsMarked(), r.likelyGrade(),
+                    esc(r.student()), esc(String.join(", ", r.markedBy())), r.totalAsMarked(), r.totalCorrected(), r.gradeAsMarked(), r.likelyGrade(),
                     100 * r.probability(), Math.abs(r.expectedPoints()), r.expectedPoints() > 0 ? "probably marked down" : "probably marked up"));
         }
         b.append("</table>\n");
@@ -621,7 +621,7 @@ public final class HtmlReport {
     private static String kindName(CausalFindings.Kind k) {
         return switch (k) {
             case CONSISTENT_SEVERITY -> "Consistent severity";
-            case QUESTION_SPECIFIC -> "Rubric difference";
+            case QUESTION_SPECIFIC -> "Differs by question";
             case DRIFT -> "Drift";
             case ISOLATED_SLIPS -> "Isolated slips";
             case NO_CLEAR_DIFFERENCE -> "No clear difference";

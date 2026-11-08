@@ -136,8 +136,8 @@ against the marking order (when the file records it):
 
 | Reading | Meaning | What to do |
 |---|---|---|
-| **Consistent severity** | Harsher (or more lenient) by a similar amount on every question | The grade correction applies as a whole |
-| **Rubric difference** | Concentrated in one or two questions | Discuss that question's rubric with the TA |
+| **Consistent severity** | Harsher (or more lenient), with no clear sign that the amount varies between questions | The grade correction applies as a whole |
+| **Differs by question** | Clear overall, and the size varies between questions (Cochran's Q, p < 0.05) | Start with the question where it is largest: discuss its rubric with the TA |
 | **Drift** | Marks moved through the pile, for answers of the same quality | Check the late scripts |
 | **Isolated slips** | No overall difference, but a few marks far out of line with similar answers | Check those scripts individually |
 | **No clear difference** | Within chance | Nothing |
