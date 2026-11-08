@@ -4,11 +4,16 @@ name: validate on real data
 # Anyone can run it from the Actions tab and download the same tables. Nothing here is part of the product.
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: 'all, measure (the real datasets) or benchmark (the synthetic courses)'
+        default: 'all'
   push:
     branches: ['validation/**']
 
 jobs:
   measure:
+    if: github.event_name != 'workflow_dispatch' || inputs.only != 'benchmark'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     strategy:
@@ -89,4 +94,34 @@ jobs:
         with:
           name: ${{ matrix.name }}
           path: results
+          if-no-files-found: warn
+
+  # Synthetic IIT Madras courses with known answers (docs/BENCHMARK.md): trains the two shrinkage constants on one
+  # split and reports the product on courses it never saw. Deterministic, so the same commit gives the same file.
+  benchmark:
+    if: github.event_name != 'workflow_dispatch' || inputs.only != 'measure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build
+        run: |
+          ./mvnw -q -B install -DskipTests
+          ./mvnw -q -B -pl eh-validation dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+      - name: Benchmark
+        run: |
+          mkdir -p results/benchmark
+          java -Xmx12g -cp "eh-validation/target/classes:$(cat eh-validation/target/cp.txt)"             in.ac.iitm.evenhand.validation.Benchmark --out results --train 24 --test 16
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark
+          path: |
+            results
+            docs/benchmark
           if-no-files-found: warn
