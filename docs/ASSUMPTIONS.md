@@ -26,6 +26,7 @@ It is short on purpose, and every row names the override.
 | A18 | What the answers cannot show about a script differs between piles at most in the same proportion as what they can (Oster 2019, δ ≤ 1) | none: it cannot be checked from the data | **stated** in the report; each interval spans δ = 0 to 1. On held-out JorGPT the truth sometimes lay beyond δ = 1 (coverage 81-85% with no real difference); δ = 2 was tested and not adopted ([PREREGISTRATION.md](PREREGISTRATION.md)) |
 | A19 | The answers are in a language the model reads. all-MiniLM-L6-v2 was trained on English | none; the text coverage and the share of marks the answers explain are reported, and with too little signal the marks alone are used | validated on English (UNT, CityU, ASAP, JorGPT) and Spanish (JorGPT) answers; other languages untested |
 | A20 | Two TA names, or two roll numbers, that differ only in capitals or spacing are the same person (`Ravi` = `RAVI`) | none: two different TAs whose names differ only in capitals must be told apart in the file, e.g. by initials | enforced; the report notes how many were merged, without naming them |
+| A21 | Each TA marked enough scripts for their severity to be estimated: 10 or more scripts of record | none: a TA with fewer is still estimated, but the audit says their severity, interval and the no-effect test cannot be relied on, and their pile is not used to say how the piles were formed | stated on screen and in the report (`AllocationEvidence.describe`) |
 
 ## Three limits worth stating plainly
 
