@@ -207,7 +207,7 @@ class CsvIngestTest {
         // sorted by assistant, which is how many teams keep their sheets.
         List<String> interleavedSortedByTa = new ArrayList<>();
         for (String ta : List.of(TA_1, TA_2)) {
-            for (int i = 1; i <= 12; i++) {
+            for (int i = 1; i <= 24; i++) {
                 if ((i % 2 == 1) != ta.equals(TA_1)) continue;
                 for (String q : List.of("Q1", "Q2")) {
                     interleavedSortedByTa.add(String.format("CE23B%03d,%s,%s,5,10", i, q, ta));
@@ -216,9 +216,9 @@ class CsvIngestTest {
         }
         // Contiguous blocks of roll numbers, exported in a shuffled order.
         List<String> blocksShuffled = new ArrayList<>();
-        for (int i = 1; i <= 12; i++) {
+        for (int i = 1; i <= 24; i++) {
             for (String q : List.of("Q1", "Q2")) {
-                blocksShuffled.add(String.format("CE23B%03d,%s,%s,5,10", i, q, i <= 6 ? TA_1 : TA_2));
+                blocksShuffled.add(String.format("CE23B%03d,%s,%s,5,10", i, q, i <= 12 ? TA_1 : TA_2));
             }
         }
         Collections.shuffle(blocksShuffled, new Random(7));
@@ -237,7 +237,7 @@ class CsvIngestTest {
     @DisplayName("piles that follow the department code in the roll number are flagged")
     void pilesFollowingDepartmentsAreFlagged() throws IOException {
         List<String> lines = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
+        for (int i = 1; i <= 12; i++) {
             lines.add(String.format("CE23B%03d,Q1,%s,5,10", i, TA_1));
             lines.add(String.format("ME23B%03d,Q1,%s,5,10", i, TA_2));
         }
@@ -761,5 +761,19 @@ class CsvIngestTest {
         assertThat(result.diagnostics()).anySatisfy(d -> assertThat(d.message()).contains("line 4: a blank mark read as not answered"));
         assertThat(result.diagnostics()).filteredOn(d -> d.severity() == in.ac.iitm.evenhand.core.Diagnostic.Severity.ERROR)
                 .singleElement().satisfies(d -> assertThat(d.message()).contains("line 5").contains("'x'"));
+    }
+
+    @Test
+    @DisplayName("piles of a few scripts are called too small to judge or estimate from, not contiguous")
+    void smallPilesSaySo() throws IOException {
+        String evidence = evidence(ingest("""
+                roll_no,ta,Q1 (10),Q2 (10)
+                CE26B001,Ravi,7,8
+                CE26B002,Meena,5,6
+                CE26B003,Ravi,9,9
+                """));
+
+        assertThat(evidence).contains("2 of 2 TAs marked fewer than 10 scripts", "not enough marking per TA")
+                .doesNotContain("contiguous");
     }
 }

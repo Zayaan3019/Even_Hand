@@ -171,6 +171,8 @@ public final class Main {
         }
         switch (o.shortlist()) {
             case Outcome.Refused ref -> System.out.println("RE-CHECK  none: " + ref.reason());
+            case Outcome.Emitted e when e.rows().isEmpty() ->
+                    System.out.println("RE-CHECK  none: no student's grade is likely to depend on who marked them.");
             case Outcome.Emitted e -> {
                 System.out.println("RE-CHECK  " + e.rows().size() + " script(s), most consequential first:");
                 for (Outcome.Row row : e.rows()) {
