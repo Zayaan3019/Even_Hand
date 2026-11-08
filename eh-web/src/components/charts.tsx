@@ -201,7 +201,7 @@ export function QuestionHeatmap({ tas }: { tas: { label: string; cells: Record<s
   const colour = (v: number) => {
     const a = Math.min(1, Math.abs(v) / max);
     const base = v >= 0 ? 'var(--harsh)' : 'var(--lenient)';
-    return `color-mix(in srgb, ${base} ${Math.round(12 + 70 * a)}%, transparent)`;
+    return `color-mix(in srgb, ${base} calc(12% + var(--heat-span) * ${a.toFixed(3)}), transparent)`;
   };
   return (
     <div>

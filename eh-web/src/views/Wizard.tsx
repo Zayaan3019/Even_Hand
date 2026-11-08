@@ -57,7 +57,7 @@ function FormatHelp() {
       <div className="formats">
         <div>
           <h4>One row per student (most mark sheets)</h4>
-          <div className="sample"><table><tbody>
+          <div className="sample" tabIndex={0} role="region" aria-label="Example: one row per student"><table><tbody>
             <tr><th>roll_no</th><th>ta</th><th>Q1 (10)</th><th>Q1 answer</th><th>Q2 (15)</th></tr>
             <tr><td>KEY</td><td></td><td></td><td>Your model answer</td><td></td></tr>
             <tr><td>CE26B001</td><td>Ravi</td><td>7</td><td>The moment is…</td><td>12</td></tr>
@@ -68,7 +68,7 @@ function FormatHelp() {
         </div>
         <div>
           <h4>One row per answer (when TAs split by question)</h4>
-          <div className="sample"><table><tbody>
+          <div className="sample" tabIndex={0} role="region" aria-label="Example: one row per answer"><table><tbody>
             <tr><th>roll_no</th><th>assessment</th><th>question</th><th>max_marks</th><th>marks</th><th>ta</th><th>answer</th></tr>
             <tr><td>CE26B001</td><td>Quiz 1</td><td>Q1</td><td>10</td><td>7</td><td>Ravi</td><td>The moment…</td></tr>
           </tbody></table></div>

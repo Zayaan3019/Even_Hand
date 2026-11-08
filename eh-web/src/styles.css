@@ -5,19 +5,20 @@
   --surface-2: #f9f8f4;
   --fg: #15171c;
   --fg-2: #4b515c;
-  --muted: #7a808b;
+  --muted: #5f6672;
   --line: #e2e0d8;
   --accent: #7a1f2b;
   --accent-2: #a4343f;
   --on-accent: #ffffff;
   --accent-soft: #f6e7e6;
-  --good: #1a7f37;
+  --good: #17692e;
   --good-soft: #e5f3e9;
   --warn: #9a5b00;
   --warn-soft: #fbf0dc;
   --bad: #b42318;
   --harsh: #b4442f;
   --lenient: #2f6fb4;
+  --heat-span: 70%;
   --content: #3f7d5a;
   --ta: #b4442f;
   --residual: #b9bec9;
@@ -42,6 +43,7 @@
   --accent-soft: #2b1f1e;
   --good: #55c27a;
   --good-soft: #17271c;
+  --heat-span: 36%;
   --warn: #e3ab4f;
   --warn-soft: #2c2416;
   --bad: #f47067;
@@ -194,7 +196,7 @@ table.data tr:hover td { background: var(--surface-2); }
 /* Never shrinks beside other content, but wraps rather than overflow a screen too narrow for it. */
 .badge { display: inline-block; flex-shrink: 0; max-width: 100%; font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
   text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.5; }
-.badge.red { background: color-mix(in srgb, var(--harsh) 15%, transparent); color: var(--harsh); }
+.badge.red { background: color-mix(in srgb, var(--harsh) 12%, transparent); color: color-mix(in srgb, var(--harsh) 85%, var(--fg)); }
 .badge.amber { background: var(--warn-soft); color: var(--warn); }
 .badge.green { background: var(--good-soft); color: var(--good); }
 .badge.blue { background: color-mix(in srgb, var(--lenient) 15%, transparent); color: var(--lenient); }
