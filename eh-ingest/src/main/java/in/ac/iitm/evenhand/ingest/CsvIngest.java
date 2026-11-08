@@ -8,6 +8,7 @@ import in.ac.iitm.evenhand.core.Response;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -222,6 +223,41 @@ public final class CsvIngest {
         }
     }
 
+    /** How many lines below the first one the column headings are looked for. */
+    private static final int TITLE_LINES = 10;
+
+    /**
+     * True if these fields are a marks table's column headings: a one-row-per-student sheet, or every column a
+     * one-row-per-answer file needs. Headings that are recognised but faulty (a question with no maximum) count too,
+     * so that their own message is the one the instructor sees.
+     */
+    static boolean isHeading(String[] fields) {
+        try {
+            if (WideSheet.detect(fields, ALIASES).isPresent()) return true;
+            locateColumns(fields, new ArrayList<>());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return e.getMessage() == null || !e.getMessage().startsWith("no column found");
+        }
+    }
+
+    /** True if the first lines of this CSV text hold a marks table's column headings. */
+    public static boolean looksLikeMarks(String csv) {
+        try {
+            CsvRecords records = new CsvRecords(new BufferedReader(new StringReader(csv)));
+            CsvRecords.Record r;
+            int seen = 0;
+            while (seen <= TITLE_LINES && (r = records.next()) != null) {
+                if (r.isBlank()) continue;
+                seen++;
+                if (isHeading(r.fields())) return true;
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            return false;
+        }
+        return false;
+    }
+
     /** A mark or maximum as written; the exception's message is the text itself, quoted, for the instructor. */
     private static BigDecimal number(String raw) {
         try {
@@ -248,6 +284,27 @@ public final class CsvIngest {
         if (headerRecord == null) {
             throw new IllegalArgumentException("the file is empty; expected a header row");
         }
+        // A sheet often opens with a title ("CE3020 Quiz 1 marks") above the column headings: look a few lines down
+        // for them. Lines read ahead and not needed are put back, so nothing is lost.
+        java.util.ArrayDeque<CsvRecords.Record> pending = new java.util.ArrayDeque<>();
+        if (!isHeading(headerRecord.fields())) {
+            List<CsvRecords.Record> ahead = new ArrayList<>();
+            CsvRecords.Record r;
+            while (ahead.size() < TITLE_LINES && (r = records.next()) != null) if (!r.isBlank()) ahead.add(r);
+            int found = -1;
+            for (int i = 0; i < ahead.size() && found < 0; i++) if (isHeading(ahead.get(i).fields())) found = i;
+            if (found < 0) {
+                pending.addAll(ahead);
+            } else {
+                int titleEnd = ahead.get(found).line() - 1;
+                diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                        "The column headings are on line " + ahead.get(found).line() + "; line(s) " + headerRecord.line()
+                        + (titleEnd > headerRecord.line() ? "-" + titleEnd : "") + " above them were read as a title "
+                        + "and not used.", List.of()));
+                headerRecord = ahead.get(found);
+                pending.addAll(ahead.subList(found + 1, ahead.size()));
+            }
+        }
         String[] header = headerRecord.fields();
         if (header.length == 1 && header[0].indexOf(';') >= 0) {
             throw new IllegalArgumentException("this file separates its columns with semicolons (;), as Excel does in "
@@ -269,7 +326,7 @@ public final class CsvIngest {
         Map<String, String> keyAnswers = new LinkedHashMap<>();
         Map<String, Integer> firstLineOfUnit = new HashMap<>();
         CsvRecords.Record record;
-        while ((record = records.next()) != null) {
+        while ((record = pending.isEmpty() ? records.next() : pending.poll()) != null) {
             int lineNumber = record.line();
             if (record.isBlank()) {
                 continue;

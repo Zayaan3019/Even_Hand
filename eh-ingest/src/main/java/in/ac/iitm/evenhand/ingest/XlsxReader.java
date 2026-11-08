@@ -24,11 +24,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Reads the first worksheet of an Excel {@code .xlsx} workbook into CSV text, so the instructor can
+ * Reads the marks worksheet of an Excel {@code .xlsx} workbook into CSV text, so the instructor can
  * drop the file they already have instead of exporting it.
  *
  * <p>An {@code .xlsx} file is a zip of XML parts; this reads only the shared-string table, the
- * workbook's sheet list and the first sheet, with the JDK's own zip and XML parsers. Two guards
+ * workbook's sheet list and its sheets, with the JDK's own zip and XML parsers. Two guards
  * make that safe on an untrusted file: the zip is read with a cap on its uncompressed size (a
  * "zip bomb" cannot exhaust memory), and the XML parser refuses DTDs and external entities (an
  * XXE attack cannot read files from this computer).
@@ -49,12 +49,26 @@ public final class XlsxReader {
         return bytes.length > 4 && bytes[0] == 'P' && bytes[1] == 'K' && bytes[2] == 3 && bytes[3] == 4;
     }
 
-    /** The first worksheet as RFC 4180 CSV text. */
+    /**
+     * The marks worksheet as RFC 4180 CSV text: the first sheet, in the workbook's order, whose first lines hold
+     * a marks table's column headings ({@link CsvIngest#looksLikeMarks}), so a cover, instructions or summary sheet
+     * in front of the marks is passed over. If no sheet looks like one, the first sheet, as before.
+     */
     public static String toCsv(byte[] xlsx) throws IOException {
         Map<String, byte[]> parts = unzip(xlsx);
         List<String> shared = sharedStrings(parts.get("xl/sharedStrings.xml"));
-        byte[] sheet = firstSheet(parts);
-        if (sheet == null) throw new IllegalArgumentException("This Excel file has no worksheet.");
+        List<byte[]> sheets = sheetsInOrder(parts);
+        if (sheets.isEmpty()) throw new IllegalArgumentException("This Excel file has no worksheet.");
+        String first = sheetToCsv(sheets.get(0), shared);
+        if (CsvIngest.looksLikeMarks(first)) return first;
+        for (int i = 1; i < sheets.size(); i++) {
+            String csv = sheetToCsv(sheets.get(i), shared);
+            if (CsvIngest.looksLikeMarks(csv)) return csv;
+        }
+        return first;
+    }
+
+    private static String sheetToCsv(byte[] sheet, List<String> shared) throws IOException {
         Document doc = parse(sheet);
         NodeList rows = doc.getElementsByTagNameNS("*", "row");
         TreeMap<Integer, TreeMap<Integer, String>> grid = new TreeMap<>();
@@ -129,28 +143,30 @@ public final class XlsxReader {
         return out;
     }
 
-    /** The worksheet the workbook lists first, by following its relationship id. */
-    private static byte[] firstSheet(Map<String, byte[]> parts) throws IOException {
+    /** The worksheets in the order the workbook lists them, each found by following its relationship id. */
+    private static List<byte[]> sheetsInOrder(Map<String, byte[]> parts) throws IOException {
+        List<byte[]> out = new java.util.ArrayList<>();
         byte[] workbook = parts.get("xl/workbook.xml");
         byte[] rels = parts.get("xl/_rels/workbook.xml.rels");
         if (workbook != null && rels != null) {
             NodeList sheets = parse(workbook).getElementsByTagNameNS("*", "sheet");
-            if (sheets.getLength() > 0) {
-                Element first = (Element) sheets.item(0);
-                String id = first.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
-                NodeList rel = parse(rels).getElementsByTagNameNS("*", "Relationship");
+            NodeList rel = parse(rels).getElementsByTagNameNS("*", "Relationship");
+            for (int s = 0; s < sheets.getLength(); s++) {
+                String id = ((Element) sheets.item(s)).getAttributeNS(
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
                 for (int i = 0; i < rel.getLength(); i++) {
                     Element e = (Element) rel.item(i);
                     if (e.getAttribute("Id").equals(id)) {
                         String target = e.getAttribute("Target");
                         String path = target.startsWith("/") ? target.substring(1) : "xl/" + target;
                         byte[] sheet = parts.get(path.replace("xl/./", "xl/"));
-                        if (sheet != null) return sheet;
+                        if (sheet != null) out.add(sheet);
                     }
                 }
             }
         }
-        return parts.get("xl/worksheets/sheet1.xml");
+        if (out.isEmpty() && parts.get("xl/worksheets/sheet1.xml") != null) out.add(parts.get("xl/worksheets/sheet1.xml"));
+        return out;
     }
 
     private static Map<String, byte[]> unzip(byte[] bytes) throws IOException {
