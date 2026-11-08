@@ -180,3 +180,7 @@ accuracy and stability) and the essay null-unfair, planted-unfair, random and sm
 passed on every dataset (JorGPT lowest 97% English, 96% Spanish). Criterion 3 failed on the ASAP essays (found 5%,
 was 100%) and fell on UNT (0%, was 57%); JorGPT found 97% and 99%. Condition 3 of the rule is not met, so delta = 1
 stays in the product, and the figures reported remain those of run 42124687822.
+
+**Note (8 November 2026).** The reported figures were then taken from run 42456429002, the same validation on
+the final commit `d75eda3`, which has the same calculations. Every verdict is unchanged; three figures read from the
+answers moved by at most 0.3 points, for the reason given under *Reproduce* in [VALIDATION.md](VALIDATION.md).
