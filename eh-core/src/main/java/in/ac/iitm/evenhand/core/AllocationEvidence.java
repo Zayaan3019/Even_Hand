@@ -140,11 +140,18 @@ public record AllocationEvidence(List<Pile> piles,
                 && largestDepartmentShare <= 0.8;
     }
 
+    /** Fewer scripts of record than this, and a TA's pile is too small to judge, or to estimate from. */
+    static final int SMALL_PILE = 10;
+
     /** The sentence the audit puts in front of the instructor. */
     public String describe() {
-        List<Pile> assessed = piles.stream().filter(p -> isAssessed(p, classSize)).toList();
+        long small = piles.stream().filter(p -> p.size() > 0 && p.size() < SMALL_PILE).count();
+        String caution = small == 0 ? "" : small + " of " + piles.size() + " TAs marked fewer than " + SMALL_PILE
+                + " scripts, too few for their severity, its interval or the no-effect test to be relied on. ";
+        // A pile of two or three scripts is "contiguous" by accident, so only piles big enough to have a shape count.
+        List<Pile> assessed = piles.stream().filter(p -> isAssessed(p, classSize) && p.size() >= SMALL_PILE).toList();
         if (assessed.isEmpty()) {
-            return "There is not enough marking per TA to say how the piles were formed.";
+            return caution + "There is not enough marking per TA to say how the piles were formed.";
         }
         long contiguous = assessed.stream().filter(AllocationEvidence::isContiguous).count();
         String out;
@@ -162,6 +169,6 @@ public record AllocationEvidence(List<Pile> piles,
             out += " The piles also follow the department code in the roll number, so a TA's "
                     + "severity cannot be told apart from the department of the students they marked.";
         }
-        return out;
+        return caution + out;
     }
 }
