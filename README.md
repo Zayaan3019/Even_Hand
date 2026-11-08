@@ -59,9 +59,13 @@ once, with internet.
 
 - **Answer key.** A row whose roll number is `KEY` holds your model answers. Even Hand uses it as a
   reference for what a good answer says, never as a student.
-- **Excel** workbooks (`.xlsx`, first sheet) are read directly, as are CSV files (`CSV UTF-8` from Excel).
+- **Excel** workbooks (`.xlsx`) are read directly, as are CSV files (`CSV UTF-8` from Excel). A title above the
+  column headings, or an instructions sheet before the marks sheet, is fine: Even Hand finds the table and says
+  which lines it read as a title.
 - Column names are matched loosely (`Roll No`, `roll-no`, `TA`, `marker`, `evaluator`, `Graded by` …).
 - A blank cell or `AB` means not answered.
+- A mark Even Hand cannot read (`7,5`, `absent`) is quoted back with its line and how to fix it, and is never
+  left out silently.
 - Roll numbers, e-mails and TA names written *inside* answers are removed before anything reads them.
 
 ## How it decides that the marking, not the answers, caused a difference

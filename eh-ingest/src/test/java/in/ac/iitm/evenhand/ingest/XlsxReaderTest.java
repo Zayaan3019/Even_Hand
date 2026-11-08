@@ -58,7 +58,7 @@ class XlsxReaderTest {
             + "</sheetData></worksheet>";
 
     @Test
-    @DisplayName("a workbook's first sheet reads as CSV: shared and inline strings, rich text, numbers, gaps")
+    @DisplayName("a workbook sheet reads as CSV: shared and inline strings, rich text, numbers, gaps")
     void readsFirstSheet() throws IOException {
         String csv = XlsxReader.toCsv(zip(workbook(SHEET)));
         assertThat(csv).isEqualTo("roll_no,ta,Q1 (10),Q1 answer\n"

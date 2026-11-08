@@ -39,7 +39,7 @@ export function UploadStep({ onFile, problem, busy, done }: {
                aria-label="Choose your marks file" disabled={busy}
                onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ''; }} />
         <strong>{busy ? 'Reading the file…' : 'Drop your marks file here, or click to choose it'}</strong>
-        <span>An Excel workbook (.xlsx, first sheet) or a .csv file, as your exam platform exports it.</span>
+        <span>An Excel workbook (.xlsx) or a .csv file, as your exam platform exports it. Title lines above the headings, and other sheets, are fine.</span>
       </label>
       <div className="row" style={{ marginTop: 12 }}>
         <span className="muted small"><a href="/template.csv" download>Download a blank template</a> (headers only)</span>

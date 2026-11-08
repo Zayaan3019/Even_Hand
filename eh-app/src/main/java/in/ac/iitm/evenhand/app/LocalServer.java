@@ -293,7 +293,7 @@ public final class LocalServer {
                 + "frame-src 'self' blob: about:; object-src 'none'; base-uri 'none'; form-action 'none'");
     }
 
-    /** The uploaded file as CSV text: a CSV as sent, an Excel workbook's first sheet converted. */
+    /** The uploaded file as CSV text: a CSV as sent, an Excel workbook's marks sheet converted. */
     private static String readBody(InputStream in) throws IOException {
         byte[] bytes = in.readNBytes(MAX_UPLOAD_BYTES + 1);
         if (bytes.length > MAX_UPLOAD_BYTES) throw new IllegalArgumentException("The file is larger than 50 MB.");
