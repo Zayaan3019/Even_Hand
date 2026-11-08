@@ -106,10 +106,10 @@ out against the true difference. ASAP was held out: nothing was tuned on it.
 
 | Dataset | False alarms (limit 10%) | 95% intervals contain the truth (limit 90%) | Planted gap on unfair piles found (limit 90%) | Grades right, before and after correction |
 |---|---|---|---|---|
-| UNT short answers | 0–1% | 99–100% | **57%** | 70.6% → 78.6% |
+| UNT short answers | 0–1% | 99–100% | **57%** | 70.6% → 78.7% |
 | JorGPT, English | 1–2% | **85–100%** | 100% | 79.8% → 96.4% |
 | JorGPT, Spanish | 1–4% | **81–100%** | 100% | 79.9% → 96.0% |
-| CityU Operating Systems (40 students) | 7–8% | 96–100% | 16% (not judged) | unchanged |
+| CityU Operating Systems (40 students) | 7–8% | 96–100% | 16% (not judged) | 88.8% → 89.1% |
 | ASAP short answers (held out) | 3–5% | 100% | **0%** | unchanged |
 | ASAP essays (held out) | 0% | 100% | 100% | 90.8% → 96.5% |
 
