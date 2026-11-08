@@ -34,7 +34,7 @@ java --add-modules jdk.incubator.vector -jar eh-app/target/even-hand.jar run mar
 | A new column in the TA table (e.g. scripts marked) | `HtmlReport.severityTable` | one more `<th>` and one more `%s` in the row format | `HtmlReportTest` |
 | Flag TAs harsher than ±5 points | `HtmlReport.severityTable` or `Main.printSummary` | `Math.abs(m.severity(j)) > 5 ? " ⚑" : ""` | `HtmlReportTest` |
 | Accept a CSV whose TA column is called "evaluator_name" | `eh-ingest/.../CsvIngest.java`, `ALIASES` | add `"evaluator_name"` to the `grader` list | add a header case to `CsvIngestTest` |
-| Export the re-check list as CSV (pseudonyms only) | `eh-app/.../Main.java`, `run` | after writing the HTML, loop over `Outcome.Emitted.rows()` and `Files.writeString(out.resolve("recheck.csv"), ...)`; never write `key.real(...)` | `CliTest.simulateThenRun` |
+| Write the re-check list as CSV from the command line too (the web app already saves one) | `eh-app/.../Main.java`, `run` | after writing the HTML, loop over `Outcome.Emitted.rows()` and `Files.writeString(out.resolve("recheck.csv"), ...)`; pseudonyms only, never `key.real(...)` | assert the file in `CliTest.run` |
 | More bootstrap draws / a different seed | `eh-estimate/.../Settings.java`, `defaults()` | change `200` / the seed | `SeverityEstimatorTest.reproducible` |
 | Stop shrinking TAs | `Settings.defaults()` second argument → `0` | | `SeverityEstimatorTest.shrinkageOnlyPullsTowardsZero` |
 | A new course shape in the benchmark (test code only) | `eh-design/src/test/.../sim/CourseSimulator.java`, enum `Archetype` | add a constant with its size, TAs, departments and `AssessmentPlan`s | run `eh-validation`'s `Benchmark` |
