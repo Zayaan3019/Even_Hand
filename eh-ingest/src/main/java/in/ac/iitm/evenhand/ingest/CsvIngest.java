@@ -222,6 +222,22 @@ public final class CsvIngest {
         }
     }
 
+    /** A mark or maximum as written; the exception's message is the text itself, quoted, for the instructor. */
+    private static BigDecimal number(String raw) {
+        try {
+            return new BigDecimal(raw);
+        } catch (NumberFormatException e) {
+            throw new BadMark("'" + raw + "'");
+        }
+    }
+
+    /** A mark or maximum that is not a number; its message is the text as written. */
+    private static final class BadMark extends NumberFormatException {
+        BadMark(String quoted) {
+            super(quoted);
+        }
+    }
+
     public static IngestResult read(BufferedReader reader, Pseudonymiser pseudonymiser) throws IOException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -233,6 +249,11 @@ public final class CsvIngest {
             throw new IllegalArgumentException("the file is empty; expected a header row");
         }
         String[] header = headerRecord.fields();
+        if (header.length == 1 && header[0].indexOf(';') >= 0) {
+            throw new IllegalArgumentException("this file separates its columns with semicolons (;), as Excel does in "
+                    + "some regional settings. Upload the Excel workbook itself, or save it as \"CSV UTF-8 (Comma "
+                    + "delimited)\".");
+        }
         Optional<WideSheet> wide = WideSheet.detect(header, ALIASES);
         Map<String, Integer> columns = wide.isPresent() ? WideSheet.COLUMNS : locateColumns(header, diagnostics);
         if (wide.isPresent()) {
@@ -635,10 +656,10 @@ public final class CsvIngest {
                 return Optional.empty();
             }
 
-            BigDecimal score = new BigDecimal(rawScore);
+            BigDecimal score = number(rawScore);
             BigDecimal declaredMax = null;
             if (columns.containsKey("maxscore")) {
-                declaredMax = new BigDecimal(field(fields, columns.get("maxscore")).strip());
+                declaredMax = number(field(fields, columns.get("maxscore")).strip());
                 if (declaredMax.signum() <= 0) {
                     diagnostics.add(Diagnostic.error(
                             Diagnostic.Code.EH011_MAXIMUM_INCONSISTENT,
@@ -688,12 +709,20 @@ public final class CsvIngest {
             return Optional.of(new RawRow(rawStudent, rawQuestion, rawGrader, assessment,
                     score, declaredMax, position, role, lineNumber, answer));
 
+        } catch (BadMark e) {
+            diagnostics.add(Diagnostic.error(
+                    Diagnostic.Code.EH007_SCORE_OUT_OF_RANGE,
+                    "line " + lineNumber + ": could not read " + e.getMessage() + " as a mark; row skipped.",
+                    List.of(), e.getMessage().contains(",")
+                            ? "Write decimals with a point: 7.5, not 7,5."
+                            : "Marks must be numbers. Leave a mark blank, or write AB, if the question was not answered."));
+            return Optional.empty();
         } catch (NumberFormatException e) {
             diagnostics.add(Diagnostic.error(
                     Diagnostic.Code.EH007_SCORE_OUT_OF_RANGE,
-                    "line " + lineNumber + ": could not read a number"
+                    "line " + lineNumber + ": could not read the marking position"
                     + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")") + "; row skipped.",
-                    List.of(), "Non-numeric marks such as 'absent' need their own column."));
+                    List.of(), "The order column must hold whole numbers: 1 for the first script marked, and so on."));
             return Optional.empty();
         } catch (ArrayIndexOutOfBoundsException e) {
             diagnostics.add(Diagnostic.error(

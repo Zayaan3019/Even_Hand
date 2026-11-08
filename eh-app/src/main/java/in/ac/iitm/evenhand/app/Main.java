@@ -144,6 +144,7 @@ public final class Main {
      * running the tool. They are never written to disk except inside the sealed key file.
      */
     private static void printSummary(Pipeline.Run r, PseudonymKey key) {
+        printSkipped(r.ingest().diagnostics());
         System.out.println("AUDIT     " + r.markingVerdict().headline());
         System.out.println("          " + r.verdict().exposure().headline());
         r.content().ifPresent(c -> printContent(c, key));
@@ -180,6 +181,21 @@ public final class Main {
                 }
             }
         }
+    }
+
+    /** Rows the file reader could not use, so a mark left out of the analysis is never left out silently. */
+    static void printSkipped(java.util.List<in.ac.iitm.evenhand.core.Diagnostic> diagnostics) {
+        // In a one-row-per-student sheet one bad line can stand for several marks, each reported alike: show it once.
+        java.util.List<String> rows = diagnostics.stream()
+                .filter(d -> d.severity() != in.ac.iitm.evenhand.core.Diagnostic.Severity.NOTE)
+                .filter(d -> d.message().startsWith("line "))
+                .map(d -> d.message() + d.fixIt().map(f -> " " + f).orElse(""))
+                .distinct()
+                .toList();
+        if (rows.isEmpty()) return;
+        System.out.println("FILE      " + rows.size() + " line(s) of the file could not be used in full:");
+        for (int i = 0; i < Math.min(10, rows.size()); i++) System.out.println("          " + rows.get(i));
+        if (rows.size() > 10) System.out.println("          ... and " + (rows.size() - 10) + " more, listed in report.html");
     }
 
     private static void printContent(ContentResult c, PseudonymKey key) {
