@@ -718,4 +718,30 @@ class CsvIngestTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("no column found");
     }
+
+    @Test
+    @DisplayName("names and roll numbers differing only in capitals or spacing are one person, said without naming them")
+    void capitalsAndSpacingDoNotSplitAPerson() throws IOException {
+        String rows = """
+                ce23b092,ravi ,7,8
+                ME21B145,RAVI,6,9
+                EE22B001,Ravi,5,5
+                CH24B010,Meena,6,7
+                CE23B092 ,Meena,4,4
+                """;
+        CsvIngest.IngestResult a = ingest("roll_no,ta,Q1 (10),Q2 (10)\n" + rows);
+        String reversed = String.join("\n", rows.lines().toList().reversed()) + "\n";
+        CsvIngest.IngestResult b = ingest("roll_no,ta,Q1 (10),Q2 (10)\n" + reversed);
+
+        assertThat(a.design().graderCount()).isEqualTo(2);
+        assertThat(a.design().studentCount()).isEqualTo(4);
+        assertThat(a.diagnostics()).anySatisfy(d -> assertThat(d.message())
+                .contains("1 TA name(s) and 1 roll number(s) were written in more than one way")
+                .doesNotContainIgnoringCase("ravi").doesNotContainIgnoringCase("ce23b092"));
+        // CE23B092 is now marked by both TAs: the link that makes them comparable.
+        assertThat(a.diagnostics()).anySatisfy(d -> assertThat(d.message()).contains("already marked"));
+        // The spelling kept does not depend on row order, so neither does anything after it.
+        assertThat(b.design().studentLabels()).isEqualTo(a.design().studentLabels());
+        assertThat(b.keyFileContents()).isEqualTo(a.keyFileContents());
+    }
 }
