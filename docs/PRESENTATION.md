@@ -1,4 +1,9 @@
-# The 2-minute overview
+# The 2-minute overview (mid-demo, 9 October 2026)
+
+> **A record of the mid-demo talk, kept as it was.** The product has changed since: the Simulation Lab was
+> removed, Even Hand now reads the written answers, and it was validated on real double-graded datasets. For the
+> product as it is, see the [README](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md) and
+> [VALIDATION.md](VALIDATION.md).
 
 Point at `docs/Even_Hand_Architecture.pdf` while speaking. About 270 words, roughly 2 minutes.
 Have the Simulation Lab open in a browser tab (`even-hand.cmd`, then `/lab`) as the backup demo.

@@ -6,7 +6,7 @@ change made after a result was read is dated there, with what had been seen firs
 
 All figures on this page come from one run: GitHub Actions run
 [42124687822](https://github.com/Zayaan3019/Even_Hand/actions/runs/42124687822) on commit `a6ef30b`. Later commits change
-only documents and the wording of one sentence in the report, not any calculation. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
+documents, packaging and presentation (wording, exports, accessibility), not any calculation. The validation code lives in `eh-validation`, which is never packaged into the product. It downloads each public
 dataset itself, checks its SHA-256, and keeps nothing in the repository.
 
 ## In short
@@ -277,9 +277,10 @@ Every one of these was found by this validation, and each is dated in [PREREGIST
 
 ## The software
 
-- **235 Java tests** across 10 modules, and **20 web app tests**, all passing on every build. They cover ingest of
+- **236 Java tests** across 10 modules, and **31 web app tests**, all passing on every build. They cover ingest of
   every file layout, including Excel with zip-bomb and XXE attempts, the audit's exact rank, the estimators against
-  known answers, the pile test and its paired draws, grading rules, the reports, and the server's security rules.
+  known answers, the pile test and its paired draws, grading rules, the reports, the server's security rules, and
+  every screen against the axe accessibility rules.
 
 ## Reproduce
 
