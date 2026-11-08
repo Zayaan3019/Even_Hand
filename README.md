@@ -113,7 +113,7 @@ out against the true difference. ASAP was held out: nothing was tuned on it.
 | ASAP short answers (held out) | 3–5% | 100% | **0%** | unchanged |
 | ASAP essays (held out) | 0% | 100% | 100% | 90.8% → 96.5% |
 
-Failures are in bold. Even Hand does not raise false alarms. On JorGPT and the ASAP essays it found a planted gap
+Failures are in bold. False alarms stayed under the 10% limit everywhere (at most 8%, on CityU's 40 students). On JorGPT and the ASAP essays it found a planted gap
 on unfair piles every time, and correction got more letter grades right. On UNT and ASAP short answers it often found
 nothing, and then left the marks as they were rather than guess. "Unfair piles"
 deal the stronger scripts mostly to one TA, as when piles follow sections.
@@ -185,7 +185,8 @@ relative-sigma | absolute:S=90,A=80,…`, `--name`, `--out`, `--seal-key-with-en
 
 ```
 ./mvnw verify          # every module: Java tests, the web app's type-check, Vitest tests and build
-sh scripts/validate.sh # the real-data validation (downloads the UNT dataset once; ~15 minutes)
+sh scripts/validate.sh # the real-data validation on this computer (fetches each public dataset once; a few hours)
+gh workflow run validate.yml   # the same on GitHub Actions, every dataset in parallel
 ```
 
 The tests include:
