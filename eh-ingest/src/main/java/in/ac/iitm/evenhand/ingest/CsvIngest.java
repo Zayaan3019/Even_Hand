@@ -763,6 +763,13 @@ public final class CsvIngest {
                 return Optional.empty();
             }
 
+            // AB, a blank and the like mean not answered, in this layout as in a one-row-per-student sheet.
+            if (WideSheet.NOT_ANSWERED.contains(rawScore.toLowerCase(Locale.ROOT))) {
+                diagnostics.add(Diagnostic.note(Diagnostic.Code.EH006_EXTREME_OR_SPARSE_ELEMENT,
+                        "line " + lineNumber + ": " + (rawScore.isEmpty() ? "a blank mark" : "'" + rawScore + "'")
+                        + " read as not answered; no mark taken.", List.of()));
+                return Optional.empty();
+            }
             BigDecimal score = number(rawScore);
             BigDecimal declaredMax = null;
             if (columns.containsKey("maxscore")) {

@@ -438,7 +438,7 @@ class CsvIngestTest {
         // error per attempt. All the problems are reported at once, each naming its line.
         assertThat(result.responses()).hasSize(2);
         assertThat(result.diagnostics()).anySatisfy(d ->
-                assertThat(d.message()).contains("line 3").contains("could not read").contains("as a mark"));
+                assertThat(d.message()).contains("line 3").contains("'absent' read as not answered"));
         assertThat(result.diagnostics()).anySatisfy(d ->
                 assertThat(d.message()).contains("line 4").contains("outside 0..10"));
         assertThat(result.diagnostics()).anySatisfy(d ->
@@ -743,5 +743,23 @@ class CsvIngestTest {
         // The spelling kept does not depend on row order, so neither does anything after it.
         assertThat(b.design().studentLabels()).isEqualTo(a.design().studentLabels());
         assertThat(b.keyFileContents()).isEqualTo(a.keyFileContents());
+    }
+
+    @Test
+    @DisplayName("AB or a blank mark in a one-row-per-answer file is not answered, as in a one-row-per-student sheet")
+    void notAnsweredInEitherLayout() throws IOException {
+        CsvIngest.IngestResult result = ingest("""
+                roll_no,question,ta,marks,max_marks
+                CE23B092,Q1,Ravi,7,10
+                CE23B092,Q2,Ravi,AB,10
+                ME21B145,Q1,Meena,,10
+                ME21B145,Q2,Meena,x,10
+                """);
+
+        assertThat(result.responses()).hasSize(1);
+        assertThat(result.diagnostics()).anySatisfy(d -> assertThat(d.message()).contains("line 3: 'AB' read as not answered"));
+        assertThat(result.diagnostics()).anySatisfy(d -> assertThat(d.message()).contains("line 4: a blank mark read as not answered"));
+        assertThat(result.diagnostics()).filteredOn(d -> d.severity() == in.ac.iitm.evenhand.core.Diagnostic.Severity.ERROR)
+                .singleElement().satisfies(d -> assertThat(d.message()).contains("line 5").contains("'x'"));
     }
 }
